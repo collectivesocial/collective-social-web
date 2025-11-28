@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
-import { LoginButton } from './components/LoginButton'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Header } from './components/Header'
+import { HomePage } from './pages/HomePage'
+import { ProfilePage } from './pages/ProfilePage'
 import './App.css'
 
 interface UserProfile {
@@ -38,31 +40,35 @@ function App() {
   }, [])
 
   return (
-    <>
+    <BrowserRouter>
       <Header user={user} isAuthenticated={!!isAuthenticated} apiUrl={apiUrl} />
       <main style={{
         marginTop: isAuthenticated ? '80px' : '20px',
         minHeight: 'calc(100vh - 80px)',
         transition: 'margin-top 0.3s ease',
       }}>
-        <div className="card">
-          {isAuthenticated === null ? (
-            <div>Loading...</div>
-          ) : isAuthenticated ? (
-            <div>
-              <h2>Welcome back, {user?.displayName || user?.handle}!</h2>
-              <p>You're logged in.</p>
-            </div>
-          ) : (
-            <>
-              <h2>Welcome to Collective Social</h2>
-              <p>Please log in to continue</p>
-              <LoginButton apiUrl={apiUrl} />
-            </>
-          )}
-        </div>
+        {isAuthenticated === null ? (
+          <div className="card">Loading...</div>
+        ) : (
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <HomePage 
+                  isAuthenticated={!!isAuthenticated} 
+                  user={user} 
+                  apiUrl={apiUrl} 
+                />
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={<ProfilePage apiUrl={apiUrl} />} 
+            />
+          </Routes>
+        )}
       </main>
-    </>
+    </BrowserRouter>
   )
 }
 

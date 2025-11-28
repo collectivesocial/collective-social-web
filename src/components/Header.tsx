@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface UserProfile {
   did: string;
@@ -23,7 +24,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
         method: 'POST',
         credentials: 'include',
       });
-      window.location.reload();
+      window.location.href = '/';
     } catch (err) {
       console.error('Logout failed:', err);
     }
@@ -50,14 +51,47 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
         alignItems: 'center',
         height: '100%',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <h1 style={{
-            margin: 0,
-            fontSize: isAuthenticated ? '1.5rem' : '2.5rem',
-            transition: 'font-size 0.3s ease',
-          }}>
-            Collective Social
-          </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <h1 style={{
+              margin: 0,
+              fontSize: isAuthenticated ? '1.5rem' : '2.5rem',
+              transition: 'font-size 0.3s ease',
+            }}>
+              Collective Social
+            </h1>
+          </Link>
+          
+          {isAuthenticated && (
+            <nav style={{ display: 'flex', gap: '1.5rem' }}>
+              <Link
+                to="/"
+                style={{
+                  color: '#ddd',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  transition: 'color 0.2s',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
+                onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
+              >
+                Home
+              </Link>
+              <Link
+                to="/profile"
+                style={{
+                  color: '#ddd',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  transition: 'color 0.2s',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
+                onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
+              >
+                Profile
+              </Link>
+            </nav>
+          )}
         </div>
 
         {isAuthenticated && user && (
@@ -114,17 +148,26 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                 minWidth: '200px',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
               }}>
-                <div style={{
-                  padding: '1rem',
-                  borderBottom: '1px solid #333',
-                }}>
+                <Link
+                  to="/profile"
+                  onClick={() => setShowUserMenu(false)}
+                  style={{
+                    display: 'block',
+                    padding: '1rem',
+                    borderBottom: '1px solid #333',
+                    textDecoration: 'none',
+                    color: 'inherit',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
                     {user.displayName || user.handle}
                   </div>
                   <div style={{ color: '#888', fontSize: '0.875rem' }}>
                     @{user.handle}
                   </div>
-                </div>
+                </Link>
                 <button
                   onClick={handleLogout}
                   style={{
