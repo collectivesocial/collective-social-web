@@ -4,6 +4,7 @@ import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { HomePage } from './pages/HomePage'
 import { ProfilePage } from './pages/ProfilePage'
+import { PublicProfilePage } from './pages/PublicProfilePage'
 import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
@@ -70,6 +71,10 @@ function App() {
             <Route 
               path="/profile" 
               element={<ProfilePage apiUrl={apiUrl} />} 
+            />
+            <Route 
+              path="/profile/:handle" 
+              element={<PublicProfilePage apiUrl={apiUrl} />} 
             />
             <Route 
               path="/collections" 
