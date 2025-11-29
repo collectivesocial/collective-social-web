@@ -30,6 +30,7 @@ interface ListItem {
   status: string | null;
   rating: number | null;
   review: string | null;
+  notes: string | null;
   recommendations: Recommendation[];
   createdAt: string;
   mediaItem?: {
@@ -71,11 +72,13 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     status: 'want',
     rating: 0,
     review: '',
+    notes: '',
     recommendedBy: '',
   });
   const [editData, setEditData] = useState({
     rating: 0,
     review: '',
+    notes: '',
   });
   const navigate = useNavigate();
 
@@ -176,6 +179,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     setEditData({
       rating: item.rating || 0,
       review: item.review || '',
+      notes: item.notes || '',
     });
     setShowEditItemModal(true);
   };
@@ -232,6 +236,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           body: JSON.stringify({
             rating: editData.rating,
             review: editData.review,
+            notes: editData.notes,
           }),
         }
       );
@@ -245,6 +250,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
       setEditData({
         rating: 0,
         review: '',
+        notes: '',
       });
 
       // Refresh items list
@@ -289,6 +295,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             status: reviewData.status,
             rating: reviewData.rating,
             review: reviewData.review,
+            notes: reviewData.notes,
             recommendedBy: reviewData.recommendedBy || undefined,
           }),
         }
@@ -304,6 +311,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         status: 'want',
         rating: 0,
         review: '',
+        notes: '',
         recommendedBy: '',
       });
       
@@ -526,9 +534,25 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                 )}
 
                 {item.review && (
-                  <p style={{ margin: '0.5rem 0 0 0', color: '#ddd', fontSize: '0.9375rem', lineHeight: '1.5' }}>
-                    {item.review}
-                  </p>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <div style={{ color: '#888', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                      📝 Public Review:
+                    </div>
+                    <p style={{ margin: '0', color: '#ddd', fontSize: '0.9375rem', lineHeight: '1.5' }}>
+                      {item.review}
+                    </p>
+                  </div>
+                )}
+
+                {item.notes && (
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <div style={{ color: '#888', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                      🔒 Private Notes:
+                    </div>
+                    <p style={{ margin: '0', color: '#ddd', fontSize: '0.9375rem', lineHeight: '1.5', fontStyle: 'italic' }}>
+                      {item.notes}
+                    </p>
+                  </div>
                 )}
 
                 {item.mediaItem && item.mediaItem.totalReviews > 1 && (
@@ -737,12 +761,12 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
-                    Review/Notes
+                    📝 Public Review (optional)
                   </label>
                   <textarea
                     value={reviewData.review}
                     onChange={(e) => setReviewData({ ...reviewData, review: e.target.value })}
-                    rows={4}
+                    rows={3}
                     style={{
                       width: '100%',
                       padding: '0.75rem',
@@ -753,8 +777,36 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                       fontSize: '1rem',
                       resize: 'vertical',
                     }}
-                    placeholder="Your thoughts and notes..."
+                    placeholder="Share your review publicly..."
                   />
+                  <p style={{ color: '#666', fontSize: '0.75rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                    This will be visible to everyone and stored in the database
+                  </p>
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
+                    🔒 Private Notes (optional)
+                  </label>
+                  <textarea
+                    value={reviewData.notes}
+                    onChange={(e) => setReviewData({ ...reviewData, notes: e.target.value })}
+                    rows={3}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      backgroundColor: '#2a2a2a',
+                      border: '1px solid #333',
+                      borderRadius: '6px',
+                      color: 'white',
+                      fontSize: '1rem',
+                      resize: 'vertical',
+                    }}
+                    placeholder="Private notes only you can see..."
+                  />
+                  <p style={{ color: '#666', fontSize: '0.75rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                    Only visible to you, stored in your ATProto repository
+                  </p>
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
@@ -912,12 +964,12 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
 
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
-                  Review/Notes
+                  📝 Public Review (optional)
                 </label>
                 <textarea
                   value={editData.review}
                   onChange={(e) => setEditData({ ...editData, review: e.target.value })}
-                  rows={4}
+                  rows={3}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
@@ -928,8 +980,36 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                     fontSize: '1rem',
                     resize: 'vertical',
                   }}
-                  placeholder="Your thoughts and notes..."
+                  placeholder="Share your thoughts publicly..."
                 />
+                <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.25rem' }}>
+                  This will be visible to everyone and stored in the database
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
+                  🔒 Private Notes (optional)
+                </label>
+                <textarea
+                  value={editData.notes}
+                  onChange={(e) => setEditData({ ...editData, notes: e.target.value })}
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    backgroundColor: '#2a2a2a',
+                    border: '1px solid #333',
+                    borderRadius: '6px',
+                    color: 'white',
+                    fontSize: '1rem',
+                    resize: 'vertical',
+                  }}
+                  placeholder="Your private notes..."
+                />
+                <div style={{ fontSize: '0.85rem', color: '#888', marginTop: '0.25rem' }}>
+                  Only visible to you, stored in your ATProto repository
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
