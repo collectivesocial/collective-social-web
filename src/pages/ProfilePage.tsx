@@ -129,19 +129,28 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
             <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>
               {user.displayName || user.handle}
             </h1>
-            <div style={{ color: '#888', fontSize: '1.125rem', marginBottom: '1rem' }}>
+            <a
+              href={`https://bsky.app/profile/${user.did}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: '#888',
+                fontSize: '1.125rem',
+                textDecoration: 'none',
+                display: 'inline-block',
+                marginBottom: '1rem',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#646cff';
+                e.currentTarget.style.textDecoration = 'underline';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#888';
+                e.currentTarget.style.textDecoration = 'none';
+              }}
+            >
               @{user.handle}
-            </div>
-            <div style={{
-              display: 'inline-block',
-              padding: '0.5rem 1rem',
-              backgroundColor: '#2a2a2a',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-              color: '#888',
-            }}>
-              DID: {user.did}
-            </div>
+            </a>
           </div>
         </div>
 
