@@ -75,6 +75,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     review: '',
     notes: '',
     recommendedBy: '',
+    completedAt: '',
   });
   const [editData, setEditData] = useState({
     rating: 0,
@@ -111,6 +112,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         review: '',
         notes: '',
         recommendedBy: sharedRecommender || '',
+        completedAt: '',
       });
       setShowAddItemModal(true);
 
@@ -374,6 +376,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             review: reviewData.review,
             notes: reviewData.notes,
             recommendedBy: reviewData.recommendedBy || undefined,
+            completedAt: reviewData.completedAt ? new Date(reviewData.completedAt).toISOString() : undefined,
           }),
         }
       );
@@ -390,6 +393,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         review: '',
         notes: '',
         recommendedBy: '',
+        completedAt: '',
       });
       
       // Refresh items list
@@ -823,6 +827,28 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                     <option value="completed">Completed</option>
                   </select>
                 </div>
+
+                {reviewData.status === 'completed' && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
+                      Finished reading on (optional)
+                    </label>
+                    <input
+                      type="date"
+                      value={reviewData.completedAt}
+                      onChange={(e) => setReviewData({ ...reviewData, completedAt: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        backgroundColor: '#2a2a2a',
+                        border: '1px solid #333',
+                        borderRadius: '6px',
+                        color: 'white',
+                        fontSize: '1rem',
+                      }}
+                    />
+                  </div>
+                )}
 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
