@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Header } from './components/Header'
+import { Footer } from './components/Footer'
 import { HomePage } from './pages/HomePage'
 import { ProfilePage } from './pages/ProfilePage'
 import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { AdminPage } from './pages/AdminPage'
+import { FeedbackPage } from './pages/FeedbackPage'
 import './App.css'
 
 interface UserProfile {
@@ -85,9 +87,14 @@ function App() {
               path="/admin" 
               element={<AdminPage apiUrl={apiUrl} />} 
             />
+            <Route 
+              path="/feedback" 
+              element={<FeedbackPage />} 
+            />
           </Routes>
         )}
       </main>
+      <Footer />
     </BrowserRouter>
   )
 }

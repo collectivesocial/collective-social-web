@@ -87,19 +87,6 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
           {isAuthenticated && (
             <nav style={{ display: 'flex', gap: '1.5rem' }}>
               <Link
-                to="/"
-                style={{
-                  color: '#ddd',
-                  textDecoration: 'none',
-                  fontSize: '1rem',
-                  transition: 'color 0.2s',
-                }}
-                onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
-                onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
-              >
-                Home
-              </Link>
-              <Link
                 to="/collections"
                 style={{
                   color: '#ddd',
@@ -111,6 +98,19 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                 onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
               >
                 Collections
+              </Link>
+              <Link
+                to="/groups"
+                style={{
+                  color: '#ddd',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  transition: 'color 0.2s',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
+                onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
+              >
+                Groups
               </Link>
               {isAdmin && (
                 <Link
