@@ -90,6 +90,19 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
               >
                 Profile
               </Link>
+              <Link
+                to="/collections"
+                style={{
+                  color: '#ddd',
+                  textDecoration: 'none',
+                  fontSize: '1rem',
+                  transition: 'color 0.2s',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
+                onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
+              >
+                Collections
+              </Link>
             </nav>
           )}
         </div>

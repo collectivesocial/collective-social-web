@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Header } from './components/Header'
 import { HomePage } from './pages/HomePage'
 import { ProfilePage } from './pages/ProfilePage'
+import { CollectionsPage } from './pages/CollectionsPage'
+import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import './App.css'
 
 interface UserProfile {
@@ -64,6 +66,14 @@ function App() {
             <Route 
               path="/profile" 
               element={<ProfilePage apiUrl={apiUrl} />} 
+            />
+            <Route 
+              path="/collections" 
+              element={<CollectionsPage apiUrl={apiUrl} />} 
+            />
+            <Route 
+              path="/collections/:collectionUri" 
+              element={<CollectionDetailsPage apiUrl={apiUrl} />} 
             />
           </Routes>
         )}
