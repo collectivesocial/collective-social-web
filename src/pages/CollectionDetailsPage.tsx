@@ -64,12 +64,18 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const [items, setItems] = useState<ListItem[]>([]);
   const [recommenderHandles, setRecommenderHandles] = useState<Record<string, string>>({});
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showEditItemModal, setShowEditItemModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<ListItem | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<MediaSearchResult | null>(null);
   const [reviewData, setReviewData] = useState({
     status: 'want',
     rating: 0,
     review: '',
     recommendedBy: '',
+  });
+  const [editData, setEditData] = useState({
+    rating: 0,
+    review: '',
   });
   const navigate = useNavigate();
 
@@ -165,6 +171,15 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     setSelectedMedia(media);
   };
 
+  const handleEditItem = (item: ListItem) => {
+    setEditingItem(item);
+    setEditData({
+      rating: item.rating || 0,
+      review: item.review || '',
+    });
+    setShowEditItemModal(true);
+  };
+
   const handleDeleteItem = async (itemUri: string) => {
     if (!window.confirm('Are you sure you want to delete this item?')) {
       return;
@@ -197,6 +212,55 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     } catch (err) {
       console.error('Failed to delete item:', err);
       alert('Failed to delete item from collection');
+    }
+  };
+
+  const handleUpdateItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!editingItem) return;
+
+    try {
+      const response = await fetch(
+        `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items/${encodeURIComponent(editingItem.uri)}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            rating: editData.rating,
+            review: editData.review,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update item');
+      }
+
+      setShowEditItemModal(false);
+      setEditingItem(null);
+      setEditData({
+        rating: 0,
+        review: '',
+      });
+
+      // Refresh items list
+      const itemsRes = await fetch(
+        `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items`,
+        {
+          credentials: 'include',
+        }
+      );
+      if (itemsRes.ok) {
+        const itemsData = await itemsRes.json();
+        setItems(itemsData.items);
+      }
+    } catch (err) {
+      console.error('Failed to update item:', err);
+      alert('Failed to update item');
     }
   };
 
@@ -411,22 +475,40 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                       </span>
                     )}
                     {isOwner() && (
-                      <button
-                        onClick={() => handleDeleteItem(item.uri)}
-                        style={{
-                          background: 'none',
-                          border: '1px solid #ff4444',
-                          color: '#ff4444',
-                          borderRadius: '6px',
-                          padding: '0.25rem 0.5rem',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                        }}
-                        title="Delete item"
-                      >
-                        Delete
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleEditItem(item)}
+                          style={{
+                            background: 'none',
+                            border: '1px solid #646cff',
+                            color: '#646cff',
+                            borderRadius: '6px',
+                            padding: '0.25rem 0.5rem',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                          title="Edit item"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteItem(item.uri)}
+                          style={{
+                            background: 'none',
+                            border: '1px solid #ff4444',
+                            color: '#ff4444',
+                            borderRadius: '6px',
+                            padding: '0.25rem 0.5rem',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                          title="Delete item"
+                        >
+                          Delete
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -733,6 +815,156 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Item Modal */}
+      {showEditItemModal && editingItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}
+        onClick={() => setShowEditItemModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #333',
+              borderRadius: '12px',
+              padding: '2rem',
+              maxWidth: '600px',
+              width: '100%',
+              margin: '1rem',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ margin: '0 0 1.5rem 0' }}>Edit Item</h2>
+            
+            <form onSubmit={handleUpdateItem}>
+              <div style={{
+                display: 'flex',
+                gap: '1rem',
+                padding: '1rem',
+                backgroundColor: '#2a2a2a',
+                borderRadius: '8px',
+                marginBottom: '1.5rem',
+              }}>
+                {editingItem.mediaItem?.coverImage && (
+                  <img
+                    src={editingItem.mediaItem.coverImage}
+                    alt={editingItem.title}
+                    style={{
+                      width: '60px',
+                      height: '90px',
+                      objectFit: 'cover',
+                      borderRadius: '4px',
+                    }}
+                  />
+                )}
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: '0 0 0.25rem 0' }}>{editingItem.title}</h3>
+                  {editingItem.creator && (
+                    <p style={{ margin: '0 0 0.5rem 0', color: '#888', fontSize: '0.875rem' }}>
+                      by {editingItem.creator}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
+                  Rating (0-5 stars)
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  {[0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setEditData({ ...editData, rating: star })}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '1.5rem',
+                        cursor: 'pointer',
+                        padding: '0.25rem',
+                        opacity: star <= editData.rating ? 1 : 0.3,
+                      }}
+                    >
+                      {star % 1 === 0 ? '⭐' : '✨'}
+                    </button>
+                  ))}
+                  <span style={{ marginLeft: '0.5rem', color: '#888' }}>
+                    {editData.rating.toFixed(1)}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
+                  Review/Notes
+                </label>
+                <textarea
+                  value={editData.review}
+                  onChange={(e) => setEditData({ ...editData, review: e.target.value })}
+                  rows={4}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    backgroundColor: '#2a2a2a',
+                    border: '1px solid #333',
+                    borderRadius: '6px',
+                    color: 'white',
+                    fontSize: '1rem',
+                    resize: 'vertical',
+                  }}
+                  placeholder="Your thoughts and notes..."
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowEditItemModal(false)}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: 'transparent',
+                    color: '#ddd',
+                    border: '1px solid #333',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#646cff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                  }}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
