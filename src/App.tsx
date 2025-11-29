@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage'
 import { ProfilePage } from './pages/ProfilePage'
 import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
+import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import './App.css'
 
 interface UserProfile {
@@ -74,6 +75,10 @@ function App() {
             <Route 
               path="/collections/:collectionUri" 
               element={<CollectionDetailsPage apiUrl={apiUrl} />} 
+            />
+            <Route 
+              path="/items/:itemId" 
+              element={<ItemDetailsPage apiUrl={apiUrl} />} 
             />
           </Routes>
         )}

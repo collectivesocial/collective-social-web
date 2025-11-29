@@ -327,19 +327,29 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                 <img
                   src={item.mediaItem.coverImage}
                   alt={item.title}
+                  onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
                   style={{
                     width: '80px',
                     height: '120px',
                     objectFit: 'cover',
                     borderRadius: '6px',
                     flexShrink: 0,
+                    cursor: item.mediaItemId ? 'pointer' : 'default',
                   }}
                 />
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
                   <div>
-                    <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.25rem' }}>
+                    <h3 
+                      onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
+                      style={{ 
+                        margin: '0 0 0.25rem 0', 
+                        fontSize: '1.25rem',
+                        cursor: item.mediaItemId ? 'pointer' : 'default',
+                        color: item.mediaItemId ? '#646cff' : 'inherit',
+                      }}
+                    >
                       {item.title}
                     </h3>
                     {item.creator && (
@@ -402,7 +412,15 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                 )}
 
                 {item.mediaItem && item.mediaItem.totalReviews > 1 && (
-                  <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #333' }}>
+                  <div 
+                    onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
+                    style={{ 
+                      marginTop: '0.75rem', 
+                      paddingTop: '0.75rem', 
+                      borderTop: '1px solid #333',
+                      cursor: 'pointer',
+                    }}
+                  >
                     <span style={{ color: '#888', fontSize: '0.75rem' }}>
                       Community: ⭐ {item.mediaItem.averageRating?.toFixed(1)} ({item.mediaItem.totalReviews} reviews)
                     </span>

@@ -52,6 +52,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
       }
 
       const data = await response.json();
+      console.log({data})
       setResults(data.results);
     } catch (err) {
       setError('Failed to search. Please try again.');
