@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 interface UserProfile {
@@ -17,6 +17,18 @@ interface HeaderProps {
 
 export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetch(`${apiUrl}/admin/check`, {
+        credentials: 'include',
+      })
+        .then((res) => res.json())
+        .then((data) => setIsAdmin(data.isAdmin))
+        .catch(() => setIsAdmin(false));
+    }
+  }, [isAuthenticated, apiUrl]);
 
   const handleLogout = async () => {
     try {
@@ -103,6 +115,22 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
               >
                 Collections
               </Link>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  style={{
+                    color: '#ffd700',
+                    textDecoration: 'none',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    transition: 'color 0.2s',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.color = '#ffed4e'}
+                  onMouseOut={(e) => e.currentTarget.style.color = '#ffd700'}
+                >
+                  Admin
+                </Link>
+              )}
             </nav>
           )}
         </div>

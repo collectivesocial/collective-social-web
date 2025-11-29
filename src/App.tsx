@@ -6,6 +6,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
+import { AdminPage } from './pages/AdminPage'
 import './App.css'
 
 interface UserProfile {
@@ -79,6 +80,10 @@ function App() {
             <Route 
               path="/items/:itemId" 
               element={<ItemDetailsPage apiUrl={apiUrl} />} 
+            />
+            <Route 
+              path="/admin" 
+              element={<AdminPage apiUrl={apiUrl} />} 
             />
           </Routes>
         )}
