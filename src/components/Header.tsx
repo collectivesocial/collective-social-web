@@ -64,13 +64,23 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
         height: '100%',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+            <img 
+              src="/basket.svg" 
+              alt="Collective Logo" 
+              style={{
+                height: isAuthenticated ? '1.5rem' : '2.5rem',
+                width: isAuthenticated ? '1.5rem' : '2.5rem',
+                transition: 'height 0.3s ease, width 0.3s ease',
+                filter: 'brightness(0) saturate(100%) invert(100%)',
+              }}
+            />
             <h1 style={{
               margin: 0,
               fontSize: isAuthenticated ? '1.5rem' : '2.5rem',
               transition: 'font-size 0.3s ease',
             }}>
-              Collective Social
+              Collective
             </h1>
           </Link>
           

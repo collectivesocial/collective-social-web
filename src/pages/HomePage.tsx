@@ -37,7 +37,7 @@ export function HomePage({ isAuthenticated, user, apiUrl }: HomePageProps) {
 
   return (
     <div className="card">
-      <h2>Welcome to Collective Social</h2>
+      <h2>Welcome to Collective</h2>
       <p>Please log in to continue</p>
       <LoginButton apiUrl={apiUrl} />
     </div>
