@@ -9,12 +9,23 @@ interface UserProfile {
   description?: string;
 }
 
+interface Collection {
+  uri: string;
+  name: string;
+  description: string | null;
+  visibility: string;
+  purpose: string;
+  avatar: string | null;
+  createdAt: string;
+}
+
 interface ProfilePageProps {
   apiUrl: string;
 }
 
 export function ProfilePage({ apiUrl }: ProfilePageProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -29,8 +40,22 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
         }
         return res.json();
       })
-      .then((data) => {
+      .then(async (data) => {
         setUser(data);
+        
+        // Fetch public collections for this user
+        try {
+          const collectionsRes = await fetch(`${apiUrl}/collections/public/${data.did}`, {
+            credentials: 'include',
+          });
+          if (collectionsRes.ok) {
+            const collectionsData = await collectionsRes.json();
+            setCollections(collectionsData.collections);
+          }
+        } catch (err) {
+          console.error('Failed to load collections:', err);
+        }
+        
         setLoading(false);
       })
       .catch((err) => {
@@ -149,6 +174,67 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
             color: '#888',
           }}>
             <p style={{ margin: 0 }}>No bio added yet</p>
+          </div>
+        )}
+      </div>
+
+      {/* Public Collections */}
+      <div style={{
+        backgroundColor: '#1a1a1a',
+        borderRadius: '12px',
+        padding: '2rem',
+        border: '1px solid #333',
+        marginTop: '2rem',
+      }}>
+        <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.5rem' }}>Public Collections</h2>
+        {collections.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '2rem',
+            color: '#888',
+          }}>
+            <p style={{ margin: 0 }}>No public collections yet</p>
+          </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: '1rem',
+          }}>
+            {collections.map((collection) => (
+              <div
+                key={collection.uri}
+                style={{
+                  backgroundColor: '#2a2a2a',
+                  border: '1px solid #333',
+                  borderRadius: '8px',
+                  padding: '1.25rem',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s',
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.borderColor = '#646cff')}
+                onMouseOut={(e) => (e.currentTarget.style.borderColor = '#333')}
+                onClick={() => navigate(`/collections/${encodeURIComponent(collection.uri)}`)}
+              >
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.125rem' }}>
+                  {collection.name}
+                </h3>
+                {collection.description && (
+                  <p style={{
+                    color: '#888',
+                    fontSize: '0.875rem',
+                    margin: '0',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                  }}>
+                    {collection.description}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>

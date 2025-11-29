@@ -12,6 +12,7 @@ interface Collection {
   uri: string;
   name: string;
   description: string | null;
+  visibility?: 'public' | 'private';
   purpose: string;
   avatar: string | null;
   itemCount: number;
@@ -31,7 +32,8 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
   const [newCollection, setNewCollection] = useState({
     name: '',
     description: '',
-    purpose: 'app.bsky.graph.defs#curatelist',
+    visibility: 'public' as 'public' | 'private',
+    purpose: 'app.collectivesocial.defs#curatelist',
   });
   const navigate = useNavigate();
 
@@ -96,7 +98,8 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
       setNewCollection({
         name: '',
         description: '',
-        purpose: 'app.bsky.graph.defs#curatelist',
+        visibility: 'public',
+        purpose: 'app.collectivesocial.defs#curatelist',
       });
     } catch (err) {
       console.error('Failed to create collection:', err);
@@ -198,7 +201,21 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
               onMouseOut={(e) => (e.currentTarget.style.borderColor = '#333')}
               onClick={() => navigate(`/collections/${encodeURIComponent(collection.uri)}`)}
             >
-              <h3 style={{ margin: '0 0 0.5rem 0' }}>{collection.name}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                <h3 style={{ margin: 0, flex: 1 }}>{collection.name}</h3>
+                {collection.visibility === 'private' && (
+                  <span style={{
+                    fontSize: '0.75rem',
+                    backgroundColor: '#333',
+                    color: '#888',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '4px',
+                    marginLeft: '0.5rem'
+                  }}>
+                    🔒 Private
+                  </span>
+                )}
+              </div>
               {collection.description && (
                 <p style={{ color: '#888', fontSize: '0.875rem', margin: '0 0 1rem 0' }}>
                   {collection.description}
@@ -290,6 +307,35 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
                   }}
                   placeholder="Describe your collection..."
                 />
+              </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
+                  Visibility
+                </label>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="public"
+                      checked={newCollection.visibility === 'public'}
+                      onChange={(e) => setNewCollection({ ...newCollection, visibility: e.target.value as 'public' | 'private' })}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <span>Public - Visible on your profile</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="private"
+                      checked={newCollection.visibility === 'private'}
+                      onChange={(e) => setNewCollection({ ...newCollection, visibility: e.target.value as 'public' | 'private' })}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <span>Private - Only visible to you</span>
+                  </label>
+                </div>
               </div>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
                 <button
