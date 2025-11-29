@@ -14,6 +14,12 @@ interface MediaSearchResult {
   mediaItemId: number | null;
 }
 
+interface Recommendation {
+  did: string;
+  suggestedAt: string;
+  handle?: string;
+}
+
 interface ListItem {
   uri: string;
   cid: string;
@@ -24,6 +30,7 @@ interface ListItem {
   status: string | null;
   rating: number | null;
   review: string | null;
+  recommendations: Recommendation[];
   createdAt: string;
   mediaItem?: {
     id: number;
@@ -55,12 +62,14 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const [currentUserDid, setCurrentUserDid] = useState<string | null>(null);
   const [collection, setCollection] = useState<Collection | null>(null);
   const [items, setItems] = useState<ListItem[]>([]);
+  const [recommenderHandles, setRecommenderHandles] = useState<Record<string, string>>({});
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<MediaSearchResult | null>(null);
   const [reviewData, setReviewData] = useState({
     status: 'want',
     rating: 0,
     review: '',
+    recommendedBy: '',
   });
   const navigate = useNavigate();
 
@@ -104,6 +113,33 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         }
         const itemsData = await itemsRes.json();
         setItems(itemsData.items);
+
+        // Resolve all recommender DIDs to handles
+        const allDids = new Set<string>();
+        itemsData.items.forEach((item: ListItem) => {
+          item.recommendations?.forEach((rec) => {
+            allDids.add(rec.did);
+          });
+        });
+
+        // Fetch handles for all DIDs
+        const handleMap: Record<string, string> = {};
+        await Promise.all(
+          Array.from(allDids).map(async (did) => {
+            try {
+              const profileRes = await fetch(
+                `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${did}`
+              );
+              if (profileRes.ok) {
+                const profileData = await profileRes.json();
+                handleMap[did] = profileData.handle;
+              }
+            } catch (err) {
+              console.warn(`Failed to resolve handle for ${did}`);
+            }
+          })
+        );
+        setRecommenderHandles(handleMap);
 
         setLoading(false);
       } catch (err: any) {
@@ -189,6 +225,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             status: reviewData.status,
             rating: reviewData.rating,
             review: reviewData.review,
+            recommendedBy: reviewData.recommendedBy || undefined,
           }),
         }
       );
@@ -203,6 +240,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         status: 'want',
         rating: 0,
         review: '',
+        recommendedBy: '',
       });
       
       // Refresh items list
@@ -427,6 +465,37 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   </div>
                 )}
 
+                {item.recommendations && item.recommendations.length > 0 && (
+                  <div style={{
+                    marginTop: '0.75rem',
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid #333',
+                  }}>
+                    <div style={{ color: '#888', fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+                      💡 Recommended by:
+                    </div>
+                    {item.recommendations.map((rec, idx) => (
+                      <div key={idx} style={{ marginLeft: '1rem', marginTop: '0.25rem' }}>
+                        <a
+                          href={`https://bsky.app/profile/${rec.did}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: '#646cff',
+                            fontSize: '0.75rem',
+                            textDecoration: 'none',
+                          }}
+                        >
+                          @{recommenderHandles[rec.did] || rec.did.substring(0, 24) + '...'}
+                        </a>
+                        <span style={{ color: '#666', fontSize: '0.75rem', marginLeft: '0.5rem' }}>
+                          ({new Date(rec.suggestedAt).toLocaleDateString()})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div style={{ marginTop: '0.75rem' }}>
                   <span style={{ color: '#666', fontSize: '0.75rem' }}>
                     Added {new Date(item.createdAt).toLocaleDateString()}
@@ -584,7 +653,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
                     Review/Notes
                   </label>
@@ -604,6 +673,30 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                     }}
                     placeholder="Your thoughts and notes..."
                   />
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd' }}>
+                    Recommended by (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={reviewData.recommendedBy}
+                    onChange={(e) => setReviewData({ ...reviewData, recommendedBy: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      backgroundColor: '#2a2a2a',
+                      border: '1px solid #333',
+                      borderRadius: '6px',
+                      color: 'white',
+                      fontSize: '1rem',
+                    }}
+                    placeholder="did:plc:xxx or handle.bsky.social"
+                  />
+                  <p style={{ color: '#666', fontSize: '0.75rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                    Enter the DID or handle of who recommended this to you
+                  </p>
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
