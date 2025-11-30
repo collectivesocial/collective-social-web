@@ -105,7 +105,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                     filter={logoFilter}
                   />
                   <Heading
-                    size={isAuthenticated ? 'md' : 'xl'}
+                    size={isAuthenticated ? 'lg' : 'xl'}
                     transition="all 0.3s ease"
                   >
                     Collective
@@ -175,6 +175,9 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                       )}
                       <Menu.Item value="profile" asChild>
                         <RouterLink to="/profile">Profile</RouterLink>
+                      </Menu.Item>
+                      <Menu.Item value="settings" asChild>
+                        <RouterLink to="/settings">Settings</RouterLink>
                       </Menu.Item>
                       {isAdmin && <Menu.Separator />}
                       <Box display={{ base: 'block', md: 'none' }}>

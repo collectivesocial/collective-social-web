@@ -11,6 +11,7 @@ import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { AdminPage } from './pages/AdminPage'
 import { FeedbackPage } from './pages/FeedbackPage'
+import { SettingsPage } from './pages/SettingsPage'
 import './App.css'
 
 interface UserProfile {
@@ -99,6 +100,10 @@ function App() {
               <Route 
                 path="/feedback" 
                 element={<FeedbackPage />} 
+              />
+              <Route 
+                path="/settings" 
+                element={<SettingsPage apiUrl={apiUrl} user={user} />} 
               />
               </Routes>
             )}

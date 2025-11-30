@@ -6,9 +6,13 @@ export interface FieldProps {
   required?: boolean;
   children: React.ReactNode;
   error?: string;
+  invalid?: boolean;
+  errorText?: string;
 }
 
-export function Field({ label, required, children, error }: FieldProps) {
+export function Field({ label, required, children, error, invalid, errorText }: FieldProps) {
+  const showError = error || (invalid && errorText);
+  
   return (
     <Box>
       {label && (
@@ -24,9 +28,9 @@ export function Field({ label, required, children, error }: FieldProps) {
         </HStack>
       )}
       {children}
-      {error && (
+      {showError && (
         <Text color="fg.error" fontSize="sm" mt={1}>
-          {error}
+          {showError}
         </Text>
       )}
     </Box>
