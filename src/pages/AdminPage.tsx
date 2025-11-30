@@ -1,5 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Spinner,
+  Center,
+  Badge,
+  Table,
+  Link as ChakraLink,
+  Textarea,
+} from '@chakra-ui/react';
+import { Field } from '../components/ui/field';
+import { EmptyState } from '../components/EmptyState';
 
 interface User {
   did: string;
@@ -207,257 +225,232 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div>Loading admin dashboard...</div>
-      </div>
+      <Center minH="50vh">
+        <VStack gap={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text color="fg.muted">Loading admin dashboard...</Text>
+        </VStack>
+      </Center>
     );
   }
 
   if (error || !isAdmin) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div style={{ color: '#ff4444', marginBottom: '1rem' }}>
-          {error || 'Access denied'}
-        </div>
-        <button
-          onClick={() => navigate('/')}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#646cff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-          }}
-        >
-          Go Home
-        </button>
-      </div>
+      <Center minH="50vh">
+        <VStack gap={4}>
+          <Text color="red.500" fontSize="lg">
+            {error || 'Access denied'}
+          </Text>
+          <Button
+            onClick={() => navigate('/')}
+            colorPalette="teal"
+          >
+            Go Home
+          </Button>
+        </VStack>
+      </Center>
     );
   }
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{ marginBottom: '2rem' }}>Admin Dashboard</h1>
+    <Container maxW="container.xl" py={{ base: 4, md: 8 }}>
+      <Heading size={{ base: 'xl', md: '2xl' }} mb={{ base: 6, md: 8 }}>
+        Admin Dashboard
+      </Heading>
 
       {/* Users Section */}
-      <section style={{ marginBottom: '3rem' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1rem',
-        }}>
-          <h2 style={{ margin: 0 }}>Users</h2>
-          <div style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#2a2a2a',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            color: '#888',
-          }}>
+      <Box as="section" mb={{ base: 8, md: 12 }}>
+        <Flex
+          justify="space-between"
+          align="center"
+          mb={4}
+          direction={{ base: 'column', sm: 'row' }}
+          gap={{ base: 3, sm: 0 }}
+        >
+          <Heading size={{ base: 'lg', md: 'xl' }}>Users</Heading>
+          <Badge
+            colorPalette="gray"
+            size="lg"
+            px={4}
+            py={2}
+          >
             Total: {totalUsers}
-          </div>
-        </div>
+          </Badge>
+        </Flex>
 
-        <div style={{
-          backgroundColor: '#1a1a1a',
-          border: '1px solid #333',
-          borderRadius: '12px',
-          overflow: 'hidden',
-        }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#2a2a2a' }}>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+        <Box
+          bg="bg.subtle"
+          borderWidth="1px"
+          borderColor="border"
+          borderRadius="lg"
+          overflow={{ base: 'auto', md: 'hidden' }}
+        >
+          <Table.Root size={{ base: 'sm', md: 'md' }}>
+            <Table.Header>
+              <Table.Row bg="bg.muted">
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   DID
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" display={{ base: 'none', md: 'table-cell' }}>
                   First Login
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   Last Activity
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'center', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center">
                   Admin
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user, index) => (
-                <tr
-                  key={user.did}
-                  style={{
-                    borderTop: index > 0 ? '1px solid #333' : 'none',
-                  }}
-                >
-                  <td style={{ padding: '1rem', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-                    <a
+                </Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {users.map((user) => (
+                <Table.Row key={user.did}>
+                  <Table.Cell fontFamily="mono" fontSize="sm">
+                    <ChakraLink
                       href={`https://pdsls.dev/at://${user.did}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{
-                        color: '#646cff',
-                        textDecoration: 'none',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.textDecoration = 'underline';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.textDecoration = 'none';
-                      }}
+                      color="teal.500"
+                      _hover={{ textDecoration: 'underline' }}
                     >
                       {user.did.substring(0, 24)}...
-                    </a>
-                  </td>
-                  <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#ddd' }}>
+                    </ChakraLink>
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm" display={{ base: 'none', md: 'table-cell' }}>
                     {new Date(user.firstLoginAt).toLocaleString()}
-                  </td>
-                  <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#ddd' }}>
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm">
                     {new Date(user.lastActivityAt).toLocaleString()}
-                  </td>
-                  <td style={{ padding: '1rem', textAlign: 'center' }}>
+                  </Table.Cell>
+                  <Table.Cell textAlign="center">
                     {user.isAdmin ? (
-                      <span style={{
-                        padding: '0.25rem 0.5rem',
-                        backgroundColor: '#646cff',
-                        color: 'white',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                      }}>
+                      <Badge colorPalette="teal" size="sm">
                         YES
-                      </span>
+                      </Badge>
                     ) : (
-                      <span style={{ color: '#666' }}>-</span>
+                      <Text color="fg.muted">-</Text>
                     )}
-                  </td>
-                </tr>
+                  </Table.Cell>
+                </Table.Row>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </Table.Body>
+          </Table.Root>
+        </Box>
 
         {totalUsers > 10 && (
-          <div style={{
-            marginTop: '0.5rem',
-            fontSize: '0.875rem',
-            color: '#888',
-            textAlign: 'center',
-          }}>
+          <Text
+            mt={2}
+            fontSize="sm"
+            color="fg.muted"
+            textAlign="center"
+          >
             Showing 10 of {totalUsers} users
-          </div>
+          </Text>
         )}
-      </section>
+      </Box>
 
       {/* Feedback Section */}
-      <section style={{ marginBottom: '3rem' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1rem',
-        }}>
-          <h2 style={{ margin: 0 }}>User Feedback</h2>
-          <div style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#2a2a2a',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            color: '#888',
-          }}>
+      <Box as="section" mb={{ base: 8, md: 12 }}>
+        <Flex
+          justify="space-between"
+          align="center"
+          mb={4}
+          direction={{ base: 'column', sm: 'row' }}
+          gap={{ base: 3, sm: 0 }}
+        >
+          <Heading size={{ base: 'lg', md: 'xl' }}>User Feedback</Heading>
+          <Badge
+            colorPalette="gray"
+            size="lg"
+            px={4}
+            py={2}
+          >
             Total: {feedback.length}
-          </div>
-        </div>
+          </Badge>
+        </Flex>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <VStack gap={4} align="stretch">
           {feedback.map((item) => (
-            <div
+            <Box
               key={item.id}
-              style={{
-                backgroundColor: '#1a1a1a',
-                border: '1px solid #333',
-                borderRadius: '12px',
-                padding: '1.5rem',
-              }}
+              bg="bg.subtle"
+              borderWidth="1px"
+              borderColor="border"
+              borderRadius="lg"
+              p={{ base: 4, md: 6 }}
             >
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1rem',
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.875rem', color: '#ddd', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    <span style={{ color: '#888' }}>#{item.id}</span>
-                    <span style={{ color: '#555' }}>•</span>
-                    <span style={{ color: '#888' }}>{new Date(item.createdAt).toLocaleString()}</span>
-                    {item.userDid && (
-                      <>
-                        <span style={{ color: '#555' }}>•</span>
-                        {item.userHandle ? (
-                          <a
-                            href={`/profile/${item.userHandle}`}
-                            style={{
-                              color: '#646cff',
-                              textDecoration: 'none',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.textDecoration = 'underline';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.textDecoration = 'none';
-                            }}
-                          >
-                            @{item.userHandle}
-                          </a>
-                        ) : (
-                          <span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
-                            {item.userDid.substring(0, 20)}...
-                          </span>
-                        )}
-                      </>
-                    )}
-                    {!item.userDid && item.email && (
-                      <>
-                        <span style={{ color: '#555' }}>•</span>
-                        <span>{item.email}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
+              <Flex
+                justify="space-between"
+                align={{ base: 'flex-start', sm: 'center' }}
+                mb={4}
+                direction={{ base: 'column', sm: 'row' }}
+                gap={{ base: 2, sm: 0 }}
+              >
+                <Flex
+                  fontSize="sm"
+                  align="center"
+                  gap={2}
+                  flexWrap="wrap"
+                  flex={1}
+                >
+                  <Text color="fg.muted">#{item.id}</Text>
+                  <Text color="fg.muted">•</Text>
+                  <Text color="fg.muted">{new Date(item.createdAt).toLocaleString()}</Text>
+                  {item.userDid && (
+                    <>
+                      <Text color="fg.muted">•</Text>
+                      {item.userHandle ? (
+                        <ChakraLink
+                          href={`/profile/${item.userHandle}`}
+                          color="teal.500"
+                          _hover={{ textDecoration: 'underline' }}
+                        >
+                          @{item.userHandle}
+                        </ChakraLink>
+                      ) : (
+                        <Text fontFamily="mono" fontSize="xs" color="fg.muted">
+                          {item.userDid.substring(0, 20)}...
+                        </Text>
+                      )}
+                    </>
+                  )}
+                  {!item.userDid && item.email && (
+                    <>
+                      <Text color="fg.muted">•</Text>
+                      <Text fontSize="sm">{item.email}</Text>
+                    </>
+                  )}
+                </Flex>
                 {editingFeedback !== item.id && (
-                  <span style={{
-                    padding: '0.25rem 0.75rem',
-                    backgroundColor: item.status === 'new' ? '#e74c3c' : item.status === 'in-progress' ? '#f39c12' : '#2ecc71',
-                    color: 'white',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    fontWeight: '500',
-                    textTransform: 'capitalize',
-                    whiteSpace: 'nowrap',
-                  }}>
+                  <Badge
+                    colorPalette={
+                      item.status === 'new' ? 'red' : 
+                      item.status === 'in-progress' ? 'orange' : 
+                      item.status === 'wont-fix' ? 'gray' : 
+                      'green'
+                    }
+                    size="sm"
+                    textTransform="capitalize"
+                  >
                     {item.status}
-                  </span>
+                  </Badge>
                 )}
-              </div>
+              </Flex>
 
               {editingFeedback === item.id ? (
-                <div>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd', fontSize: '0.875rem' }}>
-                      Status
-                    </label>
+                <VStack gap={4} align="stretch">
+                  <Field label="Status">
                     <select
                       value={feedbackStatus}
                       onChange={(e) => setFeedbackStatus(e.target.value)}
                       style={{
                         width: '100%',
-                        padding: '0.5rem',
-                        backgroundColor: '#2a2a2a',
-                        border: '1px solid #333',
-                        borderRadius: '6px',
-                        color: 'white',
+                        padding: '0.5rem 0.75rem',
+                        backgroundColor: 'var(--chakra-colors-bg-muted)',
+                        border: '1px solid var(--chakra-colors-border)',
+                        borderRadius: '0.375rem',
                         fontSize: '0.875rem',
+                        color: 'inherit',
                       }}
                     >
                       <option value="new">New</option>
@@ -465,236 +458,191 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                       <option value="completed">Completed</option>
                       <option value="wont-fix">Won't Fix</option>
                     </select>
-                  </div>
+                  </Field>
 
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd', fontSize: '0.875rem' }}>
-                      Admin Notes
-                    </label>
-                    <textarea
+                  <Field label="Admin Notes">
+                    <Textarea
                       value={feedbackNotes}
                       onChange={(e) => setFeedbackNotes(e.target.value)}
                       rows={3}
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem',
-                        backgroundColor: '#2a2a2a',
-                        border: '1px solid #333',
-                        borderRadius: '6px',
-                        color: 'white',
-                        fontSize: '0.875rem',
-                        resize: 'vertical',
-                      }}
                       placeholder="Add internal notes about this feedback..."
+                      resize="vertical"
                     />
-                  </div>
+                  </Field>
 
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
+                  <HStack gap={2}>
+                    <Button
                       onClick={() => handleSaveFeedback(item.id)}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#2ecc71',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        cursor: 'pointer',
-                        fontWeight: '500',
-                      }}
+                      colorPalette="green"
+                      size="sm"
                     >
                       Save
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={handleCancelEdit}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: 'transparent',
-                        color: '#ddd',
-                        border: '1px solid #333',
-                        borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        cursor: 'pointer',
-                      }}
+                      variant="ghost"
+                      size="sm"
                     >
                       Cancel
-                    </button>
-                  </div>
-                </div>
+                    </Button>
+                  </HStack>
+                </VStack>
               ) : (
-                <div style={{
-                  display: 'flex',
-                  gap: '1rem',
-                  alignItems: 'flex-start',
-                }}>
-                  <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left' }}>
-                    <div style={{
-                      fontSize: '0.875rem',
-                      color: '#ddd',
-                      marginBottom: '0.5rem',
-                    }}>
-                      <strong style={{ color: '#888', fontSize: '0.75rem' }}>Feedback:</strong>{' '}
-                      <span style={{ whiteSpace: 'pre-wrap' }}>{item.message}</span>
-                    </div>
+                <Flex
+                  gap={4}
+                  align="flex-start"
+                  direction={{ base: 'column', md: 'row' }}
+                >
+                  <Box
+                    flex={1}
+                    display="grid"
+                    gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
+                    gap={4}
+                  >
+                    <Box fontSize="sm">
+                      <Text as="strong" color="fg.muted" fontSize="xs" display="block" mb={1}>
+                        Feedback:
+                      </Text>
+                      <Text whiteSpace="pre-wrap">{item.message}</Text>
+                    </Box>
                     {item.adminNotes && (
-                      <div style={{
-                        fontSize: '0.875rem',
-                        color: '#ddd',
-                      }}>
-                        <strong style={{ color: '#888', fontSize: '0.75rem' }}>Admin Notes:</strong>{' '}
-                        <span style={{ whiteSpace: 'pre-wrap' }}>{item.adminNotes}</span>
-                      </div>
+                      <Box fontSize="sm">
+                        <Text as="strong" color="fg.muted" fontSize="xs" display="block" mb={1}>
+                          Admin Notes:
+                        </Text>
+                        <Text whiteSpace="pre-wrap">{item.adminNotes}</Text>
+                      </Box>
                     )}
-                  </div>
-                  <button
+                  </Box>
+                  <Button
                     onClick={() => handleEditFeedback(item)}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      backgroundColor: '#646cff',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '0.875rem',
-                      cursor: 'pointer',
-                      fontWeight: '500',
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0,
-                    }}
+                    colorPalette="teal"
+                    size="sm"
+                    flexShrink={0}
                   >
                     Edit
-                  </button>
-                </div>
+                  </Button>
+                </Flex>
               )}
-            </div>
+            </Box>
           ))}
 
           {feedback.length === 0 && (
-            <div style={{
-              backgroundColor: '#1a1a1a',
-              border: '1px solid #333',
-              borderRadius: '12px',
-              padding: '2rem',
-              textAlign: 'center',
-              color: '#888',
-            }}>
-              No feedback submitted yet
-            </div>
+            <EmptyState
+              title="No feedback yet"
+              description="User feedback will appear here"
+            />
           )}
-        </div>
-      </section>
+        </VStack>
+      </Box>
 
       {/* Media Items Section */}
-      <section>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1rem',
-        }}>
-          <h2 style={{ margin: 0 }}>Media Items</h2>
-          <div style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#2a2a2a',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            color: '#888',
-          }}>
+      <Box as="section">
+        <Flex
+          justify="space-between"
+          align="center"
+          mb={4}
+          direction={{ base: 'column', sm: 'row' }}
+          gap={{ base: 3, sm: 0 }}
+        >
+          <Heading size={{ base: 'lg', md: 'xl' }}>Media Items</Heading>
+          <Badge
+            colorPalette="gray"
+            size="lg"
+            px={4}
+            py={2}
+          >
             Total: {totalMediaItems}
-          </div>
-        </div>
+          </Badge>
+        </Flex>
 
-        <div style={{
-          backgroundColor: '#1a1a1a',
-          border: '1px solid #333',
-          borderRadius: '12px',
-          overflow: 'hidden',
-        }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#2a2a2a' }}>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+        <Box
+          bg="bg.subtle"
+          borderWidth="1px"
+          borderColor="border"
+          borderRadius="lg"
+          overflow={{ base: 'auto', md: 'hidden' }}
+        >
+          <Table.Root size={{ base: 'sm', md: 'md' }}>
+            <Table.Header>
+              <Table.Row bg="bg.muted">
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   ID
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   Title
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" display={{ base: 'none', lg: 'table-cell' }}>
                   Creator
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" display={{ base: 'none', md: 'table-cell' }}>
                   Type
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'center', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center" display={{ base: 'none', sm: 'table-cell' }}>
                   Reviews
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'center', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center">
                   Avg Rating
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', color: '#888', fontWeight: '500' }}>
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" display={{ base: 'none', lg: 'table-cell' }}>
                   Created
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {mediaItems.map((item, index) => (
-                <tr
-                  key={item.id}
-                  style={{
-                    borderTop: index > 0 ? '1px solid #333' : 'none',
-                  }}
-                >
-                  <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#888' }}>
+                </Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {mediaItems.map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell fontSize="sm" color="fg.muted">
                     {item.id}
-                  </td>
-                  <td style={{ padding: '1rem', fontSize: '0.875rem' }}>
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm">
                     {item.title}
-                  </td>
-                  <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#ddd' }}>
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm" display={{ base: 'none', lg: 'table-cell' }}>
                     {item.creator || '-'}
-                  </td>
-                  <td style={{ padding: '1rem', fontSize: '0.875rem' }}>
-                    <span style={{
-                      padding: '0.25rem 0.5rem',
-                      backgroundColor: '#2a2a2a',
-                      borderRadius: '4px',
-                      fontSize: '0.75rem',
-                      textTransform: 'capitalize',
-                    }}>
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm" display={{ base: 'none', md: 'table-cell' }}>
+                    <Badge
+                      colorPalette="gray"
+                      size="sm"
+                      textTransform="capitalize"
+                    >
                       {item.mediaType}
-                    </span>
-                  </td>
-                  <td style={{ padding: '1rem', textAlign: 'center', fontSize: '0.875rem' }}>
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell textAlign="center" fontSize="sm" display={{ base: 'none', sm: 'table-cell' }}>
                     {item.totalReviews}
-                  </td>
-                  <td style={{ padding: '1rem', textAlign: 'center', fontSize: '0.875rem' }}>
+                  </Table.Cell>
+                  <Table.Cell textAlign="center" fontSize="sm">
                     {item.averageRating ? (
-                      <span style={{ color: '#ffd700' }}>
-                        ⭐ {item.averageRating.toFixed(1)}
-                      </span>
+                      <HStack justify="center" gap={1}>
+                        <Text color="yellow.400">⭐</Text>
+                        <Text>{item.averageRating.toFixed(1)}</Text>
+                      </HStack>
                     ) : (
-                      <span style={{ color: '#666' }}>-</span>
+                      <Text color="fg.muted">-</Text>
                     )}
-                  </td>
-                  <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#ddd' }}>
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm" display={{ base: 'none', lg: 'table-cell' }}>
                     {new Date(item.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
+                  </Table.Cell>
+                </Table.Row>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </Table.Body>
+          </Table.Root>
+        </Box>
 
         {totalMediaItems > 10 && (
-          <div style={{
-            marginTop: '0.5rem',
-            fontSize: '0.875rem',
-            color: '#888',
-            textAlign: 'center',
-          }}>
+          <Text
+            mt={2}
+            fontSize="sm"
+            color="fg.muted"
+            textAlign="center"
+          >
             Showing 10 of {totalMediaItems} media items
-          </div>
+          </Text>
         )}
-      </section>
-    </div>
+      </Box>
+    </Container>
   );
 }
