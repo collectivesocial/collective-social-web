@@ -193,6 +193,7 @@ export function UserProfileView({
               {collections.map((collection) => (
                 <Box
                   key={collection.uri}
+                  as="article"
                   bg="bg.muted"
                   borderWidth="1px"
                   borderColor="border"
@@ -204,7 +205,21 @@ export function UserProfileView({
                     borderColor: 'teal.500',
                     shadow: 'md',
                   }}
+                  _focusVisible={{
+                    outline: '2px solid',
+                    outlineColor: 'teal.500',
+                    outlineOffset: '2px',
+                  }}
                   onClick={() => navigate(`/collections/${encodeURIComponent(collection.uri)}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/collections/${encodeURIComponent(collection.uri)}`);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`View collection: ${collection.name}`}
                 >
                   <Heading size="sm" mb={2} lineClamp={1}>
                     {collection.name}
