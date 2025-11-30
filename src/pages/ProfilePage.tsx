@@ -14,6 +14,7 @@ interface UserProfile {
   displayName?: string;
   avatar?: string;
   description?: string;
+  followerCount?: number;
 }
 
 interface Collection {
@@ -88,6 +89,7 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
             displayName: profileData.displayName,
             avatar: profileData.avatar,
             description: profileData.description,
+            followerCount: profileData.followersCount,
           };
           setUser(profile);
 

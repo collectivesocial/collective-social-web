@@ -79,6 +79,7 @@ export function FollowButton({ apiUrl, userDid, initialFollowing, onFollowChange
           loading={loading}
           colorPalette="teal"
           variant="outline"
+          bg="transparent"
           size={{ base: 'sm', md: 'md' }}
         >
           Following
@@ -88,6 +89,7 @@ export function FollowButton({ apiUrl, userDid, initialFollowing, onFollowChange
           onClick={handleFollow}
           loading={loading}
           colorPalette="teal"
+          bg="teal"
           size={{ base: 'sm', md: 'md' }}
         >
           Follow

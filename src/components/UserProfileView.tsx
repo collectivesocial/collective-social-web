@@ -19,6 +19,7 @@ interface UserProfile {
   displayName?: string;
   avatar?: string;
   description?: string;
+  followerCount?: number;
 }
 
 interface Collection {
@@ -98,7 +99,7 @@ export function UserProfileView({
                   {user.displayName || user.handle}
                 </Heading>
                 <ChakraLink
-                  href={`https://bsky.app/profile/${user.did}`}
+                  href={`https://bsky.app/profile/@${user.handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   color="fg.muted"
@@ -107,6 +108,9 @@ export function UserProfileView({
                 >
                   @{user.handle}
                 </ChakraLink>
+                <Text color="fg.muted" fontSize="sm">
+                  {user.followerCount} {user.followerCount === 1 ? 'follower' : 'followers'}
+                </Text>
               </VStack>
 
               {showFollowButton && !isOwnProfile && (
