@@ -25,6 +25,7 @@ interface MediaItem {
   coverImage: string | null;
   description: string | null;
   publishedYear: number | null;
+  totalRatings: number;
   totalReviews: number;
   totalSaves: number;
   averageRating: number | null;
@@ -263,7 +264,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                       {item.averageRating?.toFixed(1)}
                     </Text>
                     <Text color="fg.muted" fontSize="sm">
-                      {item.totalReviews} {item.totalReviews === 1 ? 'review' : 'reviews'}
+                      {item.totalRatings} {item.totalRatings === 1 ? 'rating' : 'ratings'}
                     </Text>
                   </VStack>
                 </HStack>

@@ -11,13 +11,14 @@ import {
 } from '@chakra-ui/react';
 import { Field } from './ui/field';
 
-interface MediaSearchResult {
+export interface MediaSearchResult {
   title: string;
   author: string | null;
   publishYear: number | null;
   isbn: string | null;
   coverImage: string | null;
   inDatabase: boolean;
+  totalRatings: number;
   totalReviews: number;
   averageRating: number | null;
   mediaItemId: number | null;

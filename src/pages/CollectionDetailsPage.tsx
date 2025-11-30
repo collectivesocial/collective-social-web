@@ -22,6 +22,7 @@ interface MediaSearchResult {
   isbn: string | null;
   coverImage: string | null;
   inDatabase: boolean;
+  totalRatings: number;
   totalReviews: number;
   averageRating: number | null;
   mediaItemId: number | null;
@@ -53,6 +54,7 @@ interface ListItem {
     coverImage: string | null;
     description: string | null;
     publishedYear: number | null;
+    totalRatings: number;
     totalReviews: number;
     averageRating: number | null;
   };
@@ -119,6 +121,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         isbn: sharedIsbn,
         coverImage: sharedCoverImage,
         inDatabase: !!sharedMediaItemId,
+        totalRatings: 0,
         totalReviews: 0,
         averageRating: null,
         mediaItemId: sharedMediaItemId ? parseInt(sharedMediaItemId) : null,

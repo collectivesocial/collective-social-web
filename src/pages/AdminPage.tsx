@@ -34,6 +34,7 @@ interface MediaItem {
   title: string;
   creator: string | null;
   isbn: string | null;
+  totalRatings: number;
   totalReviews: number;
   averageRating: number | null;
   createdAt: string;

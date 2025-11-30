@@ -13,13 +13,14 @@ import {
 import { Field } from './ui/field';
 import { MediaSearch } from './MediaSearch';
 
-interface MediaSearchResult {
+export interface MediaSearchResult {
   title: string;
   author: string | null;
   publishYear: number | null;
   isbn: string | null;
   coverImage: string | null;
   inDatabase: boolean;
+  totalRatings: number;
   totalReviews: number;
   averageRating: number | null;
   mediaItemId: number | null;
