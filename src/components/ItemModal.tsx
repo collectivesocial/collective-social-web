@@ -12,6 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { Field } from './ui/field';
 import { MediaSearch } from './MediaSearch';
+import { StarRating } from './StarRating';
+import { StarRatingSelector } from './StarRatingSelector';
 
 export interface MediaSearchResult {
   title: string;
@@ -66,31 +68,7 @@ export function ItemModal({
 }: ItemModalProps) {
   if (!isOpen) return null;
 
-  const renderStarPicker = () => {
-    const stars = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
-    return (
-      <HStack gap={1} flexWrap="wrap">
-        {stars.map((star) => (
-          <Button
-            key={star}
-            type="button"
-            variant="ghost"
-            size="sm"
-            background="transparent"
-            p={1}
-            minW="auto"
-            opacity={star <= reviewData.rating ? 1 : 0.3}
-            onClick={() => onReviewDataChange({ ...reviewData, rating: star })}
-          >
-            {star % 1 === 0 ? '⭐' : '✨'}
-          </Button>
-        ))}
-        <Text ml={2} color="fg.muted" fontSize="sm">
-          {reviewData.rating.toFixed(1)}
-        </Text>
-      </HStack>
-    );
-  };
+
 
   const displayMedia = mode === 'edit'
     ? { title: itemTitle, author: itemCreator, coverImage: itemCoverImage }
@@ -169,11 +147,9 @@ export function ItemModal({
                       )}
                       {mode === 'add' && selectedMedia?.inDatabase && selectedMedia.totalReviews > 0 && (
                         <HStack gap={2} mt={2} fontSize="sm">
-                          <Text color="yellow.400">
-                            ⭐ {selectedMedia.averageRating?.toFixed(1)}
-                          </Text>
+                          <StarRating rating={selectedMedia.averageRating || 0} size="1em" />
                           <Text color="fg.muted">
-                            ({selectedMedia.totalReviews}{' '}
+                            {selectedMedia.averageRating?.toFixed(1)} ({selectedMedia.totalReviews}{' '}
                             {selectedMedia.totalReviews === 1 ? 'review' : 'reviews'})
                           </Text>
                         </HStack>
@@ -232,7 +208,15 @@ export function ItemModal({
 
                   {/* Rating */}
                   <Field label="Rating (0-5 stars)">
-                    {renderStarPicker()}
+                    <HStack gap={2}>
+                      <StarRatingSelector
+                        rating={reviewData.rating}
+                        onChange={(r) => onReviewDataChange({ ...reviewData, rating: r })}
+                      />
+                      <Text color="fg.muted" fontSize="sm">
+                        {reviewData.rating.toFixed(1)}
+                      </Text>
+                    </HStack>
                   </Field>
 
                   {/* Public Review */}

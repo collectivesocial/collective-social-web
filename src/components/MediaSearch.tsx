@@ -10,6 +10,7 @@ import {
   Heading,
 } from '@chakra-ui/react';
 import { Field } from './ui/field';
+import { StarRating } from './StarRating';
 
 export interface MediaSearchResult {
   title: string;
@@ -210,7 +211,12 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   {result.inDatabase && (
                     <HStack gap={2} fontSize="sm">
                       {result.averageRating !== null && (
-                        <Text color="yellow.400">⭐ {result.averageRating.toFixed(1)}</Text>
+                        <>
+                          <StarRating rating={result.averageRating} size="1em" />
+                          <Text color="fg.muted">
+                            {result.averageRating.toFixed(1)}
+                          </Text>
+                        </>
                       )}
                       <Text color="fg.muted">
                         ({result.totalReviews}{' '}

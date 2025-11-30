@@ -15,6 +15,7 @@ import {
 import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
 import { ShareButton } from '../components/ShareButton';
+import { StarRating } from '../components/StarRating';
 
 interface MediaItem {
   id: number;
@@ -255,10 +256,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                 w={{ base: 'full', md: 'auto' }}
               >
                 <HStack gap={4}>
-                  <Text fontSize="3xl" color="yellow.400">
-                    {'⭐'.repeat(Math.floor(item.averageRating || 0))}
-                    {(item.averageRating || 0) % 1 >= 0.5 && '✨'}
-                  </Text>
+                  <StarRating rating={item.averageRating || 0} size="2rem" />
                   <VStack align="flex-start" gap={0}>
                     <Text fontSize="2xl" fontWeight="bold">
                       {item.averageRating?.toFixed(1)}
@@ -356,10 +354,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                           </Text>
                         </Flex>
                         <HStack gap={1} flexShrink={0}>
-                          <Text color="yellow.400" fontSize="lg">
-                            {'⭐'.repeat(Math.floor(review.rating))}
-                            {review.rating % 1 >= 0.5 && '✨'}
-                          </Text>
+                          <StarRating rating={review.rating} size="1.25rem" />
                           <Text color="fg.muted" fontSize="sm">
                             {review.rating.toFixed(1)}
                           </Text>

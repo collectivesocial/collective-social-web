@@ -1,6 +1,7 @@
 import { Box, Flex, Text, Badge, Button, HStack, Heading } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { ShareButton } from './ShareButton';
+import { StarRating } from './StarRating';
 
 interface Recommendation {
   did: string;
@@ -55,16 +56,7 @@ export function MediaItemCard({
 }: MediaItemCardProps) {
   const navigate = useNavigate();
 
-  const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    return (
-      <>
-        {'⭐'.repeat(fullStars)}
-        {hasHalfStar && '✨'}
-      </>
-    );
-  };
+
 
   return (
     <Box
@@ -165,9 +157,7 @@ export function MediaItemCard({
 
           {item.rating !== null && item.rating > 0 && (
             <Flex align="center" gap={2} mb={2}>
-              <Text color="yellow.400" fontSize="sm">
-                {renderStars(item.rating)}
-              </Text>
+              <StarRating rating={item.rating} size="1em" />
               <Text color="fg.muted" fontSize="sm">
                 {item.rating.toFixed(1)}
               </Text>
@@ -205,13 +195,18 @@ export function MediaItemCard({
               cursor="pointer"
               onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
             >
-              <Text color="fg.muted" fontSize="xs">
-                Community: ⭐{' '}
-                {typeof item.mediaItem.averageRating === 'number'
-                  ? item.mediaItem.averageRating.toFixed(1)
-                  : 'N/A'}{' '}
-                ({item.mediaItem.totalReviews} reviews)
-              </Text>
+              <Flex align="center" gap={2}>
+                <Text color="fg.muted" fontSize="xs">
+                  Community:
+                </Text>
+                <StarRating rating={item.mediaItem.averageRating || 0} size="0.875rem" />
+                <Text color="fg.muted" fontSize="xs">
+                  {typeof item.mediaItem.averageRating === 'number'
+                    ? item.mediaItem.averageRating.toFixed(1)
+                    : 'N/A'}{' '}
+                  ({item.mediaItem.totalReviews} reviews)
+                </Text>
+              </Flex>
             </Box>
           )}
 

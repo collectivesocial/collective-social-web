@@ -19,6 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { Field } from '../components/ui/field';
 import { EmptyState } from '../components/EmptyState';
+import { StarRating } from '../components/StarRating';
 
 interface User {
   did: string;
@@ -694,7 +695,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                   <Table.Cell textAlign="center" fontSize="sm">
                     {item.averageRating ? (
                       <HStack justify="center" gap={1}>
-                        <Text color="yellow.400">⭐</Text>
+                        <StarRating rating={item.averageRating} size="1em" />
                         <Text>{item.averageRating.toFixed(1)}</Text>
                       </HStack>
                     ) : (
