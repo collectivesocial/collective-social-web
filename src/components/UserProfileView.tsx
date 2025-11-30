@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { EmptyState } from './EmptyState';
 import { FollowButton } from './FollowButton';
+import { renderTextWithLinks } from '../utils/textUtils';
 
 interface UserProfile {
   did: string;
@@ -152,7 +153,7 @@ export function UserProfileView({
                 lineHeight={1.6}
                 whiteSpace="pre-wrap"
               >
-                {user.description}
+                {renderTextWithLinks(user.description)}
               </Text>
             </Box>
           ) : (
