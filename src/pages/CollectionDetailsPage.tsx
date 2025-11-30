@@ -100,19 +100,25 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   // Handle shared link parameters
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
+    const shouldAdd = searchParams.get('add');
+    const mediaId = searchParams.get('mediaId');
+    const mediaType = searchParams.get('mediaType');
     const sharedTitle = searchParams.get('title');
     const sharedCreator = searchParams.get('creator');
-    const sharedMediaItemId = searchParams.get('mediaItemId');
+    const sharedIsbn = searchParams.get('isbn');
     const sharedRecommender = searchParams.get('recommendedBy');
     const sharedCoverImage = searchParams.get('coverImage');
 
-    if (sharedTitle && currentUserDid) {
+    // Support both old 'mediaItemId' and new 'mediaId' parameters
+    const sharedMediaItemId = mediaId || searchParams.get('mediaItemId');
+
+    if (shouldAdd === 'true' && sharedTitle && currentUserDid) {
       // Pre-populate the form with shared data
       setSelectedMedia({
         title: sharedTitle,
         author: sharedCreator,
         publishYear: null,
-        isbn: null,
+        isbn: sharedIsbn,
         coverImage: sharedCoverImage,
         inDatabase: !!sharedMediaItemId,
         totalReviews: 0,

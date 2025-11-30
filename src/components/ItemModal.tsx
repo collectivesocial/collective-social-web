@@ -75,6 +75,7 @@ export function ItemModal({
             type="button"
             variant="ghost"
             size="sm"
+            background="transparent"
             p={1}
             minW="auto"
             opacity={star <= reviewData.rating ? 1 : 0.3}
@@ -181,6 +182,7 @@ export function ItemModal({
                       <Button
                         type="button"
                         variant="ghost"
+                        background="transparent"
                         size="sm"
                         onClick={() => onMediaSelect(null as any)}
                       >
@@ -280,10 +282,10 @@ export function ItemModal({
 
                   {/* Action Buttons */}
                   <Flex justify="flex-end" gap={3} pt={2}>
-                    <Button type="button" variant="outline" onClick={onClose}>
+                    <Button type="button" variant="outline" bg="transparent" onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button type="submit" colorPalette="teal">
+                    <Button type="submit" colorPalette="teal" bg="teal">
                       {mode === 'add' ? 'Add Item' : 'Save Changes'}
                     </Button>
                   </Flex>

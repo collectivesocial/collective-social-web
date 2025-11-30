@@ -11,9 +11,12 @@ import {
   HStack,
   Spinner,
   Center,
+  IconButton,
 } from '@chakra-ui/react';
 import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
+import { toaster } from '../components/ui/toaster';
+import { LuShare2 } from 'react-icons/lu';
 
 interface MediaItem {
   id: number;
@@ -56,6 +59,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [hasMoreReviews, setHasMoreReviews] = useState(false);
   const [reviewsOffset, setReviewsOffset] = useState(0);
+  const [isSharing, setIsSharing] = useState(false);
   const navigate = useNavigate();
   const REVIEWS_PER_PAGE = 10;
 
@@ -119,6 +123,51 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
 
   const loadMoreReviews = () => {
     fetchReviews(reviewsOffset + REVIEWS_PER_PAGE);
+  };
+
+  const handleShare = async () => {
+    if (!item) return;
+    
+    setIsSharing(true);
+    try {
+      const response = await fetch(`${apiUrl}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          mediaItemId: item.id,
+          mediaType: item.mediaType,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create share link');
+      }
+
+      const data = await response.json();
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(data.url);
+      
+      toaster.create({
+        title: 'Share link copied!',
+        description: 'The share link has been copied to your clipboard.',
+        type: 'success',
+        duration: 3000,
+      });
+    } catch (err: any) {
+      console.error('Share error:', err);
+      toaster.create({
+        title: 'Failed to create share link',
+        description: err.message || 'Please try again later.',
+        type: 'error',
+        duration: 3000,
+      });
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -202,9 +251,30 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
           )}
           
           <VStack align={{ base: 'center', md: 'flex-start' }} flex={1} gap={4} textAlign={{ base: 'center', md: 'left' }}>
-            <Heading size={{ base: 'xl', md: '2xl' }}>
-              {item.title}
-            </Heading>
+            <Flex 
+              direction={{ base: 'column', md: 'row' }} 
+              w="full" 
+              align={{ base: 'center', md: 'flex-start' }} 
+              justify="space-between" 
+              gap={4}
+            >
+              <Box flex={1}>
+                <Heading size={{ base: 'xl', md: '2xl' }}>
+                  {item.title}
+                </Heading>
+              </Box>
+              <IconButton
+                aria-label="Share this item"
+                onClick={handleShare}
+                disabled={isSharing}
+                colorPalette="teal"
+                variant="outline"
+                size={{ base: 'sm', md: 'md' }}
+                flexShrink={0}
+              >
+                <LuShare2 />
+              </IconButton>
+            </Flex>
             
             {item.creator && (
               <Text color="fg.muted" fontSize={{ base: 'lg', md: 'xl' }}>

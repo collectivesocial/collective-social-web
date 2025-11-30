@@ -12,6 +12,7 @@ import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { AdminPage } from './pages/AdminPage'
 import { FeedbackPage } from './pages/FeedbackPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { ShareRedirectPage } from './pages/ShareRedirectPage'
 import './App.css'
 
 interface UserProfile {
@@ -41,6 +42,14 @@ function App() {
       .then((data) => {
         setUser(data)
         setIsAuthenticated(true)
+        
+        // Check for pending share link after login
+        const pendingShareLink = sessionStorage.getItem('pendingShareLink')
+        if (pendingShareLink) {
+          sessionStorage.removeItem('pendingShareLink')
+          // Redirect to the share link page
+          window.location.href = `/share/${pendingShareLink}`
+        }
       })
       .catch(() => {
         setUser(null)
@@ -104,6 +113,10 @@ function App() {
               <Route 
                 path="/settings" 
                 element={<SettingsPage apiUrl={apiUrl} user={user} />} 
+              />
+              <Route 
+                path="/share/:shortCode" 
+                element={<ShareRedirectPage apiUrl={apiUrl} />} 
               />
               </Routes>
             )}
