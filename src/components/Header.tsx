@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ColorModeButton } from './ui/color-mode';
 
 interface UserProfile {
   did: string;
@@ -132,20 +133,23 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
           )}
         </div>
 
-        {isAuthenticated && user && (
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}
-            >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <ColorModeButton />
+          
+          {isAuthenticated && user && (
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                }}
+              >
               {user.avatar ? (
                 <img
                   src={user.avatar}
@@ -173,10 +177,10 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                   {(user.displayName || user.handle).charAt(0).toUpperCase()}
                 </div>
               )}
-            </button>
+              </button>
 
-            {showUserMenu && (
-              <div style={{
+              {showUserMenu && (
+                <div style={{
                 position: 'absolute',
                 top: '50px',
                 right: 0,
@@ -223,10 +227,11 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                 >
                   Logout
                 </button>
-              </div>
-            )}
-          </div>
-        )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Provider } from './components/ui/provider'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { HomePage } from './pages/HomePage'
@@ -47,60 +48,62 @@ function App() {
   }, [])
 
   return (
-    <BrowserRouter>
-      <Header user={user} isAuthenticated={!!isAuthenticated} apiUrl={apiUrl} />
-      <main style={{
-        marginTop: isAuthenticated ? '80px' : '20px',
-        minHeight: 'calc(100vh - 80px)',
-        transition: 'margin-top 0.3s ease',
-      }}>
-        {isAuthenticated === null ? (
-          <div className="card">Loading...</div>
-        ) : (
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <HomePage 
-                  isAuthenticated={!!isAuthenticated} 
-                  user={user} 
-                  apiUrl={apiUrl} 
-                />
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={<ProfilePage apiUrl={apiUrl} />} 
-            />
-            <Route 
-              path="/profile/:handle" 
-              element={<PublicProfilePage apiUrl={apiUrl} />} 
-            />
-            <Route 
-              path="/collections" 
-              element={<CollectionsPage apiUrl={apiUrl} />} 
-            />
-            <Route 
-              path="/collections/:collectionUri" 
-              element={<CollectionDetailsPage apiUrl={apiUrl} />} 
-            />
-            <Route 
-              path="/items/:itemId" 
-              element={<ItemDetailsPage apiUrl={apiUrl} />} 
-            />
-            <Route 
-              path="/admin" 
-              element={<AdminPage apiUrl={apiUrl} />} 
-            />
-            <Route 
-              path="/feedback" 
-              element={<FeedbackPage />} 
-            />
-          </Routes>
-        )}
-      </main>
-      <Footer />
-    </BrowserRouter>
+    <Provider>
+      <BrowserRouter>
+        <Header user={user} isAuthenticated={!!isAuthenticated} apiUrl={apiUrl} />
+        <main style={{
+          marginTop: isAuthenticated ? '80px' : '20px',
+          minHeight: 'calc(100vh - 80px)',
+          transition: 'margin-top 0.3s ease',
+        }}>
+          {isAuthenticated === null ? (
+            <div className="card">Loading...</div>
+          ) : (
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <HomePage 
+                    isAuthenticated={!!isAuthenticated} 
+                    user={user} 
+                    apiUrl={apiUrl} 
+                  />
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={<ProfilePage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/profile/:handle" 
+                element={<PublicProfilePage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/collections" 
+                element={<CollectionsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/collections/:collectionUri" 
+                element={<CollectionDetailsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/items/:itemId" 
+                element={<ItemDetailsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin" 
+                element={<AdminPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/feedback" 
+                element={<FeedbackPage />} 
+              />
+            </Routes>
+          )}
+        </main>
+        <Footer />
+      </BrowserRouter>
+    </Provider>
   )
 }
 
