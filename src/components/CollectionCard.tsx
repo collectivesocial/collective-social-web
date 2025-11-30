@@ -58,6 +58,7 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
             <Button
               size="xs"
               variant="outline"
+              bg="transparent"
               colorPalette="teal"
               onClick={(e) => {
                 e.stopPropagation();

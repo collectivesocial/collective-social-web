@@ -244,6 +244,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           <Button
             onClick={() => navigate('/')}
             colorPalette="teal"
+            variant="outline"
           >
             Go Home
           </Button>
@@ -474,6 +475,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                     <Button
                       onClick={() => handleSaveFeedback(item.id)}
                       colorPalette="green"
+                      variant="outline"
                       size="sm"
                     >
                       Save
@@ -517,6 +519,8 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                   <Button
                     onClick={() => handleEditFeedback(item)}
                     colorPalette="teal"
+                    variant="outline"
+                    bg="transparent"
                     size="sm"
                     flexShrink={0}
                   >
