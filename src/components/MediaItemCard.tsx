@@ -1,5 +1,6 @@
 import { Box, Flex, Text, Badge, Button, HStack, Heading } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { ShareButton } from './ShareButton';
 
 interface Recommendation {
   did: string;
@@ -38,7 +39,7 @@ interface MediaItemCardProps {
   item: ListItem;
   recommenderHandles: Record<string, string>;
   isOwner: boolean;
-  onShare: (item: ListItem) => void;
+  apiUrl: string;
   onEdit: (item: ListItem) => void;
   onDelete: (itemUri: string) => void;
 }
@@ -47,7 +48,7 @@ export function MediaItemCard({
   item,
   recommenderHandles,
   isOwner,
-  onShare,
+  apiUrl,
   onEdit,
   onDelete,
 }: MediaItemCardProps) {
@@ -127,15 +128,15 @@ export function MediaItemCard({
                   {item.status.replace('-', ' ')}
                 </Badge>
               )}
-              <Button
-                size="xs"
-                variant="outline"
-                bg="transparent"
-                colorPalette="green"
-                onClick={() => onShare(item)}
-              >
-                🔗 Share
-              </Button>
+              {item.mediaItemId && (
+                <ShareButton
+                  apiUrl={apiUrl}
+                  mediaItemId={item.mediaItemId}
+                  mediaType={item.mediaType || 'book'}
+                  size="xs"
+                  variant="outline"
+                />
+              )}
               {isOwner && (
                 <>
                   <Button

@@ -74,7 +74,6 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserDid, setCurrentUserDid] = useState<string | null>(null);
-  const [currentUserHandle, setCurrentUserHandle] = useState<string | null>(null);
   const [collection, setCollection] = useState<Collection | null>(null);
   const [items, setItems] = useState<ListItem[]>([]);
   const [recommenderHandles, setRecommenderHandles] = useState<Record<string, string>>({});
@@ -102,7 +101,6 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     const searchParams = new URLSearchParams(window.location.search);
     const shouldAdd = searchParams.get('add');
     const mediaId = searchParams.get('mediaId');
-    const mediaType = searchParams.get('mediaType');
     const sharedTitle = searchParams.get('title');
     const sharedCreator = searchParams.get('creator');
     const sharedIsbn = searchParams.get('isbn');
@@ -152,7 +150,6 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         }
         const userData = await authRes.json();
         setCurrentUserDid(userData.did);
-        setCurrentUserHandle(userData.handle);
 
         // Fetch all collections to find this one
         const collectionsRes = await fetch(`${apiUrl}/collections`, {
@@ -231,45 +228,6 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
 
   const handleMediaSelect = (media: MediaSearchResult) => {
     setSelectedMedia(media);
-  };
-
-  const handleShareItem = async (item: ListItem) => {
-    if (!currentUserHandle) {
-      alert('Unable to generate share link');
-      return;
-    }
-
-    try {
-      // Get the user's default list (Inbox) URI
-      const collectionsRes = await fetch(`${apiUrl}/collections`, {
-        credentials: 'include',
-      });
-      if (!collectionsRes.ok) {
-        throw new Error('Failed to fetch collections');
-      }
-      const collectionsData = await collectionsRes.json();
-      const defaultList = collectionsData.collections.find((c: Collection & { isDefault?: boolean }) => c.isDefault);
-      
-      if (!defaultList) {
-        alert('Default Inbox list not found');
-        return;
-      }
-
-      // Build share URL with item data and recommender
-      const shareUrl = new URL(window.location.origin + `/collections/${encodeURIComponent(defaultList.uri)}`);
-      shareUrl.searchParams.set('title', item.title);
-      if (item.creator) shareUrl.searchParams.set('creator', item.creator);
-      if (item.mediaItemId) shareUrl.searchParams.set('mediaItemId', item.mediaItemId.toString());
-      if (item.mediaItem?.coverImage) shareUrl.searchParams.set('coverImage', item.mediaItem.coverImage);
-      shareUrl.searchParams.set('recommendedBy', currentUserHandle);
-
-      // Copy to clipboard
-      await navigator.clipboard.writeText(shareUrl.toString());
-      alert('Share link copied to clipboard!');
-    } catch (err) {
-      console.error('Failed to generate share link:', err);
-      alert('Failed to generate share link');
-    }
   };
 
   const handleEditItem = (item: ListItem) => {
@@ -506,7 +464,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
               item={item}
               recommenderHandles={recommenderHandles}
               isOwner={isOwner()}
-              onShare={handleShareItem}
+              apiUrl={apiUrl}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
             />
