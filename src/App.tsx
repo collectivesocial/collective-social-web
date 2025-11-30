@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Box } from '@chakra-ui/react'
 import { Provider } from './components/ui/provider'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
@@ -50,16 +51,18 @@ function App() {
   return (
     <Provider>
       <BrowserRouter>
-        <Header user={user} isAuthenticated={!!isAuthenticated} apiUrl={apiUrl} />
-        <main style={{
-          marginTop: isAuthenticated ? '80px' : '20px',
-          minHeight: 'calc(100vh - 80px)',
-          transition: 'margin-top 0.3s ease',
-        }}>
-          {isAuthenticated === null ? (
-            <div className="card">Loading...</div>
-          ) : (
-            <Routes>
+        <Box minH="100vh" bg="bg">
+          <Header user={user} isAuthenticated={!!isAuthenticated} apiUrl={apiUrl} />
+          <Box
+            as="main"
+            mt={isAuthenticated ? '80px' : '20px'}
+            minH="calc(100vh - 80px)"
+            transition="margin-top 0.3s ease"
+          >
+            {isAuthenticated === null ? (
+              <div className="card">Loading...</div>
+            ) : (
+              <Routes>
               <Route 
                 path="/" 
                 element={
@@ -98,10 +101,11 @@ function App() {
                 path="/feedback" 
                 element={<FeedbackPage />} 
               />
-            </Routes>
-          )}
-        </main>
-        <Footer />
+              </Routes>
+            )}
+          </Box>
+          <Footer />
+        </Box>
       </BrowserRouter>
     </Provider>
   )

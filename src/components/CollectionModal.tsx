@@ -8,7 +8,6 @@ import {
   Textarea,
   VStack,
   HStack,
-  Dialog,
   Portal,
 } from '@chakra-ui/react';
 import { Field } from './ui/field';
