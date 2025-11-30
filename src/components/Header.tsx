@@ -12,7 +12,7 @@ import {
   Menu,
   Portal,
 } from '@chakra-ui/react';
-import { ColorModeButton, useColorModeValue } from './ui/color-mode';
+import { ColorModeButton, useColorModeValue, useColorMode, ColorModeIcon } from './ui/color-mode';
 import { Avatar } from './ui/avatar';
 
 interface UserProfile {
@@ -27,6 +27,18 @@ interface HeaderProps {
   user: UserProfile | null;
   isAuthenticated: boolean;
   apiUrl: string;
+}
+
+function MobileColorModeToggle() {
+  const { toggleColorMode } = useColorMode();
+  return (
+    <Menu.Item value="theme" onClick={toggleColorMode}>
+      <Flex align="center" justify="space-between" w="full">
+        <Text>Theme</Text>
+        <ColorModeIcon />
+      </Flex>
+    </Menu.Item>
+  );
 }
 
 export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
@@ -103,7 +115,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
             </Link>
 
             {isAuthenticated && (
-              <HStack as="nav" gap={6}>
+              <HStack as="nav" gap={6} display={{ base: 'none', md: 'flex' }}>
                 <Link asChild fontSize="md" color="fg.muted" _hover={{ color: 'teal.500' }}>
                   <RouterLink to="/collections">Collections</RouterLink>
                 </Link>
@@ -115,7 +127,9 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
           </HStack>
 
           <HStack gap={3}>
-            <ColorModeButton />
+            <Box display={{ base: 'none', md: 'block' }}>
+              <ColorModeButton />
+            </Box>
 
             {isAuthenticated && user && (
               <Menu.Root positioning={{ placement: 'bottom-end' }}>
@@ -145,6 +159,15 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         </Text>
                       </Box>
                       <Menu.Separator />
+                      <Box display={{ base: 'block', md: 'none' }}>
+                        <Menu.Item value="collections" asChild>
+                          <RouterLink to="/collections">Collections</RouterLink>
+                        </Menu.Item>
+                        <Menu.Item value="groups" asChild>
+                          <RouterLink to="/groups">Groups</RouterLink>
+                        </Menu.Item>
+                        <Menu.Separator />
+                      </Box>
                       {isAdmin && (
                         <Menu.Item value="admin" asChild>
                           <RouterLink to="/admin">Admin</RouterLink>
@@ -154,6 +177,10 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         <RouterLink to="/profile">Profile</RouterLink>
                       </Menu.Item>
                       {isAdmin && <Menu.Separator />}
+                      <Box display={{ base: 'block', md: 'none' }}>
+                        <Menu.Separator />
+                        <MobileColorModeToggle />
+                      </Box>
                       <Menu.Separator />
                       <Menu.Item
                         value="logout"
