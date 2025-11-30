@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ColorModeButton } from './ui/color-mode';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  HStack,
+  Image,
+  Link,
+  Text,
+  Menu,
+  Portal,
+} from '@chakra-ui/react';
+import { ColorModeButton, useColorModeValue } from './ui/color-mode';
+import { Avatar } from './ui/avatar';
 
 interface UserProfile {
   did: string;
@@ -17,8 +30,12 @@ interface HeaderProps {
 }
 
 export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Chakra UI color mode values
+  const headerBg = useColorModeValue('white', 'gray.900');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const logoFilter = useColorModeValue('none', 'invert(1)');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -44,195 +61,116 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   };
 
   return (
-    <header style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: isAuthenticated ? '60px' : 'auto',
-      backgroundColor: '#1a1a1a',
-      borderBottom: '1px solid #333',
-      zIndex: 1000,
-      transition: 'height 0.3s ease',
-    }}>
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: isAuthenticated ? '0 2rem' : '2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        height: '100%',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <Link to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-            <img 
-              src="/basket.svg" 
-              alt="Collective Logo" 
-              style={{
-                height: isAuthenticated ? '1.5rem' : '2.5rem',
-                width: isAuthenticated ? '1.5rem' : '2.5rem',
-                transition: 'height 0.3s ease, width 0.3s ease',
-                filter: 'brightness(0) saturate(100%) invert(100%)',
-              }}
-            />
-            <h1 style={{
-              margin: 0,
-              fontSize: isAuthenticated ? '1.5rem' : '2.5rem',
-              transition: 'font-size 0.3s ease',
-            }}>
-              Collective
-            </h1>
-          </Link>
-          
-          {isAuthenticated && (
-            <nav style={{ display: 'flex', gap: '1.5rem' }}>
-              <Link
-                to="/collections"
-                style={{
-                  color: '#ddd',
-                  textDecoration: 'none',
-                  fontSize: '1rem',
-                  transition: 'color 0.2s',
-                }}
-                onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
-                onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
-              >
-                Collections
-              </Link>
-              <Link
-                to="/groups"
-                style={{
-                  color: '#ddd',
-                  textDecoration: 'none',
-                  fontSize: '1rem',
-                  transition: 'color 0.2s',
-                }}
-                onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
-                onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
-              >
-                Groups
-              </Link>
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  style={{
-                    color: '#ffd700',
-                    textDecoration: 'none',
-                    fontSize: '1rem',
-                    fontWeight: '500',
-                    transition: 'color 0.2s',
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#ffed4e'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#ffd700'}
-                >
-                  Admin
-                </Link>
-              )}
-            </nav>
-          )}
-        </div>
+    <Box
+      as="header"
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      h={isAuthenticated ? '60px' : 'auto'}
+      bg={headerBg}
+      borderBottom="1px"
+      borderColor={borderColor}
+      zIndex={1000}
+      transition="all 0.3s ease"
+    >
+      <Container maxW="container.xl" h="full">
+        <Flex
+          py={isAuthenticated ? 0 : 4}
+          h="full"
+          justify="space-between"
+          align="center"
+        >
+          <HStack gap={8}>
+            <Link asChild _hover={{ textDecoration: 'none' }}>
+              <RouterLink to="/">
+                <Flex align="center" gap={2}>
+                  <Image
+                    src="/basket.svg"
+                    alt="Collective Logo"
+                    boxSize={isAuthenticated ? '1.5rem' : '2.5rem'}
+                    transition="all 0.3s ease"
+                    filter={logoFilter}
+                  />
+                  <Heading
+                    size={isAuthenticated ? 'md' : 'xl'}
+                    transition="all 0.3s ease"
+                  >
+                    Collective
+                  </Heading>
+                </Flex>
+              </RouterLink>
+            </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <ColorModeButton />
-          
-          {isAuthenticated && user && (
-            <div style={{ position: 'relative' }}>
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                }}
-              >
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.displayName || user.handle}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '2px solid #646cff',
-                  }}
-                />
-              ) : (
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  backgroundColor: '#646cff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                }}>
-                  {(user.displayName || user.handle).charAt(0).toUpperCase()}
-                </div>
-              )}
-              </button>
-
-              {showUserMenu && (
-                <div style={{
-                position: 'absolute',
-                top: '50px',
-                right: 0,
-                backgroundColor: '#2a2a2a',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                minWidth: '200px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-              }}>
-                <Link
-                  to="/profile"
-                  onClick={() => setShowUserMenu(false)}
-                  style={{
-                    display: 'block',
-                    padding: '1rem',
-                    borderBottom: '1px solid #333',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#333'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                    {user.displayName || user.handle}
-                  </div>
-                  <div style={{ color: '#888', fontSize: '0.875rem' }}>
-                    @{user.handle}
-                  </div>
+            {isAuthenticated && (
+              <HStack as="nav" gap={6}>
+                <Link asChild fontSize="md" color="fg.muted" _hover={{ color: 'teal.500' }}>
+                  <RouterLink to="/collections">Collections</RouterLink>
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    background: 'none',
-                    border: 'none',
-                    color: '#ff4444',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontSize: '0.875rem',
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#333'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                <Link asChild fontSize="md" color="fg.muted" _hover={{ color: 'teal.500' }}>
+                  <RouterLink to="/groups">Groups</RouterLink>
+                </Link>
+              </HStack>
+            )}
+          </HStack>
+
+          <HStack gap={3}>
+            <ColorModeButton />
+
+            {isAuthenticated && user && (
+              <Menu.Root positioning={{ placement: 'bottom-end' }}>
+                <Menu.Trigger
+                  rounded="full"
+                  focusRing="outside"
+                  cursor="pointer"
+                  bg="transparent"
                 >
-                  Logout
-                </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
+                  <Avatar
+                    size="sm"
+                    name={user.displayName || user.handle}
+                    src={user.avatar}
+                    outline="2px solid"
+                    outlineColor="teal.500"
+                  />
+                </Menu.Trigger>
+                <Portal>
+                  <Menu.Positioner>
+                    <Menu.Content>
+                      <Box px={3} py={2}>
+                        <Text fontWeight="bold" fontSize="sm">
+                          {user.displayName || user.handle}
+                        </Text>
+                        <Text color="fg.muted" fontSize="xs">
+                          @{user.handle}
+                        </Text>
+                      </Box>
+                      <Menu.Separator />
+                      {isAdmin && (
+                        <Menu.Item value="admin" asChild>
+                          <RouterLink to="/admin">Admin</RouterLink>
+                        </Menu.Item>
+                      )}
+                      <Menu.Item value="profile" asChild>
+                        <RouterLink to="/profile">Profile</RouterLink>
+                      </Menu.Item>
+                      {isAdmin && <Menu.Separator />}
+                      <Menu.Separator />
+                      <Menu.Item
+                        value="logout"
+                        onClick={handleLogout}
+                        color="fg.error"
+                        _hover={{ bg: 'bg.error', color: 'fg.error' }}
+                      >
+                        Logout
+                      </Menu.Item>
+                    </Menu.Content>
+                  </Menu.Positioner>
+                </Portal>
+              </Menu.Root>
+            )}
+          </HStack>
+        </Flex>
+      </Container>
+    </Box>
   );
 }
