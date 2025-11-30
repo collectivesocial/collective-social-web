@@ -22,8 +22,16 @@ interface CollectionCardProps {
 export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardProps) {
   const navigate = useNavigate();
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigate(`/collections/${encodeURIComponent(collection.uri)}`);
+    }
+  };
+
   return (
     <Box
+      as="article"
       p={6}
       bg="bg.subtle"
       borderWidth="1px"
@@ -35,7 +43,16 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
         borderColor: 'teal.500',
         shadow: 'md',
       }}
+      _focusVisible={{
+        outline: '2px solid',
+        outlineColor: 'teal.500',
+        outlineOffset: '2px',
+      }}
       onClick={() => navigate(`/collections/${encodeURIComponent(collection.uri)}`)}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={`View collection: ${collection.name}`}
     >
       <Flex direction="column" gap={3}>
         <Flex justify="space-between" align="flex-start" gap={2}>
