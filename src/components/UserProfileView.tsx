@@ -99,7 +99,7 @@ export function UserProfileView({
                   {user.displayName || user.handle}
                 </Heading>
                 <ChakraLink
-                  href={`https://bsky.app/profile/@${user.handle}`}
+                  href={`https://bsky.app/profile/${user.handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   color="fg.muted"
