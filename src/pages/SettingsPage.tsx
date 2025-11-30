@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -8,6 +9,12 @@ import {
   VStack,
   Input,
   Portal,
+  HStack,
+  Flex,
+  IconButton,
+  Spinner,
+  Link,
+  Table,
 } from '@chakra-ui/react';
 import { Field } from '../components/ui/field';
 import {
@@ -22,6 +29,7 @@ import {
   DialogTrigger,
 } from '../components/ui/dialog';
 import { toaster } from '../components/ui/toaster';
+import { LuCopy, LuTrash2, LuExternalLink } from 'react-icons/lu';
 
 interface UserProfile {
   did: string;
@@ -31,15 +39,93 @@ interface UserProfile {
   description?: string;
 }
 
+interface ShareLink {
+  id: number;
+  shortCode: string;
+  mediaItemId: number;
+  mediaType: string;
+  timesClicked: number;
+  createdAt: string;
+  updatedAt: string;
+  title: string | null;
+  creator: string | null;
+  coverImage: string | null;
+  url: string;
+}
+
 interface SettingsPageProps {
   apiUrl: string;
   user: UserProfile | null;
 }
 
 export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
+  const navigate = useNavigate();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [confirmHandle, setConfirmHandle] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [shareLinks, setShareLinks] = useState<ShareLink[]>([]);
+  const [loadingLinks, setLoadingLinks] = useState(true);
+
+  useEffect(() => {
+    const fetchShareLinks = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/share/user/links`, {
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setShareLinks(data.links || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch share links:', error);
+      } finally {
+        setLoadingLinks(false);
+      }
+    };
+
+    fetchShareLinks();
+  }, [apiUrl]);
+
+  const handleCopyLink = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toaster.success({
+        title: 'Link copied!',
+        description: 'Share link has been copied to clipboard.',
+      });
+    } catch (error) {
+      toaster.error({
+        title: 'Copy failed',
+        description: 'Unable to copy link to clipboard.',
+      });
+    }
+  };
+
+  const handleDeleteShareLink = async (linkId: number) => {
+    try {
+      const response = await fetch(`${apiUrl}/share/user/links/${linkId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        setShareLinks((prev) => prev.filter((link) => link.id !== linkId));
+        toaster.success({
+          title: 'Link deleted',
+          description: 'Share link has been removed.',
+        });
+      } else {
+        throw new Error('Failed to delete link');
+      }
+    } catch (error) {
+      console.error('Error deleting share link:', error);
+      toaster.error({
+        title: 'Deletion failed',
+        description: 'Unable to delete share link. Please try again.',
+      });
+    }
+  };
 
   const handleDeleteAccount = async () => {
     if (!user || confirmHandle !== user.handle) {
@@ -92,6 +178,117 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
         <Heading size={{ base: 'xl', md: '2xl' }}>
           Settings
         </Heading>
+
+        {/* Share Links Section */}
+        <Box
+          bg="bg.subtle"
+          borderWidth="1px"
+          borderColor="border"
+          borderRadius="lg"
+          p={{ base: 4, md: 6 }}
+        >
+          <VStack align="stretch" gap={4}>
+            <Heading size="lg">Your Share Links</Heading>
+            <Text color="fg.muted" fontSize="sm">
+              Manage your shared item links. These links allow others to quickly add items you've recommended to their collections.
+            </Text>
+
+            {loadingLinks ? (
+              <Flex justify="center" py={8}>
+                <Spinner size="lg" color="teal.500" />
+              </Flex>
+            ) : shareLinks.length === 0 ? (
+              <Box
+                p={8}
+                bg="bg.muted"
+                borderRadius="md"
+                textAlign="center"
+              >
+                <Text color="fg.muted">
+                  You haven't created any share links yet. Click the share button on any item to create one!
+                </Text>
+              </Box>
+            ) : (
+              <Box overflowX="auto">
+                <Table.Root size="sm" variant="outline">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeader>Item</Table.ColumnHeader>
+                      <Table.ColumnHeader>Share Link</Table.ColumnHeader>
+                      <Table.ColumnHeader textAlign="center">Clicks</Table.ColumnHeader>
+                      <Table.ColumnHeader textAlign="center">Actions</Table.ColumnHeader>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {shareLinks.map((link) => (
+                      <Table.Row key={link.id}>
+                        <Table.Cell>
+                          <Link
+                            onClick={() => navigate(`/items/${link.mediaItemId}`)}
+                            color="teal.500"
+                            fontWeight="medium"
+                            cursor="pointer"
+                            _hover={{ textDecoration: 'underline' }}
+                          >
+                            <HStack gap={1}>
+                              <Text>{link.title || 'Untitled'}</Text>
+                              <LuExternalLink size={14} />
+                            </HStack>
+                          </Link>
+                          {link.creator && (
+                            <Text fontSize="xs" color="fg.muted">
+                              by {link.creator}
+                            </Text>
+                          )}
+                        </Table.Cell>
+                        <Table.Cell>
+                          <HStack gap={2}>
+                            <Text
+                              fontSize="xs"
+                              fontFamily="mono"
+                              color="fg.muted"
+                              maxW={{ base: '150px', md: '300px' }}
+                              overflow="hidden"
+                              textOverflow="ellipsis"
+                              whiteSpace="nowrap"
+                            >
+                              {link.url}
+                            </Text>
+                            <IconButton
+                              aria-label="Copy link"
+                              onClick={() => handleCopyLink(link.url)}
+                              colorPalette="teal"
+                              variant="ghost"
+                              background="transparent"
+                              size="xs"
+                            >
+                              <LuCopy />
+                            </IconButton>
+                          </HStack>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                          <Text fontWeight="bold">{link.timesClicked}</Text>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                          <IconButton
+                            aria-label="Delete link"
+                            onClick={() => handleDeleteShareLink(link.id)}
+                            colorPalette="red"
+                            variant="ghost"
+                            background="transparent"
+                            size="xs"
+                          >
+                            <LuTrash2 />
+                          </IconButton>
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
+              </Box>
+            )}
+          </VStack>
+        </Box>
 
         {/* Danger Zone Section */}
         <Box
