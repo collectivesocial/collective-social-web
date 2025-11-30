@@ -9,6 +9,20 @@ interface Recommendation {
   handle?: string;
 }
 
+interface RatingDistribution {
+  rating0: number;
+  rating0_5: number;
+  rating1: number;
+  rating1_5: number;
+  rating2: number;
+  rating2_5: number;
+  rating3: number;
+  rating3_5: number;
+  rating4: number;
+  rating4_5: number;
+  rating5: number;
+}
+
 interface MediaItem {
   id: number;
   isbn: string | null;
@@ -19,6 +33,7 @@ interface MediaItem {
   totalRatings: number;
   totalReviews: number;
   averageRating: number | null;
+  ratingDistribution?: RatingDistribution;
 }
 
 interface ListItem {

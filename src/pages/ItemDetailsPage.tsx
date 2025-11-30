@@ -16,6 +16,21 @@ import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
 import { ShareButton } from '../components/ShareButton';
 import { StarRating } from '../components/StarRating';
+import { RatingDistributionDisplay } from '../components/RatingDistribution';
+
+interface RatingDistribution {
+  rating0: number;
+  rating0_5: number;
+  rating1: number;
+  rating1_5: number;
+  rating2: number;
+  rating2_5: number;
+  rating3: number;
+  rating3_5: number;
+  rating4: number;
+  rating4_5: number;
+  rating5: number;
+}
 
 interface MediaItem {
   id: number;
@@ -30,6 +45,7 @@ interface MediaItem {
   totalReviews: number;
   totalSaves: number;
   averageRating: number | null;
+  ratingDistribution?: RatingDistribution;
 }
 
 interface Review {
@@ -248,25 +264,32 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
             </VStack>
 
             {item.totalReviews > 0 && (
-              <Box
-                p={4}
-                bg="bg.muted"
-                borderRadius="md"
-                mt={2}
-                w={{ base: 'full', md: 'auto' }}
-              >
-                <HStack gap={4}>
-                  <StarRating rating={item.averageRating || 0} size="2rem" />
-                  <VStack align="flex-start" gap={0}>
-                    <Text fontSize="2xl" fontWeight="bold">
-                      {item.averageRating?.toFixed(1)}
-                    </Text>
-                    <Text color="fg.muted" fontSize="sm">
-                      {item.totalRatings} {item.totalRatings === 1 ? 'rating' : 'ratings'}
-                    </Text>
-                  </VStack>
-                </HStack>
-              </Box>
+              <VStack align={{ base: 'stretch', md: 'flex-start' }} gap={3} w={{ base: 'full', md: 'auto' }}>
+                <Box
+                  p={4}
+                  bg="bg.muted"
+                  borderRadius="md"
+                  w="full"
+                >
+                  <HStack gap={4}>
+                    <StarRating rating={item.averageRating || 0} size="2rem" />
+                    <VStack align="flex-start" gap={0}>
+                      <Text fontSize="2xl" fontWeight="bold">
+                        {item.averageRating?.toFixed(1)}
+                      </Text>
+                      <Text color="fg.muted" fontSize="sm">
+                        {item.totalRatings} {item.totalRatings === 1 ? 'rating' : 'ratings'}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                </Box>
+                {item.ratingDistribution && (
+                  <RatingDistributionDisplay
+                    distribution={item.ratingDistribution}
+                    totalRatings={item.totalRatings}
+                  />
+                )}
+              </VStack>
             )}
           </VStack>
         </Flex>
