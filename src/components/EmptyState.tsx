@@ -1,4 +1,4 @@
-import { Box, Center, Heading, Text, VStack } from '@chakra-ui/react';
+import { Center, Heading, Text, VStack } from '@chakra-ui/react';
 
 interface EmptyStateProps {
   icon?: string;

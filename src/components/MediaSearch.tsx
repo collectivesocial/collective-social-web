@@ -1,4 +1,15 @@
 import { useState } from 'react';
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Text,
+  VStack,
+  HStack,
+  Heading,
+} from '@chakra-ui/react';
+import { Field } from './ui/field';
 
 interface MediaSearchResult {
   title: string;
@@ -95,102 +106,81 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
   };
 
   return (
-    <div style={{ width: '100%' }}>
-      <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-          <div style={{ flex: '0 0 150px' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd', fontSize: '0.875rem' }}>
-              Media Type
-            </label>
-            <select
-              value={mediaType}
-              onChange={(e) => setMediaType(e.target.value as 'book')}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                backgroundColor: '#2a2a2a',
-                border: '1px solid #333',
-                borderRadius: '6px',
-                color: 'white',
-                fontSize: '1rem',
-              }}
-            >
-              <option value="book">Book</option>
-            </select>
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ddd', fontSize: '0.875rem' }}>
-              Search
-            </label>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by title or author..."
+    <VStack gap={4} align="stretch" w="full">
+      <form onSubmit={handleSearch}>
+        <Flex gap={4} direction={{ base: 'column', sm: 'row' }} mb={4}>
+          <Box flex={{ base: 'none', sm: '0 0 150px' }}>
+            <Field label="Media Type">
+              <select
+                value={mediaType}
+                onChange={(e) => setMediaType(e.target.value as 'book')}
                 style={{
-                  flex: 1,
-                  padding: '0.75rem',
-                  backgroundColor: '#2a2a2a',
-                  border: '1px solid #333',
-                  borderRadius: '6px',
-                  color: 'white',
-                  fontSize: '1rem',
-                }}
-              />
-              <button
-                type="submit"
-                disabled={searching || !searchQuery.trim()}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: searching ? '#444' : '#646cff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '1rem',
-                  cursor: searching ? 'not-allowed' : 'pointer',
-                  fontWeight: '500',
+                  width: '100%',
+                  padding: '0.5rem 0.75rem',
+                  backgroundColor: 'var(--chakra-colors-bg-muted)',
+                  border: '1px solid var(--chakra-colors-border)',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  color: 'inherit',
                 }}
               >
-                {searching ? 'Searching...' : 'Search'}
-              </button>
-            </div>
-          </div>
-        </div>
+                <option value="book">Book</option>
+              </select>
+            </Field>
+          </Box>
+
+          <Box flex={1}>
+            <Field label="Search">
+              <HStack gap={2}>
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by title or author..."
+                  flex={1}
+                />
+                <Button
+                  type="submit"
+                  colorPalette="teal"
+                  disabled={searching || !searchQuery.trim()}
+                  flexShrink={0}
+                >
+                  {searching ? 'Searching...' : 'Search'}
+                </Button>
+              </HStack>
+            </Field>
+          </Box>
+        </Flex>
       </form>
 
       {error && (
-        <div style={{
-          padding: '1rem',
-          backgroundColor: '#ff444420',
-          border: '1px solid #ff4444',
-          borderRadius: '6px',
-          color: '#ff8888',
-          marginBottom: '1rem',
-        }}>
+        <Box
+          p={4}
+          bg="red.500/20"
+          borderWidth="1px"
+          borderColor="red.500"
+          borderRadius="md"
+          color="red.300"
+        >
           {error}
-        </div>
+        </Box>
       )}
 
       {results.length > 0 && (
-        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <Box maxH="400px" overflowY="auto">
+          <VStack gap={3} align="stretch">
             {results.map((result, index) => (
-              <div
+              <Flex
                 key={index}
+                gap={4}
+                p={4}
+                bg="bg.muted"
+                borderWidth="1px"
+                borderColor="border"
+                borderRadius="md"
+                cursor="pointer"
+                transition="border-color 0.2s"
+                _hover={{ borderColor: 'teal.500' }}
                 onClick={() => handleSelectResult(result)}
-                style={{
-                  display: 'flex',
-                  gap: '1rem',
-                  padding: '1rem',
-                  backgroundColor: '#2a2a2a',
-                  border: '1px solid #333',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'border-color 0.2s',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.borderColor = '#646cff')}
-                onMouseOut={(e) => (e.currentTarget.style.borderColor = '#333')}
               >
                 {result.coverImage && (
                   <img
@@ -200,53 +190,45 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                       width: '60px',
                       height: '90px',
                       objectFit: 'cover',
-                      borderRadius: '4px',
+                      borderRadius: '0.375rem',
+                      flexShrink: 0,
                     }}
                   />
                 )}
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>
-                    {result.title}
-                  </h4>
+                <VStack align="stretch" flex={1} gap={2}>
+                  <Heading size="sm">{result.title}</Heading>
                   {result.author && (
-                    <p style={{ margin: '0 0 0.5rem 0', color: '#888', fontSize: '0.875rem' }}>
+                    <Text color="fg.muted" fontSize="sm">
                       by {result.author}
-                    </p>
+                    </Text>
                   )}
-                  <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', color: '#666' }}>
-                    {result.publishYear && <span>{result.publishYear}</span>}
-                    {result.isbn && <span>ISBN: {result.isbn}</span>}
-                  </div>
+                  <HStack gap={4} fontSize="sm" color="fg.muted">
+                    {result.publishYear && <Text>{result.publishYear}</Text>}
+                    {result.isbn && <Text>ISBN: {result.isbn}</Text>}
+                  </HStack>
                   {result.inDatabase && (
-                    <div style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
+                    <HStack gap={2} fontSize="sm">
                       {result.averageRating !== null && (
-                        <span style={{ color: '#ffd700' }}>
-                          ⭐ {result.averageRating.toFixed(1)} 
-                        </span>
+                        <Text color="yellow.400">⭐ {result.averageRating.toFixed(1)}</Text>
                       )}
-                      <span style={{ color: '#888', marginLeft: '0.5rem' }}>
-                        ({result.totalReviews} {result.totalReviews === 1 ? 'review' : 'reviews'})
-                      </span>
-                    </div>
+                      <Text color="fg.muted">
+                        ({result.totalReviews}{' '}
+                        {result.totalReviews === 1 ? 'review' : 'reviews'})
+                      </Text>
+                    </HStack>
                   )}
-                </div>
-              </div>
+                </VStack>
+              </Flex>
             ))}
-          </div>
-        </div>
+          </VStack>
+        </Box>
       )}
 
       {!searching && results.length === 0 && searchQuery && (
-        <div style={{
-          padding: '2rem',
-          textAlign: 'center',
-          color: '#888',
-          backgroundColor: '#2a2a2a',
-          borderRadius: '8px',
-        }}>
+        <Box p={8} textAlign="center" color="fg.muted" bg="bg.muted" borderRadius="md">
           No results found. Try a different search.
-        </div>
+        </Box>
       )}
-    </div>
+    </VStack>
   );
 }
