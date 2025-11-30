@@ -20,6 +20,8 @@ interface UserProfile {
   avatar?: string;
   description?: string;
   followerCount?: number;
+  collectionCount?: number;
+  reviewCount?: number;
 }
 
 interface Collection {
@@ -108,9 +110,19 @@ export function UserProfileView({
                 >
                   @{user.handle}
                 </ChakraLink>
-                <Text color="fg.muted" fontSize="sm">
-                  {user.followerCount} {user.followerCount === 1 ? 'follower' : 'followers'}
-                </Text>
+                <Flex gap={4} fontSize="sm" flexWrap="wrap" justify={{ base: 'center', sm: 'flex-start' }}>
+                  <Text color="fg.muted">
+                    <Text as="span" fontWeight="bold">{user.followerCount || 0}</Text> {user.followerCount === 1 ? 'follower' : 'followers'}
+                  </Text>
+                  <Text color="fg.muted">·</Text>
+                  <Text color="fg.muted">
+                    <Text as="span" fontWeight="bold">{user.collectionCount || 0}</Text> {user.collectionCount === 1 ? 'collection' : 'collections'}
+                  </Text>
+                  <Text color="fg.muted">·</Text>
+                  <Text color="fg.muted">
+                    <Text as="span" fontWeight="bold">{user.reviewCount || 0}</Text> {user.reviewCount === 1 ? 'review' : 'reviews'}
+                  </Text>
+                </Flex>
               </VStack>
 
               {showFollowButton && !isOwnProfile && (

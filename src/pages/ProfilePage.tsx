@@ -15,6 +15,8 @@ interface UserProfile {
   avatar?: string;
   description?: string;
   followerCount?: number;
+  collectionCount?: number;
+  reviewCount?: number;
 }
 
 interface Collection {
@@ -99,6 +101,10 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
             if (collectionsRes.ok) {
               const collectionsData = await collectionsRes.json();
               setCollections(collectionsData.collections);
+              // Update profile with collection and review counts
+              profile.collectionCount = collectionsData.collectionCount;
+              profile.reviewCount = collectionsData.reviewCount;
+              setUser(profile);
             }
           } catch (err) {
             console.error('Failed to load collections:', err);
