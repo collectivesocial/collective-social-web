@@ -1,5 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Spinner,
+  Center,
+} from '@chakra-ui/react';
+import { Avatar } from '../components/ui/avatar';
+import { EmptyState } from '../components/EmptyState';
 
 interface MediaItem {
   id: number;
@@ -122,58 +136,57 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div>Loading item details...</div>
-      </div>
+      <Center py={8}>
+        <VStack gap={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text color="fg.muted">Loading item details...</Text>
+        </VStack>
+      </Center>
     );
   }
 
   if (error || !item) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div style={{ color: '#ff4444' }}>Error: {error || 'Item not found'}</div>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            marginTop: '1rem',
-            padding: '0.5rem 1rem',
-            backgroundColor: '#646cff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-          }}
-        >
-          Go Back
-        </button>
-      </div>
+      <Center py={8}>
+        <VStack gap={4}>
+          <Text color="red.500">Error: {error || 'Item not found'}</Text>
+          <Button
+            colorPalette="teal"
+            onClick={() => navigate(-1)}
+          >
+            Go Back
+          </Button>
+        </VStack>
+      </Center>
     );
   }
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem' }}>
-      <button
+    <Container maxW="container.lg" py={8}>
+      <Button
+        variant="ghost"
+        colorPalette="teal"
         onClick={() => navigate(-1)}
-        style={{
-          background: 'none',
-          border: 'none',
-          color: '#646cff',
-          cursor: 'pointer',
-          fontSize: '0.875rem',
-          marginBottom: '1.5rem',
-          padding: 0,
-        }}
+        mb={6}
+        size="sm"
+        px={0}
       >
         ← Back
-      </button>
+      </Button>
 
-      <div style={{
-        backgroundColor: '#1a1a1a',
-        border: '1px solid #333',
-        borderRadius: '12px',
-        padding: '2rem',
-      }}>
-        <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }}>
+      <Box
+        bg="bg.subtle"
+        borderWidth="1px"
+        borderColor="border"
+        borderRadius="lg"
+        p={{ base: 4, md: 8 }}
+      >
+        <Flex
+          direction={{ base: 'column', md: 'row' }}
+          gap={{ base: 4, md: 8 }}
+          mb={8}
+          align={{ base: 'center', md: 'flex-start' }}
+        >
           {item.coverImage && (
             <img
               src={item.coverImage}
@@ -182,218 +195,185 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                 width: '200px',
                 height: '300px',
                 objectFit: 'cover',
-                borderRadius: '8px',
+                borderRadius: '0.5rem',
                 flexShrink: 0,
               }}
             />
           )}
           
-          <div style={{ flex: 1 }}>
-            <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>
+          <VStack align={{ base: 'center', md: 'flex-start' }} flex={1} gap={4} textAlign={{ base: 'center', md: 'left' }}>
+            <Heading size={{ base: 'xl', md: '2xl' }}>
               {item.title}
-            </h1>
+            </Heading>
             
             {item.creator && (
-              <p style={{ margin: '0 0 1rem 0', color: '#888', fontSize: '1.125rem' }}>
+              <Text color="fg.muted" fontSize={{ base: 'lg', md: 'xl' }}>
                 by {item.creator}
-              </p>
+              </Text>
             )}
 
-            {item.publishedYear && (
-              <p style={{ margin: '0 0 1rem 0', color: '#888', fontSize: '0.9375rem' }}>
-                Published: {item.publishedYear}
-              </p>
-            )}
+            <VStack align={{ base: 'center', md: 'flex-start' }} gap={2}>
+              {item.publishedYear && (
+                <Text color="fg.muted" fontSize="sm">
+                  Published: {item.publishedYear}
+                </Text>
+              )}
 
-            {item.isbn && (
-              <p style={{ margin: '0 0 1rem 0', color: '#888', fontSize: '0.875rem' }}>
-                ISBN: {item.isbn}
-              </p>
-            )}
+              {item.isbn && (
+                <Text color="fg.muted" fontSize="sm">
+                  ISBN: {item.isbn}
+                </Text>
+              )}
+            </VStack>
 
             {item.totalReviews > 0 && (
-              <div style={{
-                padding: '1rem',
-                backgroundColor: '#2a2a2a',
-                borderRadius: '8px',
-                marginTop: '1.5rem',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ fontSize: '2rem', color: '#ffd700' }}>
+              <Box
+                p={4}
+                bg="bg.muted"
+                borderRadius="md"
+                mt={2}
+                w={{ base: 'full', md: 'auto' }}
+              >
+                <HStack gap={4}>
+                  <Text fontSize="3xl" color="yellow.400">
                     {'⭐'.repeat(Math.floor(item.averageRating || 0))}
                     {(item.averageRating || 0) % 1 >= 0.5 && '✨'}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+                  </Text>
+                  <VStack align="flex-start" gap={0}>
+                    <Text fontSize="2xl" fontWeight="bold">
                       {item.averageRating?.toFixed(1)}
-                    </div>
-                    <div style={{ color: '#888', fontSize: '0.875rem' }}>
+                    </Text>
+                    <Text color="fg.muted" fontSize="sm">
                       {item.totalReviews} {item.totalReviews === 1 ? 'review' : 'reviews'}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                    </Text>
+                  </VStack>
+                </HStack>
+              </Box>
             )}
-          </div>
-        </div>
+          </VStack>
+        </Flex>
 
         {item.description && (
-          <div style={{ marginTop: '2rem' }}>
-            <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>
+          <Box mt={8}>
+            <Heading size="lg" mb={4}>
               Description
-            </h2>
-            <p style={{
-              margin: 0,
-              color: '#ddd',
-              lineHeight: '1.6',
-              fontSize: '0.9375rem',
-              whiteSpace: 'pre-wrap',
-            }}>
+            </Heading>
+            <Text
+              lineHeight="1.6"
+              fontSize="sm"
+              whiteSpace="pre-wrap"
+            >
               {item.description}
-            </p>
-          </div>
+            </Text>
+          </Box>
         )}
 
         {item.totalReviews === 0 && (
-          <div style={{
-            marginTop: '2rem',
-            padding: '1.5rem',
-            textAlign: 'center',
-            backgroundColor: '#2a2a2a',
-            borderRadius: '8px',
-          }}>
-            <p style={{ margin: 0, color: '#888' }}>
-              No reviews yet. Be the first to review this {item.mediaType}!
-            </p>
-          </div>
+          <Box mt={8}>
+            <EmptyState
+              icon="📝"
+              title="No reviews yet"
+              description={`Be the first to review this ${item.mediaType}!`}
+            />
+          </Box>
         )}
 
         {reviews.length > 0 && (
-          <div style={{ marginTop: '2rem' }}>
-            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.5rem' }}>
+          <Box mt={8}>
+            <Heading size="xl" mb={6}>
               Reviews ({item.totalReviews})
-            </h2>
+            </Heading>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <VStack gap={4} align="stretch">
               {reviews.map((review) => (
-                <div
+                <Box
                   key={review.id}
-                  style={{
-                    backgroundColor: '#2a2a2a',
-                    border: '1px solid #333',
-                    borderRadius: '12px',
-                    padding: '1.5rem',
-                  }}
+                  bg="bg.muted"
+                  borderWidth="1px"
+                  borderColor="border"
+                  borderRadius="lg"
+                  p={{ base: 4, md: 6 }}
                 >
-                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                    {review.authorAvatar ? (
-                      <img
-                        src={review.authorAvatar}
-                        alt={review.authorDisplayName}
-                        style={{
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          flexShrink: 0,
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          backgroundColor: '#444',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '1.5rem',
-                          flexShrink: 0,
-                        }}
-                      >
-                        👤
-                      </div>
-                    )}
+                  <Flex gap={4} mb={4} direction={{ base: 'column', sm: 'row' }}>
+                    <Avatar
+                      size="lg"
+                      name={review.authorDisplayName}
+                      src={review.authorAvatar || undefined}
+                      fallback="👤"
+                      bg="transparent"
+                      flexShrink={0}
+                    />
                     
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-
-                            <span
-                            style={{
-                                fontWeight: 'bold',
-                                color: '#fff',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => navigate(`/profile/${review.authorHandle}`)}
-                            >
+                    <Box flex={1} minW={0}>
+                      <Flex
+                        direction={{ base: 'column', sm: 'row' }}
+                        justify="space-between"
+                        gap={2}
+                      >
+                        <Flex
+                          align="center"
+                          gap={2}
+                          flexWrap="wrap"
+                          cursor="pointer"
+                          onClick={() => navigate(`/profile/${review.authorHandle}`)}
+                        >
+                          <Text
+                            fontWeight="bold"
+                            _hover={{ color: 'teal.500' }}
+                          >
                             {review.authorDisplayName}
-                            </span>
-                            <span
-                            style={{
-                                color: '#888',
-                                fontSize: '0.875rem',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => navigate(`/profile/${review.authorHandle}`)}
-                            >
+                          </Text>
+                          <Text
+                            color="fg.muted"
+                            fontSize="sm"
+                            _hover={{ color: 'teal.500' }}
+                          >
                             @{review.authorHandle}
-                            </span>
-                            <span style={{ color: '#666', fontSize: '0.875rem' }}>·</span>
-                            <span style={{ color: '#888', fontSize: '0.875rem' }}>
+                          </Text>
+                          <Text color="fg.muted" fontSize="sm">·</Text>
+                          <Text color="fg.muted" fontSize="sm">
                             {formatDate(review.createdAt)}
-                            </span>
-                        </div>
-                        <div>
-                            <span style={{fontSize: '1.125rem'}}>
-                                {'⭐'.repeat(Math.floor(review.rating))}
-                                {review.rating % 1 >= 0.5 && '✨'}
-                                <span style={{ marginLeft: '0.5rem', color: '#888', fontSize: '0.875rem' }}>
-                                    {review.rating.toFixed(1)}
-                                </span>
-                            </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                          </Text>
+                        </Flex>
+                        <HStack gap={1} flexShrink={0}>
+                          <Text color="yellow.400" fontSize="lg">
+                            {'⭐'.repeat(Math.floor(review.rating))}
+                            {review.rating % 1 >= 0.5 && '✨'}
+                          </Text>
+                          <Text color="fg.muted" fontSize="sm">
+                            {review.rating.toFixed(1)}
+                          </Text>
+                        </HStack>
+                      </Flex>
+                    </Box>
+                  </Flex>
                   
-                  <p style={{
-                    margin: 0,
-                    color: '#ddd',
-                    lineHeight: '1.6',
-                    fontSize: '0.9375rem',
-                    whiteSpace: 'pre-wrap',
-                  }}>
+                  <Text
+                    lineHeight="1.6"
+                    fontSize="sm"
+                    whiteSpace="pre-wrap"
+                  >
                     {review.review}
-                  </p>
-                </div>
+                  </Text>
+                </Box>
               ))}
-            </div>
+            </VStack>
 
             {hasMoreReviews && (
-              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-                <button
+              <Center mt={6}>
+                <Button
+                  colorPalette="teal"
                   onClick={loadMoreReviews}
                   disabled={reviewsLoading}
-                  style={{
-                    padding: '0.75rem 2rem',
-                    backgroundColor: reviewsLoading ? '#444' : '#646cff',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: reviewsLoading ? 'not-allowed' : 'pointer',
-                    fontSize: '0.9375rem',
-                    fontWeight: '500',
-                  }}
+                  size="lg"
                 >
                   {reviewsLoading ? 'Loading...' : 'Load More Reviews'}
-                </button>
-              </div>
+                </Button>
+              </Center>
             )}
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 }

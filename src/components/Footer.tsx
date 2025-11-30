@@ -1,58 +1,54 @@
+import { Box, Container, Flex, Text, Link as ChakraLink, HStack } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
+
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer style={{
-      backgroundColor: '#1a1a1a',
-      borderTop: '1px solid #333',
-      padding: '2rem 0',
-      marginTop: '4rem',
-    }}>
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1rem',
-      }}>
-        <div style={{ color: '#888', fontSize: '0.875rem' }}>
-          © {currentYear} Collective Social
-        </div>
-        
-        <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-          <a
-            href="https://github.com/collectivesocial/collective-social-web"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: '#ddd',
-              textDecoration: 'none',
-              fontSize: '0.875rem',
-              transition: 'color 0.2s',
-            }}
-            onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
-          >
-            GitHub
-          </a>
-          <a
-            href="/feedback"
-            style={{
-              color: '#ddd',
-              textDecoration: 'none',
-              fontSize: '0.875rem',
-              transition: 'color 0.2s',
-            }}
-            onMouseOver={(e) => e.currentTarget.style.color = '#646cff'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#ddd'}
-          >
-            Provide Feedback
-          </a>
-        </div>
-      </div>
-    </footer>
+    <Box
+      as="footer"
+      bg="bg"
+      borderTopWidth="1px"
+      borderTopColor="border"
+      py={{ base: 6, md: 8 }}
+      mt={{ base: 8, md: 16 }}
+    >
+      <Container maxW="container.xl">
+        <Flex
+          direction={{ base: 'column', sm: 'row' }}
+          justify="space-between"
+          align="center"
+          gap={{ base: 4, sm: 2 }}
+          textAlign={{ base: 'center', sm: 'left' }}
+        >
+          <Text color="fg.muted" fontSize="sm">
+            © {currentYear} Collective Social
+          </Text>
+          
+          <HStack gap={{ base: 4, md: 8 }} justify={{ base: 'center', sm: 'flex-end' }}>
+            <ChakraLink
+              href="https://github.com/collectivesocial/collective-social-web"
+              target="_blank"
+              rel="noopener noreferrer"
+              fontSize="sm"
+              color="fg"
+              _hover={{ color: 'teal.500', textDecoration: 'none' }}
+            >
+              GitHub
+            </ChakraLink>
+            <ChakraLink
+              asChild
+              fontSize="sm"
+              color="fg"
+              _hover={{ color: 'teal.500', textDecoration: 'none' }}
+            >
+              <RouterLink to="/feedback">
+                Provide Feedback
+              </RouterLink>
+            </ChakraLink>
+          </HStack>
+        </Flex>
+      </Container>
+    </Box>
   );
 }
