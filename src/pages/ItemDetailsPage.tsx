@@ -215,6 +215,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
       <Button
         variant="ghost"
         colorPalette="teal"
+        bg="transparent"
         onClick={() => navigate(-1)}
         mb={6}
         size="sm"
