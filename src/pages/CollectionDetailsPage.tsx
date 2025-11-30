@@ -458,6 +458,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           <Button
             variant="ghost"
             colorPalette="teal"
+            bg="transparent"
             onClick={() => navigate('/collections')}
             mb={2}
             size="sm"
@@ -476,6 +477,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         </Box>
         <Button
           colorPalette="teal"
+          bg="teal"
           onClick={() => setShowAddItemModal(true)}
           flexShrink={0}
           alignSelf={{ base: 'stretch', md: 'flex-start' }}

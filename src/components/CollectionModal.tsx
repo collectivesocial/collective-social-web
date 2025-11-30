@@ -140,10 +140,10 @@ export function CollectionModal({
                 </Field>
 
                 <Flex justify="flex-end" gap={3} pt={2}>
-                  <Button type="button" variant="outline" onClick={onClose}>
+                  <Button type="button" variant="outline" bg="transparent" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button type="submit" colorPalette="teal">
+                  <Button type="submit" colorPalette="teal" bg="teal">
                     {submitLabel}
                   </Button>
                 </Flex>

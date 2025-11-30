@@ -130,6 +130,7 @@ export function MediaItemCard({
               <Button
                 size="xs"
                 variant="outline"
+                bg="transparent"
                 colorPalette="green"
                 onClick={() => onShare(item)}
               >
@@ -140,6 +141,7 @@ export function MediaItemCard({
                   <Button
                     size="xs"
                     variant="outline"
+                    bg="transparent"
                     colorPalette="teal"
                     onClick={() => onEdit(item)}
                   >
@@ -149,6 +151,7 @@ export function MediaItemCard({
                     size="xs"
                     variant="outline"
                     colorPalette="red"
+                    bg="transparent"
                     onClick={() => onDelete(item.uri)}
                   >
                     Delete

@@ -248,6 +248,7 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
         </Box>
         <Button
           colorPalette="teal"
+          bg="teal"
           onClick={() => setShowCreateModal(true)}
           flexShrink={0}
         >
