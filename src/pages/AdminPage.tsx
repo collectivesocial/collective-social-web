@@ -16,13 +16,18 @@ import {
   Link as ChakraLink,
   Textarea,
   Tabs,
+  Input,
+  IconButton,
 } from '@chakra-ui/react';
+import { LuPencil } from 'react-icons/lu';
+import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner } from '../components/ui/dialog';
 import { Field } from '../components/ui/field';
 import { EmptyState } from '../components/EmptyState';
 import { StarRating } from '../components/StarRating';
 
 interface User {
   did: string;
+  handle?: string;
   firstLoginAt: string;
   lastActivityAt: string;
   isAdmin: boolean;
@@ -49,8 +54,12 @@ interface MediaItem {
   title: string;
   creator: string | null;
   isbn: string | null;
+  coverImage: string | null;
+  description: string | null;
+  publishedYear: number | null;
   totalRatings: number;
   totalReviews: number;
+  totalSaves: number;
   averageRating: number | null;
   ratingDistribution?: RatingDistribution;
   createdAt: string;
@@ -105,6 +114,18 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
   const [shareLinksPerPage] = useState(20);
   const [shareLinksSortBy, setShareLinksSortBy] = useState<'timesClicked' | 'createdAt'>('timesClicked');
   const [shareLinksOrder, setShareLinksOrder] = useState<'asc' | 'desc'>('desc');
+  const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null);
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const [editMediaTitle, setEditMediaTitle] = useState('');
+  const [editMediaCreator, setEditMediaCreator] = useState('');
+  const [editMediaCoverImage, setEditMediaCoverImage] = useState('');
+  const [editMediaDescription, setEditMediaDescription] = useState('');
+  const [editMediaPublishedYear, setEditMediaPublishedYear] = useState('');
+  const [savingMedia, setSavingMedia] = useState(false);
+  const [mediaSearchQuery, setMediaSearchQuery] = useState('');
+  const [filteredMediaItems, setFilteredMediaItems] = useState<MediaItem[]>([]);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -139,6 +160,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
         }
 
         const usersData = await usersRes.json();
+        
         setUsers(usersData.users);
         setTotalUsers(usersData.totalUsers);
 
@@ -216,6 +238,47 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
     checkAdminAndFetchData();
   }, [apiUrl]);
 
+  // Filter media items based on search query with debounce
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (!mediaSearchQuery.trim()) {
+        setFilteredMediaItems(mediaItems);
+      } else {
+        const query = mediaSearchQuery.toLowerCase();
+        setFilteredMediaItems(
+          mediaItems.filter(
+            (item) =>
+              item.title.toLowerCase().includes(query) ||
+              (item.creator && item.creator.toLowerCase().includes(query)) ||
+              (item.isbn && item.isbn.toLowerCase().includes(query))
+          )
+        );
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [mediaSearchQuery, mediaItems]);
+
+  // Filter users based on search query with debounce
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (!userSearchQuery.trim()) {
+        setFilteredUsers(users);
+      } else {
+        const query = userSearchQuery.toLowerCase();
+        setFilteredUsers(
+          users.filter(
+            (user) =>
+              user.did.toLowerCase().includes(query) ||
+              (user.handle && user.handle.toLowerCase().includes(query))
+          )
+        );
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [userSearchQuery, users]);
+
   // Fetch share links separately with pagination
   useEffect(() => {
     const fetchShareLinks = async () => {
@@ -288,6 +351,73 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
     setFeedbackNotes('');
   };
 
+  const handleEditMedia = (item: MediaItem) => {
+    setEditingMedia(item);
+    setEditMediaTitle(item.title);
+    setEditMediaCreator(item.creator || '');
+    setEditMediaCoverImage(item.coverImage || '');
+    setEditMediaDescription(item.description || '');
+    setEditMediaPublishedYear(item.publishedYear?.toString() || '');
+    setMediaModalOpen(true);
+  };
+
+  const handleCloseMediaModal = () => {
+    setMediaModalOpen(false);
+    setEditingMedia(null);
+    setEditMediaTitle('');
+    setEditMediaCreator('');
+    setEditMediaCoverImage('');
+    setEditMediaDescription('');
+    setEditMediaPublishedYear('');
+  };
+
+  const handleSaveMedia = async () => {
+    if (!editingMedia) return;
+
+    setSavingMedia(true);
+    try {
+      const response = await fetch(`${apiUrl}/media/${editingMedia.id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editMediaTitle,
+          creator: editMediaCreator || null,
+          coverImage: editMediaCoverImage || null,
+          description: editMediaDescription || null,
+          publishedYear: editMediaPublishedYear ? parseInt(editMediaPublishedYear) : null,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update media item');
+      }
+
+      // Update local state
+      setMediaItems(mediaItems.map(item =>
+        item.id === editingMedia.id
+          ? {
+              ...item,
+              title: editMediaTitle,
+              creator: editMediaCreator || null,
+              coverImage: editMediaCoverImage || null,
+              description: editMediaDescription || null,
+              publishedYear: editMediaPublishedYear ? parseInt(editMediaPublishedYear) : null,
+            }
+          : item
+      ));
+
+      handleCloseMediaModal();
+    } catch (err) {
+      console.error('Failed to update media item:', err);
+      alert('Failed to update media item');
+    } finally {
+      setSavingMedia(false);
+    }
+  };
+
   if (loading) {
     return (
       <Center minH="50vh">
@@ -358,6 +488,15 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           </Badge>
         </Flex>
 
+        <Box mb={4}>
+          <Input
+            placeholder="Search by DID or handle..."
+            value={userSearchQuery}
+            onChange={(e) => setUserSearchQuery(e.target.value)}
+            size="md"
+          />
+        </Box>
+
         <Box
           bg="bg.subtle"
           borderWidth="1px"
@@ -369,7 +508,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
             <Table.Header>
               <Table.Row bg="bg.muted">
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium">
-                  DID
+                  Handle
                 </Table.ColumnHeader>
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium" display={{ base: 'none', md: 'table-cell' }}>
                   First Login
@@ -383,18 +522,30 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <Table.Row key={user.did}>
-                  <Table.Cell fontFamily="mono" fontSize="sm">
-                    <ChakraLink
-                      href={`https://pdsls.dev/at://${user.did}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      color="teal.500"
-                      _hover={{ textDecoration: 'underline' }}
-                    >
-                      {user.did.substring(0, 24)}...
-                    </ChakraLink>
+                  <Table.Cell fontSize="sm">
+                    {user.handle ? (
+                      <ChakraLink
+                        href={`/profile/${user.handle}`}
+                        color="teal.500"
+                        _hover={{ textDecoration: 'underline' }}
+                      >
+                        @{user.handle}
+                      </ChakraLink>
+                    ) : (
+                      <ChakraLink
+                        href={`https://pdsls.dev/at://${user.did}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        color="teal.500"
+                        fontFamily="mono"
+                        fontSize="xs"
+                        _hover={{ textDecoration: 'underline' }}
+                      >
+                        {user.did.substring(0, 24)}...
+                      </ChakraLink>
+                    )}
                   </Table.Cell>
                   <Table.Cell fontSize="sm" display={{ base: 'none', md: 'table-cell' }}>
                     {new Date(user.firstLoginAt).toLocaleString()}
@@ -424,7 +575,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
             color="fg.muted"
             textAlign="center"
           >
-            Showing 10 of {totalUsers} users
+            Showing {filteredUsers.length} of {totalUsers} users
           </Text>
         )}
       </Box>
@@ -650,6 +801,15 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           </Badge>
         </Flex>
 
+        <Box mb={4}>
+          <Input
+            placeholder="Search by title, creator, or ISBN..."
+            value={mediaSearchQuery}
+            onChange={(e) => setMediaSearchQuery(e.target.value)}
+            size="md"
+          />
+        </Box>
+
         <Box
           bg="bg.subtle"
           borderWidth="1px"
@@ -675,16 +835,25 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center" display={{ base: 'none', sm: 'table-cell' }}>
                   Reviews
                 </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center" display={{ base: 'none', sm: 'table-cell' }}>
+                  Rated
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center" display={{ base: 'none', sm: 'table-cell' }}>
+                  Saved
+                </Table.ColumnHeader>
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center">
                   Avg Rating
                 </Table.ColumnHeader>
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium" display={{ base: 'none', lg: 'table-cell' }}>
                   Created
                 </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center">
+                  Actions
+                </Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {mediaItems.map((item) => (
+              {filteredMediaItems.map((item) => (
                 <Table.Row key={item.id}>
                   <Table.Cell fontSize="sm" color="fg.muted">
                     {item.id}
@@ -707,6 +876,12 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                   <Table.Cell textAlign="center" fontSize="sm" display={{ base: 'none', sm: 'table-cell' }}>
                     {item.totalReviews}
                   </Table.Cell>
+                  <Table.Cell textAlign="center" fontSize="sm" display={{ base: 'none', sm: 'table-cell' }}>
+                    {item.totalRatings}
+                  </Table.Cell>
+                  <Table.Cell textAlign="center" fontSize="sm" display={{ base: 'none', sm: 'table-cell' }}>
+                    {item.totalSaves}
+                  </Table.Cell>
                   <Table.Cell textAlign="center" fontSize="sm">
                     {item.averageRating ? (
                       <HStack justify="center" gap={1}>
@@ -719,6 +894,17 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                   </Table.Cell>
                   <Table.Cell fontSize="sm" display={{ base: 'none', lg: 'table-cell' }}>
                     {new Date(item.createdAt).toLocaleDateString()}
+                  </Table.Cell>
+                  <Table.Cell textAlign="center">
+                    <IconButton
+                      aria-label="Edit media item"
+                      size="sm"
+                      variant="ghost"
+                      bg="transparent"
+                      onClick={() => handleEditMedia(item)}
+                    >
+                      <LuPencil />
+                    </IconButton>
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -733,7 +919,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
             color="fg.muted"
             textAlign="center"
           >
-            Showing 10 of {totalMediaItems} media items
+            Showing {filteredMediaItems.length} of {totalMediaItems} media items
           </Text>
         )}
       </Box>
@@ -765,8 +951,10 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
               setShareLinksOrder('desc');
               setShareLinksPage(1);
             }}
-            colorPalette={shareLinksSortBy === 'timesClicked' ? 'teal' : 'gray'}
-            variant={shareLinksSortBy === 'timesClicked' ? 'solid' : 'outline'}
+            colorPalette="teal"
+            variant="outline"
+            color={shareLinksSortBy === 'timesClicked' ? 'teal' : 'gray'}
+            bg="transparent"
             size="sm"
           >
             Most Clicked
@@ -777,8 +965,10 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
               setShareLinksOrder('desc');
               setShareLinksPage(1);
             }}
-            colorPalette={shareLinksSortBy === 'createdAt' ? 'teal' : 'gray'}
-            variant={shareLinksSortBy === 'createdAt' ? 'solid' : 'outline'}
+            colorPalette="teal"
+            variant="outline"
+            color={shareLinksSortBy === 'createdAt' ? 'teal' : 'gray'}
+            bg="transparent"
             size="sm"
           >
             Newest
@@ -872,6 +1062,125 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
       </Box>
         </Tabs.Content>
       </Tabs.Root>
+
+      {/* Edit Media Modal */}
+      <DialogRoot open={mediaModalOpen} onOpenChange={(e) => setMediaModalOpen(e.open)}>
+        <DialogBackdrop />
+        <DialogPositioner>
+        <DialogContent maxW="2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Media Item</DialogTitle>
+          </DialogHeader>
+          <DialogBody>
+            <VStack gap={4} align="stretch">
+              <Field label="Title" required>
+                <Input
+                  value={editMediaTitle}
+                  onChange={(e) => setEditMediaTitle(e.target.value)}
+                  placeholder="Enter title"
+                />
+              </Field>
+
+              <Field label="Creator/Author">
+                <Input
+                  value={editMediaCreator}
+                  onChange={(e) => setEditMediaCreator(e.target.value)}
+                  placeholder="Enter creator or author name"
+                />
+              </Field>
+
+              <Field label="Cover Image URL">
+                <Input
+                  value={editMediaCoverImage}
+                  onChange={(e) => setEditMediaCoverImage(e.target.value)}
+                  placeholder="https://example.com/cover.jpg"
+                />
+              </Field>
+
+              {editMediaCoverImage && (
+                <Box>
+                  <Text fontSize="sm" color="fg.muted" mb={2}>
+                    Preview:
+                  </Text>
+                  <img
+                    src={editMediaCoverImage}
+                    alt="Cover preview"
+                    style={{
+                      width: '120px',
+                      height: '180px',
+                      objectFit: 'cover',
+                      borderRadius: '0.5rem',
+                      border: '1px solid var(--chakra-colors-border)',
+                    }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </Box>
+              )}
+
+              <Field label="Description">
+                <Textarea
+                  value={editMediaDescription}
+                  onChange={(e) => setEditMediaDescription(e.target.value)}
+                  placeholder="Enter description"
+                  rows={5}
+                  resize="vertical"
+                />
+              </Field>
+
+              <Field label="Published Year">
+                <Input
+                  type="number"
+                  value={editMediaPublishedYear}
+                  onChange={(e) => setEditMediaPublishedYear(e.target.value)}
+                  placeholder="e.g., 2023"
+                  min="1000"
+                  max="9999"
+                />
+              </Field>
+
+              {editingMedia && (
+                <Box p={3} bg="bg.muted" borderRadius="md" fontSize="sm">
+                  <Text color="fg.muted">
+                    <strong>Media Type:</strong> {editingMedia.mediaType}
+                  </Text>
+                  {editingMedia.isbn && (
+                    <Text color="fg.muted">
+                      <strong>ISBN:</strong> {editingMedia.isbn}
+                    </Text>
+                  )}
+                  <Text color="fg.muted">
+                    <strong>ID:</strong> {editingMedia.id}
+                  </Text>
+                </Box>
+              )}
+            </VStack>
+          </DialogBody>
+          <DialogFooter>
+            <HStack gap={2}>
+              <Button
+                onClick={handleCloseMediaModal}
+                variant="outline"
+                bg="transparent"
+                disabled={savingMedia}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveMedia}
+                colorPalette="teal"
+                variant="outline"
+                bg="transparent"
+                disabled={!editMediaTitle || savingMedia}
+              >
+                {savingMedia ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </HStack>
+          </DialogFooter>
+        </DialogContent>
+        </DialogPositioner>
+      </DialogRoot>
     </Container>
   );
 }

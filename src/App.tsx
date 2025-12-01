@@ -10,6 +10,7 @@ import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
+import { SearchResultsPage } from './pages/SearchResultsPage'
 import { AdminPage } from './pages/AdminPage'
 import { FeedbackPage } from './pages/FeedbackPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -102,6 +103,10 @@ function App() {
               <Route 
                 path="/groups" 
                 element={<GroupsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/search" 
+                element={<SearchResultsPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/items/:itemId" 

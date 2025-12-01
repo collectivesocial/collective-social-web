@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -11,7 +11,10 @@ import {
   Text,
   Menu,
   Portal,
+  Input,
+  IconButton,
 } from '@chakra-ui/react';
+import { LuSearch, LuX } from 'react-icons/lu';
 import { ColorModeButton, useColorModeValue, useColorMode, ColorModeIcon } from './ui/color-mode';
 import { Avatar } from './ui/avatar';
 
@@ -43,6 +46,10 @@ function MobileColorModeToggle() {
 
 export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mediaType, setMediaType] = useState('book');
+  const navigate = useNavigate();
 
   // Chakra UI color mode values
   const headerBg = useColorModeValue('white', 'gray.900');
@@ -69,6 +76,22 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
       window.location.href = '/';
     } catch (err) {
       console.error('Logout failed:', err);
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}&type=${mediaType}`);
+      setSearchExpanded(false);
+      setSearchQuery('');
+    }
+  };
+
+  const handleSearchToggle = () => {
+    setSearchExpanded(!searchExpanded);
+    if (searchExpanded) {
+      setSearchQuery('');
     }
   };
 
@@ -127,6 +150,66 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
           </HStack>
 
           <HStack gap={3}>
+            {isAuthenticated && (
+              <>
+                {searchExpanded ? (
+                  <Flex
+                    as="form"
+                    onSubmit={handleSearchSubmit}
+                    gap={2}
+                    align="center"
+                    display={{ base: 'none', md: 'flex' }}
+                  >
+                    <Box minW="120px">
+                      <select
+                        value={mediaType}
+                        onChange={(e) => setMediaType(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem',
+                          backgroundColor: 'var(--chakra-colors-bg-muted)',
+                          border: '1px solid var(--chakra-colors-border)',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          color: 'inherit',
+                        }}
+                      >
+                        <option value="book">Book</option>
+                      </select>
+                    </Box>
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search..."
+                      size="sm"
+                      w="200px"
+                      autoFocus
+                    />
+                    <IconButton
+                      aria-label="Close search"
+                      size="sm"
+                      variant="ghost"
+                      bg="transparent"
+                      onClick={handleSearchToggle}
+                    >
+                      <LuX />
+                    </IconButton>
+                  </Flex>
+                ) : (
+                  <IconButton
+                    aria-label="Search"
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSearchToggle}
+                    bg="transparent"
+                    display={{ base: 'none', md: 'flex' }}
+                  >
+                    <LuSearch />
+                  </IconButton>
+                )}
+              </>
+            )}
+
             <Box display={{ base: 'none', md: 'block' }}>
               <ColorModeButton />
             </Box>
