@@ -9,6 +9,7 @@ import {
   Avatar,
   Link as ChakraLink,
   SimpleGrid,
+  Badge,
 } from '@chakra-ui/react';
 import { EmptyState } from './EmptyState';
 import { FollowButton } from './FollowButton';
@@ -56,6 +57,11 @@ export function UserProfileView({
 }: UserProfileViewProps) {
   const navigate = useNavigate();
 
+  // Check if user is in the database (has used Collective)
+  const isInDatabase = (user.collectionCount !== undefined && user.collectionCount > 0) || 
+                       (user.reviewCount !== undefined && user.reviewCount > 0) ||
+                       collections.length > 0;
+
   return (
     <Container maxW="container.md" py={{ base: 4, md: 8 }}>
       <VStack gap={{ base: 6, md: 8 }} align="stretch">
@@ -101,16 +107,23 @@ export function UserProfileView({
                 <Heading size={{ base: 'xl', md: '2xl' }}>
                   {user.displayName || user.handle}
                 </Heading>
-                <ChakraLink
-                  href={`https://bsky.app/profile/${user.handle}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="fg.muted"
-                  fontSize={{ base: 'md', md: 'lg' }}
-                  _hover={{ color: 'teal.500', textDecoration: 'underline' }}
-                >
-                  @{user.handle}
-                </ChakraLink>
+                <Flex gap={2} align="center" flexWrap="wrap" justify={{ base: 'center', sm: 'flex-start' }}>
+                  <ChakraLink
+                    href={`https://bsky.app/profile/${user.handle}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="fg.muted"
+                    fontSize={{ base: 'md', md: 'lg' }}
+                    _hover={{ color: 'teal.500', textDecoration: 'underline' }}
+                  >
+                    @{user.handle}
+                  </ChakraLink>
+                  {!isInDatabase && (
+                    <Badge colorPalette="gray" size="sm" variant="subtle">
+                      Not on Collective yet
+                    </Badge>
+                  )}
+                </Flex>
                 <Flex gap={4} fontSize="sm" flexWrap="wrap" justify={{ base: 'center', sm: 'flex-start' }}>
                   <Text color="fg.muted">
                     <Text as="span" fontWeight="bold">{user.followerCount || 0}</Text> {user.followerCount === 1 ? 'follower' : 'followers'}

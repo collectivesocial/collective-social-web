@@ -49,11 +49,12 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
       // Fetch current user if logged in
       const fetchCurrentUser = async () => {
         try {
-          const userRes = await fetch(`${apiUrl}/users/me`, {
+          const userRes = await fetch(`${apiUrl}/users/${handle}`, {
             credentials: 'include',
           });
           if (userRes.ok) {
             const userData = await userRes.json();
+            console.log({userData})
             setCurrentUser(userData);
             return userData;
           }
