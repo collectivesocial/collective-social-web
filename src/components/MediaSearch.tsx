@@ -23,6 +23,8 @@ export interface MediaSearchResult {
   totalReviews: number;
   averageRating: number | null;
   mediaItemId: number | null;
+  url?: string;
+  mediaType?: string;
 }
 
 interface MediaSearchProps {
@@ -31,7 +33,7 @@ interface MediaSearchProps {
 }
 
 export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
-  const [mediaType, setMediaType] = useState<'book'>('book');
+  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video'>('book');
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<MediaSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -48,26 +50,58 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
     setError(null);
 
     try {
-      const response = await fetch(`${apiUrl}/media/search`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: searchQuery,
-          mediaType,
-        }),
-      });
+      // For articles and videos, use link endpoint
+      if (mediaType === 'article' || mediaType === 'video') {
+        const response = await fetch(`${apiUrl}/media/link`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: searchQuery,
+            mediaType,
+          }),
+        });
+        
+        console.log({response})
+        console.log({searchQuery})
+        console.log({mediaType})
 
-      if (!response.ok) {
-        throw new Error('Failed to search');
+        if (!response.ok) {
+          throw new Error('Failed to fetch link metadata');
+        }
+
+        const data = await response.json();
+        // Show single result
+        setResults([data]);
+      } else {
+        // For books, use search endpoint
+        const response = await fetch(`${apiUrl}/media/search`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: searchQuery,
+            mediaType,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to search');
+        }
+
+        const data = await response.json();
+        setResults(data.results);
       }
-
-      const data = await response.json();
-      setResults(data.results);
     } catch (err) {
-      setError('Failed to search. Please try again.');
+      setError(
+        mediaType === 'article' || mediaType === 'video'
+          ? 'Failed to fetch link metadata. Please check the URL and try again.'
+          : 'Failed to search. Please try again.'
+      );
       console.error(err);
     } finally {
       setSearching(false);
@@ -76,7 +110,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
 
   const handleSelectResult = async (result: MediaSearchResult) => {
     // If not in database yet, add it first
-    if (!result.inDatabase && result.isbn) {
+    if (!result.inDatabase) {
       try {
         const response = await fetch(`${apiUrl}/media/add`, {
           method: 'POST',
@@ -87,8 +121,9 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
           body: JSON.stringify({
             title: result.title,
             creator: result.author,
-            mediaType,
+            mediaType: result.mediaType || mediaType,
             isbn: result.isbn,
+            url: result.url,
             coverImage: result.coverImage,
             publishYear: result.publishYear,
           }),
@@ -115,7 +150,12 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
             <Field label="Media Type">
               <select
                 value={mediaType}
-                onChange={(e) => setMediaType(e.target.value as 'book')}
+                onChange={(e) => {
+                  setMediaType(e.target.value as 'book' | 'article' | 'video');
+                  setSearchQuery('');
+                  setResults([]);
+                  setError(null);
+                }}
                 style={{
                   width: '100%',
                   padding: '0.5rem 0.75rem',
@@ -127,17 +167,23 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                 }}
               >
                 <option value="book">Book</option>
+                <option value="article">Article</option>
+                <option value="video">Video</option>
               </select>
             </Field>
           </Box>
 
           <Box flex={1}>
-            <Field label="Search">
+            <Field label={mediaType === 'book' ? 'Search' : 'Add'}>
               <HStack gap={2}>
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by title or author..."
+                  placeholder={
+                    mediaType === 'book'
+                      ? 'Search by title or author...'
+                      : 'Paste URL...'
+                  }
                   flex={1}
                 />
                 <Button
@@ -146,7 +192,13 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   disabled={searching || !searchQuery.trim()}
                   flexShrink={0}
                 >
-                  {searching ? 'Searching...' : 'Search'}
+                  {searching
+                    ? mediaType === 'book'
+                      ? 'Searching...'
+                      : 'Loading...'
+                    : mediaType === 'book'
+                    ? 'Search'
+                    : 'Add'}
                 </Button>
               </HStack>
             </Field>
