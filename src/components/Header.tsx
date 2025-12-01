@@ -48,7 +48,8 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [mediaType, setMediaType] = useState('book');
+  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video'>('book');
+  const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
 
   // Chakra UI color mode values
@@ -79,9 +80,71 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
     }
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    if (!searchQuery.trim() || isProcessing) {
+      return;
+    }
+
+    // For articles and videos, add directly via link endpoint
+    if (mediaType === 'article' || mediaType === 'video') {
+      setIsProcessing(true);
+      try {
+        const response = await fetch(`${apiUrl}/media/link`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: searchQuery,
+            mediaType,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch link metadata');
+        }
+
+        const data = await response.json();
+        
+        // If not in database, add it
+        if (!data.inDatabase) {
+          const addResponse = await fetch(`${apiUrl}/media/add`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: data.title,
+              creator: data.author,
+              mediaType: data.mediaType || mediaType,
+              url: data.url,
+              coverImage: data.coverImage,
+            }),
+          });
+
+          if (addResponse.ok) {
+            const addData = await addResponse.json();
+            data.mediaItemId = addData.mediaItemId;
+          }
+        }
+
+        // Navigate to the item details page
+        if (data.mediaItemId) {
+          navigate(`/items/${data.mediaItemId}`);
+        }
+      } catch (err) {
+        console.error('Failed to add link:', err);
+        alert('Failed to add link. Please check the URL and try again.');
+      } finally {
+        setIsProcessing(false);
+        setSearchExpanded(false);
+        setSearchQuery('');
+      }
+    } else {
+      // For books, use search page
       navigate(`/search?q=${encodeURIComponent(searchQuery)}&type=${mediaType}`);
       setSearchExpanded(false);
       setSearchQuery('');
@@ -92,6 +155,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
     setSearchExpanded(!searchExpanded);
     if (searchExpanded) {
       setSearchQuery('');
+      setMediaType('book');
     }
   };
 
@@ -163,7 +227,10 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                     <Box minW="120px">
                       <select
                         value={mediaType}
-                        onChange={(e) => setMediaType(e.target.value)}
+                        onChange={(e) => {
+                          setMediaType(e.target.value as 'book' | 'article' | 'video');
+                          setSearchQuery('');
+                        }}
                         style={{
                           width: '100%',
                           padding: '0.5rem',
@@ -175,15 +242,20 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         }}
                       >
                         <option value="book">Book</option>
+                        <option value="article">Article</option>
+                        <option value="video">Video</option>
                       </select>
                     </Box>
                     <Input
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search..."
+                      placeholder={
+                        mediaType === 'book' ? 'Search...' : 'Paste URL...'
+                      }
                       size="sm"
                       w="200px"
                       autoFocus
+                      disabled={isProcessing}
                     />
                     <IconButton
                       aria-label="Close search"
