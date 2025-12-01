@@ -12,7 +12,7 @@ import {
   Center,
 } from '@chakra-ui/react';
 import { MediaItemCard } from '../components/MediaItemCard';
-import { ItemModal } from '../components/ItemModal';
+import { ItemModal, type Collection } from '../components/ItemModal';
 import { EmptyState } from '../components/EmptyState';
 
 interface MediaSearchResult {
@@ -60,13 +60,6 @@ interface ListItem {
   };
 }
 
-interface Collection {
-  uri: string;
-  name: string;
-  description: string | null;
-  visibility: string;
-}
-
 interface CollectionDetailsPageProps {
   apiUrl: string;
 }
@@ -77,6 +70,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [currentUserDid, setCurrentUserDid] = useState<string | null>(null);
   const [collection, setCollection] = useState<Collection | null>(null);
+  const [allCollections, setAllCollections] = useState<Collection[]>([]);
   const [items, setItems] = useState<ListItem[]>([]);
   const [recommenderHandles, setRecommenderHandles] = useState<Record<string, string>>({});
   const [showAddItemModal, setShowAddItemModal] = useState(false);
@@ -96,6 +90,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     review: '',
     notes: '',
   });
+  const [newListUri, setNewListUri] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Handle shared link parameters
@@ -162,6 +157,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           throw new Error('Failed to fetch collections');
         }
         const collectionsData = await collectionsRes.json();
+        setAllCollections(collectionsData.collections);
         const foundCollection = collectionsData.collections.find(
           (c: Collection) => c.uri === decodeURIComponent(collectionUri!)
         );
@@ -233,6 +229,20 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     setSelectedMedia(media);
   };
 
+  const refreshCollections = async () => {
+    try {
+      const collectionsRes = await fetch(`${apiUrl}/collections`, {
+        credentials: 'include',
+      });
+      if (collectionsRes.ok) {
+        const collectionsData = await collectionsRes.json();
+        setAllCollections(collectionsData.collections);
+      }
+    } catch (err) {
+      console.error('Failed to refresh collections:', err);
+    }
+  };
+
   const handleEditItem = (item: ListItem) => {
     setEditingItem(item);
     setEditData({
@@ -240,6 +250,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
       review: item.review || '',
       notes: item.notes || '',
     });
+    setNewListUri(null);
     setShowEditItemModal(true);
   };
 
@@ -284,24 +295,67 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     if (!editingItem) return;
 
     try {
-      const response = await fetch(
-        `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items/${encodeURIComponent(editingItem.uri)}`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            rating: editData.rating,
-            review: editData.review,
-            notes: editData.notes,
-          }),
-        }
-      );
+      // If list is changing, we need to delete from old list and add to new list
+      if (newListUri && newListUri !== collectionUri) {
+        // First, add to new list
+        const addResponse = await fetch(
+          `${apiUrl}/collections/${encodeURIComponent(newListUri)}/items`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: editingItem.title,
+              creator: editingItem.creator,
+              mediaType: editingItem.mediaType || 'book',
+              mediaItemId: editingItem.mediaItemId,
+              status: editingItem.status,
+              rating: editData.rating,
+              review: editData.review,
+              notes: editData.notes,
+            }),
+          }
+        );
 
-      if (!response.ok) {
-        throw new Error('Failed to update item');
+        if (!addResponse.ok) {
+          throw new Error('Failed to add item to new list');
+        }
+
+        // Then delete from old list
+        const deleteResponse = await fetch(
+          `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items/${encodeURIComponent(editingItem.uri)}`,
+          {
+            method: 'DELETE',
+            credentials: 'include',
+          }
+        );
+
+        if (!deleteResponse.ok) {
+          throw new Error('Failed to remove item from old list');
+        }
+      } else {
+        // Just update in current list
+        const response = await fetch(
+          `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items/${encodeURIComponent(editingItem.uri)}`,
+          {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              rating: editData.rating,
+              review: editData.review,
+              notes: editData.notes,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to update item');
+        }
       }
 
       setShowEditItemModal(false);
@@ -311,6 +365,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         review: '',
         notes: '',
       });
+      setNewListUri(null);
 
       // Refresh items list
       const itemsRes = await fetch(
@@ -510,6 +565,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             review: '',
             notes: '',
           });
+          setNewListUri(null);
         }}
         onSubmit={handleUpdateItem}
         apiUrl={apiUrl}
@@ -534,6 +590,10 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         itemTitle={editingItem?.title}
         itemCreator={editingItem?.creator || undefined}
         itemCoverImage={editingItem?.mediaItem?.coverImage || undefined}
+        collections={allCollections}
+        currentListUri={collectionUri}
+        onListChange={(listUri) => setNewListUri(listUri)}
+        onCollectionsRefresh={refreshCollections}
       />
     </Container>
   );

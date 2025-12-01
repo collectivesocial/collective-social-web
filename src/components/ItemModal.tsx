@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -37,6 +38,16 @@ interface ReviewData {
   completedAt: string;
 }
 
+export interface Collection {
+  uri: string;
+  name: string;
+  description: string | null;
+  visibility: string;
+  purpose: string;
+  avatar: string | null;
+  createdAt: string;
+}
+
 interface ItemModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -50,6 +61,10 @@ interface ItemModalProps {
   itemTitle?: string;
   itemCreator?: string;
   itemCoverImage?: string;
+  collections?: Collection[];
+  currentListUri?: string;
+  onListChange?: (listUri: string) => void;
+  onCollectionsRefresh?: () => void;
 }
 
 export function ItemModal({
@@ -65,7 +80,16 @@ export function ItemModal({
   itemTitle,
   itemCreator,
   itemCoverImage,
+  collections = [],
+  currentListUri,
+  onListChange,
+  onCollectionsRefresh,
 }: ItemModalProps) {
+  const [isCreatingNewList, setIsCreatingNewList] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const [selectedListUri, setSelectedListUri] = useState(currentListUri || '');
+  const [isCreatingList, setIsCreatingList] = useState(false);
+
   if (!isOpen) return null;
 
 
@@ -203,6 +227,120 @@ export function ItemModal({
                           onReviewDataChange({ ...reviewData, completedAt: e.target.value })
                         }
                       />
+                    </Field>
+                  )}
+
+                  {/* List Selector (only in edit mode) */}
+                  {mode === 'edit' && collections.length > 0 && (
+                    <Field label="Collection">
+                      {!isCreatingNewList ? (
+                        <>
+                          <select
+                            value={selectedListUri}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === '__create_new__') {
+                                setIsCreatingNewList(true);
+                              } else {
+                                setSelectedListUri(value);
+                                if (onListChange && value !== currentListUri) {
+                                  onListChange(value);
+                                }
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem 0.75rem',
+                              backgroundColor: 'var(--chakra-colors-bg-muted)',
+                              border: '1px solid var(--chakra-colors-border)',
+                              borderRadius: '0.375rem',
+                              fontSize: '1rem',
+                              color: 'inherit',
+                            }}
+                          >
+                            {[...collections]
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((collection) => (
+                                <option key={collection.uri} value={collection.uri}>
+                                  {collection.name}
+                                </option>
+                              ))}
+                            <option value="__create_new__">+ Create New List</option>
+                          </select>
+                          {selectedListUri !== currentListUri && (
+                            <Text color="black" fontSize="sm" mt={1}>
+                              Note: Saving will move this item to the selected collection
+                            </Text>
+                          )}
+                        </>
+                      ) : (
+                        <VStack gap={2} align="stretch">
+                          <Input
+                            placeholder="New list name"
+                            value={newListName}
+                            onChange={(e) => setNewListName(e.target.value)}
+                            autoFocus
+                          />
+                          <HStack gap={2}>
+                            <Button
+                              size="sm"
+                              colorPalette="teal"
+                              bg="transparent"
+                              onClick={async () => {
+                                if (!newListName.trim()) {
+                                  alert('Please enter a list name');
+                                  return;
+                                }
+                                setIsCreatingList(true);
+                                try {
+                                  const response = await fetch(`${apiUrl}/collections`, {
+                                    method: 'POST',
+                                    credentials: 'include',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      name: newListName,
+                                      visibility: 'public',
+                                    }),
+                                  });
+                                  if (response.ok) {
+                                    const data = await response.json();
+                                    setSelectedListUri(data.uri);
+                                    if (onListChange) {
+                                      onListChange(data.uri);
+                                    }
+                                    if (onCollectionsRefresh) {
+                                      onCollectionsRefresh();
+                                    }
+                                    setIsCreatingNewList(false);
+                                    setNewListName('');
+                                  } else {
+                                    throw new Error('Failed to create list');
+                                  }
+                                } catch (err) {
+                                  console.error('Failed to create list:', err);
+                                  alert('Failed to create new list');
+                                } finally {
+                                  setIsCreatingList(false);
+                                }
+                              }}
+                              disabled={isCreatingList}
+                            >
+                              {isCreatingList ? 'Creating...' : 'Create'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setIsCreatingNewList(false);
+                                setNewListName('');
+                              }}
+                              disabled={isCreatingList}
+                            >
+                              Cancel
+                            </Button>
+                          </HStack>
+                        </VStack>
+                      )}
                     </Field>
                   )}
 
