@@ -232,7 +232,7 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
   return (
     <Container maxW="container.xl" py={8}>
       <Flex
-        direction={{ base: 'column', md: 'row' }}
+        direction="column"
         justify="space-between"
         align={{ base: 'flex-start', md: 'center' }}
         gap={4}
@@ -251,6 +251,7 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
           bg="teal"
           onClick={() => setShowCreateModal(true)}
           flexShrink={0}
+          w={{ base: 'full', md: 'auto' }}
         >
           + New Collection
         </Button>

@@ -88,6 +88,7 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
               <Button
                 size="xs"
                 variant="outline"
+                bg="transparent"
                 colorPalette="red"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -107,7 +108,7 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
         )}
 
         <Flex justify="space-between" align="center" fontSize="sm" color="fg.muted">
-          <Text>{collection.itemCount} items</Text>
+          <Text><Text as="span" fontWeight="bold">{collection.itemCount}</Text> items</Text>
           <Text>{new Date(collection.createdAt).toLocaleDateString()}</Text>
         </Flex>
       </Flex>

@@ -46,6 +46,7 @@ export interface Collection {
   purpose: string;
   avatar: string | null;
   createdAt: string;
+  itemCount?: number;
 }
 
 interface ItemModalProps {
