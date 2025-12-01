@@ -8,6 +8,7 @@ import { HomePage } from './pages/HomePage'
 import { ProfilePage } from './pages/ProfilePage'
 import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
+import { GroupsPage } from './pages/GroupsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { AdminPage } from './pages/AdminPage'
 import { FeedbackPage } from './pages/FeedbackPage'
@@ -97,6 +98,10 @@ function App() {
               <Route 
                 path="/collections/:collectionUri" 
                 element={<CollectionDetailsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/groups" 
+                element={<GroupsPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/items/:itemId" 
