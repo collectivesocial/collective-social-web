@@ -30,6 +30,7 @@ interface MediaItem {
   coverImage: string | null;
   description: string | null;
   publishedYear: number | null;
+  length: number | null;
   totalRatings: number;
   totalReviews: number;
   averageRating: number | null;
@@ -121,6 +122,11 @@ export function MediaItemCard({
               {item.creator && (
                 <Text color="fg.muted" fontSize="sm" mb={2}>
                   by {item.creator}
+                </Text>
+              )}
+              {item.mediaType === 'book' && item.mediaItem?.length && (
+                <Text color="fg.muted" fontSize="xs" mb={2}>
+                  {item.mediaItem.length} pages
                 </Text>
               )}
             </Box>

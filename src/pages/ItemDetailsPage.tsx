@@ -41,6 +41,7 @@ interface MediaItem {
   coverImage: string | null;
   description: string | null;
   publishedYear: number | null;
+  length: number | null;
   totalRatings: number;
   totalReviews: number;
   totalSaves: number;
@@ -253,6 +254,12 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
               {item.publishedYear && (
                 <Text color="fg.muted" fontSize="sm">
                   Published: {item.publishedYear}
+                </Text>
+              )}
+
+              {item.mediaType === 'book' && item.length && (
+                <Text color="fg.muted" fontSize="sm">
+                  {item.length} pages
                 </Text>
               )}
 

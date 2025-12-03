@@ -18,6 +18,7 @@ export interface MediaSearchResult {
   publishYear: number | null;
   isbn: string | null;
   coverImage: string | null;
+  pages?: number | null;
   inDatabase: boolean;
   totalRatings: number;
   totalReviews: number;
@@ -126,6 +127,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
             url: result.url,
             coverImage: result.coverImage,
             publishYear: result.publishYear,
+            length: result.pages,
           }),
         });
 
@@ -258,6 +260,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   )}
                   <HStack gap={4} fontSize="sm" color="fg.muted">
                     {result.publishYear && <Text>{result.publishYear}</Text>}
+                    {result.pages && <Text>{result.pages} pages</Text>}
                     {result.isbn && <Text>ISBN: {result.isbn}</Text>}
                   </HStack>
                   {result.inDatabase && (
