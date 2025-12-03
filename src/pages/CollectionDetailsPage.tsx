@@ -11,7 +11,7 @@ import {
   Spinner,
   Center,
 } from '@chakra-ui/react';
-import { MediaItemCard } from '../components/MediaItemCard';
+import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
 import { ItemModal, type Collection } from '../components/ItemModal';
 import { EmptyState } from '../components/EmptyState';
 
@@ -26,38 +26,6 @@ interface MediaSearchResult {
   totalReviews: number;
   averageRating: number | null;
   mediaItemId: number | null;
-}
-
-interface Recommendation {
-  did: string;
-  suggestedAt: string;
-  handle?: string;
-}
-
-interface ListItem {
-  uri: string;
-  cid: string;
-  title: string;
-  creator: string | null;
-  mediaType: string | null;
-  mediaItemId: number | null;
-  status: string | null;
-  rating: number | null;
-  review: string | null;
-  notes: string | null;
-  recommendations: Recommendation[];
-  createdAt: string;
-  mediaItem?: {
-    id: number;
-    isbn: string | null;
-    externalId: string | null;
-    coverImage: string | null;
-    description: string | null;
-    publishedYear: number | null;
-    totalRatings: number;
-    totalReviews: number;
-    averageRating: number | null;
-  };
 }
 
 interface CollectionDetailsPageProps {

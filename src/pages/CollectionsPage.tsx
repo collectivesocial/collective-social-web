@@ -243,7 +243,7 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
             Collections
           </Heading>
           <Text color="fg.muted">
-            Curated groups of content from {user.displayName || user.handle}
+            Your curated groups of content
           </Text>
         </Box>
         <Button

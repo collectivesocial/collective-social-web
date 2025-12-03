@@ -37,7 +37,7 @@ interface MediaItem {
   ratingDistribution?: RatingDistribution;
 }
 
-interface ListItem {
+export interface ListItem {
   uri: string;
   cid: string;
   title: string;
@@ -137,6 +137,11 @@ export function MediaItemCard({
               justify={{ base: 'flex-start', md: 'flex-end' }}
               flexShrink={0}
             >
+              {item.mediaType && (
+                <Badge colorPalette="teal" variant="subtle" fontSize="xs" textTransform="capitalize">
+                  {item.mediaType}
+                </Badge>
+              )}
               {item.status && (
                 <Badge colorPalette="gray" variant="subtle" fontSize="xs" textTransform="capitalize">
                   {item.status.replace('-', ' ')}
@@ -176,15 +181,6 @@ export function MediaItemCard({
             </HStack>
           </Flex>
 
-          {item.rating !== null && item.rating > 0 && (
-            <Flex align="center" gap={2} mb={2}>
-              <StarRating rating={item.rating} size="1em" />
-              <Text color="fg.muted" fontSize="sm">
-                {item.rating.toFixed(1)}
-              </Text>
-            </Flex>
-          )}
-
           {item.review && (
             <Box mt={3}>
               <Text color="fg.muted" fontSize="xs" mb={1}>
@@ -207,7 +203,7 @@ export function MediaItemCard({
             </Box>
           )}
 
-          {item.mediaItem && item.mediaItem.totalReviews > 1 && (
+          {item.mediaItem && item.mediaItem.totalRatings > 0 && (
             <Box
               mt={3}
               pt={3}
@@ -216,17 +212,30 @@ export function MediaItemCard({
               cursor="pointer"
               onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
             >
-              <Flex align="center" gap={2}>
-                <Text color="fg.muted" fontSize="xs">
-                  Community:
-                </Text>
-                <StarRating rating={item.mediaItem.averageRating || 0} size="0.875rem" />
-                <Text color="fg.muted" fontSize="xs">
-                  {typeof item.mediaItem.averageRating === 'number'
-                    ? item.mediaItem.averageRating.toFixed(1)
-                    : 'N/A'}{' '}
-                  ({item.mediaItem.totalReviews} reviews)
-                </Text>
+              <Flex align="center" gap={4} flexWrap="wrap">
+                {item.rating !== null && item.rating > 0 && (
+                  <Flex align="center" gap={2}>
+                    <Text color="fg.muted" fontSize="xs">
+                      Your rating:
+                    </Text>
+                    <StarRating rating={item.rating} size="0.875rem" />
+                    <Text color="fg.muted" fontSize="xs">
+                      {item.rating.toFixed(1)}
+                    </Text>
+                  </Flex>
+                )}
+                <Flex align="center" gap={2}>
+                  <Text color="fg.muted" fontSize="xs">
+                    Community:
+                  </Text>
+                  <StarRating rating={item.mediaItem.averageRating || 0} size="0.875rem" />
+                  <Text color="fg.muted" fontSize="xs">
+                    {typeof item.mediaItem.averageRating === 'number'
+                      ? item.mediaItem.averageRating.toFixed(1)
+                      : 'N/A'}{' '}
+                    ({item.mediaItem.totalRatings} ratings)
+                  </Text>
+                </Flex>
               </Flex>
             </Box>
           )}
