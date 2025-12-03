@@ -57,6 +57,7 @@ interface MediaItem {
   coverImage: string | null;
   description: string | null;
   publishedYear: number | null;
+  length: number | null;
   totalRatings: number;
   totalReviews: number;
   totalSaves: number;
@@ -116,11 +117,13 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
   const [shareLinksOrder, setShareLinksOrder] = useState<'asc' | 'desc'>('desc');
   const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null);
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const [loadingMediaDetails, setLoadingMediaDetails] = useState(false);
   const [editMediaTitle, setEditMediaTitle] = useState('');
   const [editMediaCreator, setEditMediaCreator] = useState('');
   const [editMediaCoverImage, setEditMediaCoverImage] = useState('');
   const [editMediaDescription, setEditMediaDescription] = useState('');
   const [editMediaPublishedYear, setEditMediaPublishedYear] = useState('');
+  const [editMediaLength, setEditMediaLength] = useState('');
   const [savingMedia, setSavingMedia] = useState(false);
   const [mediaSearchQuery, setMediaSearchQuery] = useState('');
   const [filteredMediaItems, setFilteredMediaItems] = useState<MediaItem[]>([]);
@@ -351,14 +354,47 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
     setFeedbackNotes('');
   };
 
-  const handleEditMedia = (item: MediaItem) => {
+  const handleEditMedia = async (item: MediaItem) => {
     setEditingMedia(item);
-    setEditMediaTitle(item.title);
-    setEditMediaCreator(item.creator || '');
-    setEditMediaCoverImage(item.coverImage || '');
-    setEditMediaDescription(item.description || '');
-    setEditMediaPublishedYear(item.publishedYear?.toString() || '');
     setMediaModalOpen(true);
+    setLoadingMediaDetails(true);
+    
+    // Fetch full media item details from the database
+    try {
+      const response = await fetch(`${apiUrl}/media/${item.id}`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Populate form with full data from database
+        setEditMediaTitle(data.title || '');
+        setEditMediaCreator(data.creator || '');
+        setEditMediaCoverImage(data.coverImage || '');
+        setEditMediaDescription(data.description || '');
+        setEditMediaPublishedYear(data.publishedYear?.toString() || '');
+        setEditMediaLength(data.length?.toString() || '');
+      } else {
+        // Fallback to item data if fetch fails
+        setEditMediaTitle(item.title);
+        setEditMediaCreator(item.creator || '');
+        setEditMediaCoverImage(item.coverImage || '');
+        setEditMediaDescription(item.description || '');
+        setEditMediaPublishedYear(item.publishedYear?.toString() || '');
+        setEditMediaLength(item.length?.toString() || '');
+      }
+    } catch (err) {
+      console.error('Failed to fetch full media item details:', err);
+      // Fallback to item data if fetch fails
+      setEditMediaTitle(item.title);
+      setEditMediaCreator(item.creator || '');
+      setEditMediaCoverImage(item.coverImage || '');
+      setEditMediaDescription(item.description || '');
+      setEditMediaPublishedYear(item.publishedYear?.toString() || '');
+      setEditMediaLength(item.length?.toString() || '');
+    } finally {
+      setLoadingMediaDetails(false);
+    }
   };
 
   const handleCloseMediaModal = () => {
@@ -369,6 +405,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
     setEditMediaCoverImage('');
     setEditMediaDescription('');
     setEditMediaPublishedYear('');
+    setEditMediaLength('');
   };
 
   const handleSaveMedia = async () => {
@@ -388,6 +425,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           coverImage: editMediaCoverImage || null,
           description: editMediaDescription || null,
           publishedYear: editMediaPublishedYear ? parseInt(editMediaPublishedYear) : null,
+          length: editMediaLength ? parseInt(editMediaLength) : null,
         }),
       });
 
@@ -405,6 +443,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
               coverImage: editMediaCoverImage || null,
               description: editMediaDescription || null,
               publishedYear: editMediaPublishedYear ? parseInt(editMediaPublishedYear) : null,
+              length: editMediaLength ? parseInt(editMediaLength) : null,
             }
           : item
       ));
@@ -832,6 +871,9 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium" display={{ base: 'none', md: 'table-cell' }}>
                   Type
                 </Table.ColumnHeader>
+                <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center" display={{ base: 'none', xl: 'table-cell' }}>
+                  Pages
+                </Table.ColumnHeader>
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium" textAlign="center" display={{ base: 'none', sm: 'table-cell' }}>
                   Reviews
                 </Table.ColumnHeader>
@@ -872,6 +914,9 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                     >
                       {item.mediaType}
                     </Badge>
+                  </Table.Cell>
+                  <Table.Cell textAlign="center" fontSize="sm" display={{ base: 'none', xl: 'table-cell' }}>
+                    {item.mediaType === 'book' && item.length ? item.length : '-'}
                   </Table.Cell>
                   <Table.Cell textAlign="center" fontSize="sm" display={{ base: 'none', sm: 'table-cell' }}>
                     {item.totalReviews}
@@ -1072,12 +1117,21 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
             <DialogTitle>Edit Media Item</DialogTitle>
           </DialogHeader>
           <DialogBody>
+            {loadingMediaDetails ? (
+              <Center py={8}>
+                <VStack gap={4}>
+                  <Spinner size="lg" color="teal.500" />
+                  <Text color="fg.muted">Loading media details...</Text>
+                </VStack>
+              </Center>
+            ) : (
             <VStack gap={4} align="stretch">
               <Field label="Title" required>
                 <Input
                   value={editMediaTitle}
                   onChange={(e) => setEditMediaTitle(e.target.value)}
                   placeholder="Enter title"
+                  disabled={loadingMediaDetails}
                 />
               </Field>
 
@@ -1140,6 +1194,18 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                 />
               </Field>
 
+              {editingMedia && editingMedia.mediaType === 'book' && (
+                <Field label="Pages">
+                  <Input
+                    type="number"
+                    value={editMediaLength}
+                    onChange={(e) => setEditMediaLength(e.target.value)}
+                    placeholder="Number of pages"
+                    min="1"
+                  />
+                </Field>
+              )}
+
               {editingMedia && (
                 <Box p={3} bg="bg.muted" borderRadius="md" fontSize="sm">
                   <Text color="fg.muted">
@@ -1156,6 +1222,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                 </Box>
               )}
             </VStack>
+            )}
           </DialogBody>
           <DialogFooter>
             <HStack gap={2}>
