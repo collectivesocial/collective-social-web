@@ -1,6 +1,7 @@
-import { Container, Stack, Box, Heading } from '@chakra-ui/react';
+import { Container, Stack, Box, Heading, Grid } from '@chakra-ui/react';
 import { WelcomeCard } from '../components/WelcomeCard';
 import { FeedList } from '../components/FeedList';
+import { RecentlyAdded } from '../components/RecentlyAdded';
 
 interface HomePageProps {
   isAuthenticated: boolean;
@@ -14,7 +15,7 @@ interface HomePageProps {
 export function HomePage({ isAuthenticated, user, apiUrl }: HomePageProps) {
   if (isAuthenticated && user) {
     return (
-      <Container maxW="container.md" py={8}>
+      <Container maxW="container.xl" py={8}>
         <Stack gap={6}>
           <WelcomeCard
             isAuthenticated={isAuthenticated}
@@ -22,18 +23,26 @@ export function HomePage({ isAuthenticated, user, apiUrl }: HomePageProps) {
             apiUrl={apiUrl}
           />
 
-          <Box
-            p={6}
-            bg="bg.subtle"
-            borderRadius="lg"
-            borderWidth="1px"
-            borderColor="border"
+          <Grid
+            templateColumns={{ base: '1fr', lg: '1fr 400px' }}
+            gap={6}
+            alignItems="start"
           >
-            <Heading size="lg" mb={4}>
-              Recent Activity
-            </Heading>
-            <FeedList apiUrl={apiUrl} limit={20} />
-          </Box>
+            <Box
+              p={6}
+              bg="bg.subtle"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="border"
+            >
+              <Heading size="lg" mb={4}>
+                Recent Activity
+              </Heading>
+              <FeedList apiUrl={apiUrl} limit={20} />
+            </Box>
+
+            <RecentlyAdded apiUrl={apiUrl} />
+          </Grid>
         </Stack>
       </Container>
     );

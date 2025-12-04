@@ -194,6 +194,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                   <Heading
                     size={isAuthenticated ? 'lg' : 'xl'}
                     transition="all 0.3s ease"
+                    color="teal.500"
                   >
                     Collective
                   </Heading>
