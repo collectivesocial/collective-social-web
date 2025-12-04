@@ -19,7 +19,7 @@ import {
   Input,
   IconButton,
 } from '@chakra-ui/react';
-import { LuPencil } from 'react-icons/lu';
+import { LuPencil, LuTrash2 } from 'react-icons/lu';
 import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner } from '../components/ui/dialog';
 import { Field } from '../components/ui/field';
 import { EmptyState } from '../components/EmptyState';
@@ -129,6 +129,8 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
   const [filteredMediaItems, setFilteredMediaItems] = useState<MediaItem[]>([]);
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [mediaPage, setMediaPage] = useState(1);
+  const [mediaPerPage] = useState(20);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -166,19 +168,6 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
         
         setUsers(usersData.users);
         setTotalUsers(usersData.totalUsers);
-
-        // Fetch media items data
-        const mediaRes = await fetch(`${apiUrl}/admin/media`, {
-          credentials: 'include',
-        });
-
-        if (!mediaRes.ok) {
-          throw new Error('Failed to fetch media data');
-        }
-
-        const mediaData = await mediaRes.json();
-        setMediaItems(mediaData.mediaItems);
-        setTotalMediaItems(mediaData.totalMediaItems);
 
         // Fetch feedback data
         const feedbackRes = await fetch(`${apiUrl}/feedback`, {
@@ -241,12 +230,40 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
     checkAdminAndFetchData();
   }, [apiUrl]);
 
+  // Fetch media items with pagination
+  useEffect(() => {
+    const fetchMediaItems = async () => {
+      if (!isAdmin) return;
+
+      try {
+        const mediaRes = await fetch(
+          `${apiUrl}/admin/media?page=${mediaPage}&limit=${mediaPerPage}`,
+          {
+            credentials: 'include',
+          }
+        );
+
+        if (mediaRes.ok) {
+          const mediaData = await mediaRes.json();
+          setMediaItems(mediaData.mediaItems);
+          setTotalMediaItems(mediaData.totalMediaItems);
+        }
+      } catch (err) {
+        console.error('Failed to fetch media items:', err);
+      }
+    };
+
+    fetchMediaItems();
+  }, [apiUrl, isAdmin, mediaPage, mediaPerPage]);
+
   // Filter media items based on search query with debounce
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       if (!mediaSearchQuery.trim()) {
         setFilteredMediaItems(mediaItems);
       } else {
+        // Reset to page 1 when searching
+        setMediaPage(1);
         const query = mediaSearchQuery.toLowerCase();
         setFilteredMediaItems(
           mediaItems.filter(
@@ -454,6 +471,32 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
       alert('Failed to update media item');
     } finally {
       setSavingMedia(false);
+    }
+  };
+
+  const handleDeleteMedia = async (itemId: number, itemTitle: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${itemTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/media/${itemId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete media item');
+      }
+
+      // Update local state
+      setMediaItems(mediaItems.filter(item => item.id !== itemId));
+      setTotalMediaItems(totalMediaItems - 1);
+
+      alert('Media item deleted successfully');
+    } catch (err) {
+      console.error('Failed to delete media item:', err);
+      alert('Failed to delete media item');
     }
   };
 
@@ -941,15 +984,27 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                     {new Date(item.createdAt).toLocaleDateString()}
                   </Table.Cell>
                   <Table.Cell textAlign="center">
-                    <IconButton
-                      aria-label="Edit media item"
-                      size="sm"
-                      variant="ghost"
-                      bg="transparent"
-                      onClick={() => handleEditMedia(item)}
-                    >
-                      <LuPencil />
-                    </IconButton>
+                    <HStack gap={1} justify="center">
+                      <IconButton
+                        aria-label="Edit media item"
+                        size="sm"
+                        variant="ghost"
+                        bg="transparent"
+                        onClick={() => handleEditMedia(item)}
+                      >
+                        <LuPencil />
+                      </IconButton>
+                      <IconButton
+                        aria-label="Delete media item"
+                        size="sm"
+                        variant="ghost"
+                        bg="transparent"
+                        colorPalette="red"
+                        onClick={() => handleDeleteMedia(item.id, item.title)}
+                      >
+                        <LuTrash2 />
+                      </IconButton>
+                    </HStack>
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -957,14 +1012,40 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           </Table.Root>
         </Box>
 
-        {totalMediaItems > 10 && (
+        {totalMediaItems > mediaPerPage && !mediaSearchQuery && (
+          <Flex mt={4} justify="space-between" align="center" gap={4}>
+            <Button
+              onClick={() => setMediaPage(mediaPage - 1)}
+              disabled={mediaPage === 1}
+              size="sm"
+              bg="transparent"
+              variant="outline"
+            >
+              Previous
+            </Button>
+            <Text fontSize="sm" color="fg.muted">
+              Page {mediaPage} of {Math.ceil(totalMediaItems / mediaPerPage)}
+            </Text>
+            <Button
+              onClick={() => setMediaPage(mediaPage + 1)}
+              disabled={mediaPage >= Math.ceil(totalMediaItems / mediaPerPage)}
+              size="sm"
+              bg="transparent"
+              variant="outline"
+            >
+              Next
+            </Button>
+          </Flex>
+        )}
+
+        {mediaSearchQuery && (
           <Text
             mt={2}
             fontSize="sm"
             color="fg.muted"
             textAlign="center"
           >
-            Showing {filteredMediaItems.length} of {totalMediaItems} media items
+            Showing {filteredMediaItems.length} of {totalMediaItems} media items (filtered)
           </Text>
         )}
       </Box>
