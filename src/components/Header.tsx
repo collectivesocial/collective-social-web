@@ -48,7 +48,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video'>('book');
+  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video' | 'movie' | 'tv'>('book');
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
 
@@ -228,7 +228,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                       <select
                         value={mediaType}
                         onChange={(e) => {
-                          setMediaType(e.target.value as 'book' | 'article' | 'video');
+                          setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv');
                           setSearchQuery('');
                         }}
                         style={{
@@ -242,6 +242,8 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         }}
                       >
                         <option value="book">Book</option>
+                        <option value="movie">Movie</option>
+                        <option value="tv">TV Show</option>
                         <option value="article">Article</option>
                         <option value="video">Video</option>
                       </select>
@@ -250,7 +252,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder={
-                        mediaType === 'book' ? 'Search...' : 'Paste URL...'
+                        (mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv') ? 'Search...' : 'Paste URL...'
                       }
                       size="sm"
                       w="200px"

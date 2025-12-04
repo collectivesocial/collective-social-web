@@ -26,6 +26,7 @@ export interface MediaSearchResult {
   mediaItemId: number | null;
   url?: string;
   mediaType?: string;
+  imdbId?: string;
 }
 
 interface MediaSearchProps {
@@ -34,7 +35,7 @@ interface MediaSearchProps {
 }
 
 export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
-  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video'>('book');
+  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video' | 'movie' | 'tv'>('book');
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<MediaSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -124,6 +125,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
             creator: result.author,
             mediaType: result.mediaType || mediaType,
             isbn: result.isbn,
+            imdbId: result.imdbId,
             url: result.url,
             coverImage: result.coverImage,
             publishYear: result.publishYear,
@@ -153,7 +155,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
               <select
                 value={mediaType}
                 onChange={(e) => {
-                  setMediaType(e.target.value as 'book' | 'article' | 'video');
+                  setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv');
                   setSearchQuery('');
                   setResults([]);
                   setError(null);
@@ -169,6 +171,8 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                 }}
               >
                 <option value="book">Book</option>
+                <option value="movie">Movie</option>
+                <option value="tv">TV Show</option>
                 <option value="article">Article</option>
                 <option value="video">Video</option>
               </select>
@@ -176,14 +180,14 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
           </Box>
 
           <Box flex={1}>
-            <Field label={mediaType === 'book' ? 'Search' : 'Add'}>
+            <Field label={(mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv') ? 'Search' : 'Add'}>
               <HStack gap={2}>
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
-                    mediaType === 'book'
-                      ? 'Search by title or author...'
+                    mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv'
+                      ? 'Search by title...'
                       : 'Paste URL...'
                   }
                   flex={1}
@@ -195,10 +199,10 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   flexShrink={0}
                 >
                   {searching
-                    ? mediaType === 'book'
+                    ? (mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv')
                       ? 'Searching...'
                       : 'Loading...'
-                    : mediaType === 'book'
+                    : (mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv')
                     ? 'Search'
                     : 'Add'}
                 </Button>
