@@ -351,6 +351,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                       item.mediaType === 'book' ? `${item.length} pages` :
                       item.mediaType === 'movie' ? `${item.length} min` :
                       item.mediaType === 'tv' ? `${item.length} eps` :
+                      item.mediaType === 'course' ? `${item.length} modules` :
                       item.length
                     ) : '-'}
                   </Table.Cell>
@@ -529,11 +530,12 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                     />
                   </Field>
 
-                  {editingMedia && (editingMedia.mediaType === 'book' || editingMedia.mediaType === 'movie' || editingMedia.mediaType === 'tv') && (
+                  {editingMedia && (editingMedia.mediaType === 'book' || editingMedia.mediaType === 'movie' || editingMedia.mediaType === 'tv' || editingMedia.mediaType === 'course') && (
                     <Field label={
                       editingMedia.mediaType === 'book' ? 'Pages' :
                       editingMedia.mediaType === 'movie' ? 'Runtime (minutes)' :
-                      'Total Episodes'
+                      editingMedia.mediaType === 'tv' ? 'Total Episodes' :
+                      'Number of Modules'
                     }>
                       <Input
                         type="number"
@@ -542,7 +544,8 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                         placeholder={
                           editingMedia.mediaType === 'book' ? 'Number of pages' :
                           editingMedia.mediaType === 'movie' ? 'Runtime in minutes' :
-                          'Total number of episodes'
+                          editingMedia.mediaType === 'tv' ? 'Total number of episodes' :
+                          'Number of modules'
                         }
                         min="1"
                       />

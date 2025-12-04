@@ -48,7 +48,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video' | 'movie' | 'tv'>('book');
+  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video' | 'movie' | 'tv' | 'course'>('book');
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
 
@@ -83,6 +83,13 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim() || isProcessing) {
+      return;
+    }
+
+    // For courses, redirect to home where they can use the full add flow with module count
+    if (mediaType === 'course') {
+      alert('Please use the "Add to Collection" button on your profile to add courses with module information.');
+      setSearchQuery('');
       return;
     }
 
@@ -229,7 +236,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                       <select
                         value={mediaType}
                         onChange={(e) => {
-                          setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv');
+                          setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                           setSearchQuery('');
                         }}
                         style={{
@@ -247,6 +254,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         <option value="tv">TV Show</option>
                         <option value="article">Article</option>
                         <option value="video">Video</option>
+                        <option value="course">Course</option>
                       </select>
                     </Box>
                     <Input

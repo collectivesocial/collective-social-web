@@ -9,6 +9,7 @@ import {
   HStack,
   Heading,
 } from '@chakra-ui/react';
+import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner } from './ui/dialog';
 import { Field } from './ui/field';
 import { StarRating } from './StarRating';
 
@@ -35,8 +36,11 @@ interface MediaSearchProps {
 }
 
 export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
-  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video' | 'movie' | 'tv'>('book');
+  const [mediaType, setMediaType] = useState<'book' | 'article' | 'video' | 'movie' | 'tv' | 'course'>('book');
   const [searchQuery, setSearchQuery] = useState('');
+  const [moduleCount, setModuleCount] = useState('');
+  const [showModulePrompt, setShowModulePrompt] = useState(false);
+  const [pendingCourseResult, setPendingCourseResult] = useState<MediaSearchResult | null>(null);
   const [results, setResults] = useState<MediaSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,8 +56,8 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
     setError(null);
 
     try {
-      // For articles and videos, use link endpoint
-      if (mediaType === 'article' || mediaType === 'video') {
+      // For articles, videos, and courses, use link endpoint
+      if (mediaType === 'article' || mediaType === 'video' || mediaType === 'course') {
         const response = await fetch(`${apiUrl}/media/link`, {
           method: 'POST',
           credentials: 'include',
@@ -100,7 +104,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
       }
     } catch (err) {
       setError(
-        mediaType === 'article' || mediaType === 'video'
+        mediaType === 'article' || mediaType === 'video' || mediaType === 'course'
           ? 'Failed to fetch link metadata. Please check the URL and try again.'
           : 'Failed to search. Please try again.'
       );
@@ -111,6 +115,13 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
   };
 
   const handleSelectResult = async (result: MediaSearchResult) => {
+    // For courses not in database, prompt for module count first
+    if (!result.inDatabase && result.mediaType === 'course') {
+      setPendingCourseResult(result);
+      setShowModulePrompt(true);
+      return;
+    }
+
     // If not in database yet, add it first
     if (!result.inDatabase) {
       try {
@@ -155,8 +166,11 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
               <select
                 value={mediaType}
                 onChange={(e) => {
-                  setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv');
+                  setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                   setSearchQuery('');
+                  setModuleCount('');
+                  setShowModulePrompt(false);
+                  setPendingCourseResult(null);
                   setResults([]);
                   setError(null);
                 }}
@@ -175,6 +189,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                 <option value="tv">TV Show</option>
                 <option value="article">Article</option>
                 <option value="video">Video</option>
+                <option value="course">Course</option>
               </select>
             </Field>
           </Box>
@@ -295,6 +310,96 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
           No results found. Try a different search.
         </Box>
       )}
+
+      {/* Module Count Dialog for Courses */}
+      <DialogRoot open={showModulePrompt} onOpenChange={(e) => setShowModulePrompt(e.open)}>
+        <DialogBackdrop />
+        <DialogPositioner>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>How many modules?</DialogTitle>
+            </DialogHeader>
+            <DialogBody>
+              <Field label="Number of Modules">
+                <Input
+                  type="number"
+                  value={moduleCount}
+                  onChange={(e) => setModuleCount(e.target.value)}
+                  placeholder="Enter number of modules"
+                  min="1"
+                  autoFocus
+                />
+              </Field>
+            </DialogBody>
+            <DialogFooter>
+              <HStack gap={2}>
+                <Button
+                  onClick={() => {
+                    setShowModulePrompt(false);
+                    setPendingCourseResult(null);
+                    setModuleCount('');
+                  }}
+                  variant="outline"
+                  bg="transparent"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    if (!pendingCourseResult || !moduleCount) return;
+
+                    try {
+                      const response = await fetch(`${apiUrl}/media/add`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          title: pendingCourseResult.title,
+                          creator: pendingCourseResult.author,
+                          mediaType: 'course',
+                          url: pendingCourseResult.url,
+                          coverImage: pendingCourseResult.coverImage,
+                          publishYear: pendingCourseResult.publishYear,
+                          length: parseInt(moduleCount),
+                        }),
+                      });
+
+                      if (!response.ok) {
+                        throw new Error('Failed to add course');
+                      }
+
+                      const data = await response.json();
+                      
+                      // Update the result with the new mediaItemId and call onSelect
+                      onSelect({
+                        ...pendingCourseResult,
+                        mediaItemId: data.mediaItemId,
+                        inDatabase: true,
+                      });
+
+                      // Close dialog and reset
+                      setShowModulePrompt(false);
+                      setPendingCourseResult(null);
+                      setModuleCount('');
+                    } catch (err) {
+                      console.error('Failed to add course:', err);
+                      alert('Failed to add course. Please try again.');
+                    }
+                  }}
+                  colorPalette="teal"
+                  variant="outline"
+                  bg="transparent"
+                  disabled={!moduleCount || parseInt(moduleCount) < 1}
+                >
+                  Add Course
+                </Button>
+              </HStack>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPositioner>
+      </DialogRoot>
     </VStack>
   );
 }
