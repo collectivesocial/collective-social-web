@@ -22,6 +22,7 @@ export interface MediaSearchResult {
   publishYear: number | null;
   isbn: string | null;
   coverImage: string | null;
+  mediaType?: string;
   inDatabase: boolean;
   totalRatings: number;
   totalReviews: number;

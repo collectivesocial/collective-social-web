@@ -23,6 +23,7 @@ interface MediaSearchResult {
   publishYear: number | null;
   isbn: string | null;
   coverImage: string | null;
+  mediaType?: string;
   inDatabase: boolean;
   totalRatings: number;
   totalReviews: number;
@@ -485,7 +486,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           body: JSON.stringify({
             title: selectedMedia.title,
             creator: selectedMedia.author,
-            mediaType: 'book',
+            mediaType: selectedMedia.mediaType || 'book',
             mediaItemId: selectedMedia.mediaItemId,
             status: reviewData.status,
             rating: reviewData.rating,
