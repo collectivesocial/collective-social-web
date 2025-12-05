@@ -69,6 +69,75 @@ interface ItemModalProps {
   onCollectionsRefresh?: () => void;
 }
 
+const mediaTypeToText: (arg0: string | undefined) => any = (mediaType: string | undefined) => {
+  switch (mediaType) {
+    case 'book':
+      return {
+        searchText: 'Search for a book to add to your collection',
+        displayText: 'Book',
+        wantText: 'Want to Read',
+        inProgressText: 'Currently Reading',
+        completedText: 'Completed',
+      };
+    case 'movie':
+      return {
+        searchText: 'Search for a movie to add to your collection',
+        displayText: 'Movie',
+        wantText: 'Want to Watch',
+        inProgressText: 'Currently Watching',
+        completedText: 'Completed',
+      };
+    case 'tv':
+      return {
+        searchText: 'Search for a TV show to add to your collection',
+        displayText: 'TV Show',
+        wantText: 'Want to Watch',
+        inProgressText: 'Currently Watching',
+        completedText: 'Completed',
+      };
+    case 'podcast':
+      return {
+        searchText: 'Add a link to a podcast episode to add to your collection',
+        displayText: 'Podcast',
+        wantText: 'Want to Listen To',
+        inProgressText: 'Currently Listening To',
+        completedText: 'Completed',
+      };
+    case 'article':
+      return {
+        searchText: 'Add a link to an article to add to your collection',
+        displayText: 'Article',
+        wantText: 'Want to Read',
+        inProgressText: 'Currently Reading',
+        completedText: 'Completed',
+      };
+    case 'course':
+      return {
+        searchText: 'Add a link to a course to add to your collection',
+        displayText: 'Course',
+        wantText: 'Want to Do',
+        inProgressText: 'In Progress',
+        completedText: 'Completed',
+      };
+    case 'video':
+      return {
+        searchText: 'Add a link to a video to add to your collection',
+        displayText: 'Video',
+        wantText: 'Want to Watch',
+        inProgressText: 'Currently Watching',
+        completedText: 'Completed',
+      };
+    default:
+      return {
+        searchText: 'Search for something to add to your collection',
+        displayText: 'Media',
+        wantText: 'Want to Watch',
+        inProgressText: 'Currently Watching',
+        completedText: 'Completed',
+      };
+  }
+}
+
 export function ItemModal({
   isOpen,
   onClose,
@@ -93,9 +162,7 @@ export function ItemModal({
   const [isCreatingList, setIsCreatingList] = useState(false);
 
   if (!isOpen) return null;
-
-
-
+  const mediaTypeText = mediaTypeToText(selectedMedia?.mediaType);
   const displayMedia = mode === 'edit'
     ? { title: itemTitle, author: itemCreator, coverImage: itemCoverImage }
     : selectedMedia;
@@ -136,7 +203,7 @@ export function ItemModal({
             {mode === 'add' && !selectedMedia ? (
               <Box>
                 <Text color="fg.muted" mb={4}>
-                  Search for a book to add to your collection
+                  {mediaTypeText.searchText}
                 </Text>
                 <MediaSearch apiUrl={apiUrl} onSelect={onMediaSelect} />
               </Box>
@@ -175,8 +242,8 @@ export function ItemModal({
                         <HStack gap={2} mt={2} fontSize="sm">
                           <StarRating rating={selectedMedia.averageRating || 0} size="1em" />
                           <Text color="fg.muted">
-                            {selectedMedia.averageRating?.toFixed(1)} ({selectedMedia.totalReviews}{' '}
-                            {selectedMedia.totalReviews === 1 ? 'review' : 'reviews'})
+                            {selectedMedia.averageRating?.toFixed(1)} ({selectedMedia.totalRatings}{' '}
+                            {selectedMedia.totalRatings === 1 ? 'rating' : 'ratings'})
                           </Text>
                         </HStack>
                       )}
@@ -212,16 +279,16 @@ export function ItemModal({
                           color: 'inherit',
                         }}
                       >
-                        <option value="want">Want to Read</option>
-                        <option value="in-progress">Currently Reading</option>
-                        <option value="completed">Completed</option>
+                        <option value="want">{mediaTypeText.wantText}</option>
+                        <option value="in-progress">{mediaTypeText.inProgressText}</option>
+                        <option value="completed">{mediaTypeText.completedText}</option>
                       </select>
                     </Field>
                   )}
 
                   {/* Completed Date (only if status is completed) */}
-                  {mode === 'add' && reviewData.status === 'completed' && (
-                    <Field label="Finished reading on (optional)">
+                  {reviewData.status === 'completed' && (
+                    <Field label="Finished on (optional)">
                       <Input
                         type="date"
                         value={reviewData.completedAt}
@@ -346,47 +413,45 @@ export function ItemModal({
                     </Field>
                   )}
 
-                  {/* Rating */}
-                  <Field label="Rating (0-5 stars)">
-                    <HStack gap={2}>
-                      <StarRatingSelector
-                        rating={reviewData.rating}
-                        onChange={(r) => onReviewDataChange({ ...reviewData, rating: r })}
-                      />
-                      <Text color="fg.muted" fontSize="sm">
-                        {reviewData.rating.toFixed(1)}
-                      </Text>
-                    </HStack>
-                  </Field>
+                  {reviewData.status === 'completed' && (
+                    <>
+                      {/* Rating */}
+                      <Field label="Rating (0-5 stars)">
+                        <HStack gap={2}>
+                          <StarRatingSelector
+                            rating={reviewData.rating}
+                            onChange={(r) => onReviewDataChange({ ...reviewData, rating: r })}
+                          />
+                          <Text color="fg.muted" fontSize="sm">
+                            {reviewData.rating.toFixed(1)}
+                          </Text>
+                        </HStack>
+                      </Field>
 
-                  {/* Public Review */}
-                  <Field label="📝 Public Review (optional)">
-                    <Textarea
-                      value={reviewData.review}
-                      onChange={(e) =>
-                        onReviewDataChange({ ...reviewData, review: e.target.value })
-                      }
-                      rows={3}
-                      placeholder="Share your review publicly..."
-                    />
-                    <Text color="fg.muted" fontSize="xs" mt={1}>
-                      This will be visible to everyone and stored in the database
-                    </Text>
-                  </Field>
+                      {/* Public Review */}
+                      <Field label="📝 Review (optional)">
+                        <Textarea
+                          value={reviewData.review}
+                          onChange={(e) =>
+                            onReviewDataChange({ ...reviewData, review: e.target.value })
+                          }
+                          rows={3}
+                          placeholder="Share your review..."
+                        />
+                      </Field>
+                    </>
+                  )}
 
                   {/* Private Notes */}
-                  <Field label="🔒 Private Notes (optional)">
+                  <Field label="Notes">
                     <Textarea
                       value={reviewData.notes}
                       onChange={(e) =>
                         onReviewDataChange({ ...reviewData, notes: e.target.value })
                       }
                       rows={3}
-                      placeholder="Private notes only you can see..."
+                      placeholder="Private notes about this..."
                     />
-                    <Text color="fg.muted" fontSize="xs" mt={1}>
-                      Only visible to you, stored in your ATProto repository
-                    </Text>
                   </Field>
 
                   {/* Recommended By (only in add mode) */}
