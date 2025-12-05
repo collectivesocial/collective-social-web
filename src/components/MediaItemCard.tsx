@@ -129,6 +129,11 @@ export function MediaItemCard({
                   {item.mediaItem.length} pages
                 </Text>
               )}
+              {item.mediaType === 'course' && item.mediaItem?.length && (
+                <Text color="fg.muted" fontSize="xs" mb={2}>
+                  {item.mediaItem.length} modules
+                </Text>
+              )}
             </Box>
 
             <HStack

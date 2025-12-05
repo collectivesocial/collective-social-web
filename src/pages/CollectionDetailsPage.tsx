@@ -8,12 +8,14 @@ import {
   Heading,
   Text,
   VStack,
+  HStack,
   Spinner,
   Center,
 } from '@chakra-ui/react';
 import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
 import { ItemModal, type Collection } from '../components/ItemModal';
 import { EmptyState } from '../components/EmptyState';
+import { EditCollectionModal } from '../components/EditCollectionModal';
 
 interface MediaSearchResult {
   title: string;
@@ -59,6 +61,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     notes: '',
   });
   const [newListUri, setNewListUri] = useState<string | null>(null);
+  const [showEditCollectionModal, setShowEditCollectionModal] = useState(false);
   const navigate = useNavigate();
 
   // Handle shared link parameters
@@ -191,6 +194,37 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     const decodedUri = decodeURIComponent(collectionUri);
     const didMatch = decodedUri.match(/^at:\/\/([^\/]+)/);
     return !!(didMatch && didMatch[1] === currentUserDid);
+  };
+
+  const handleEditCollection = () => {
+    setShowEditCollectionModal(true);
+  };
+
+  const handleSaveCollection = async (name: string, description: string | null) => {
+    const response = await fetch(
+      `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}`,
+      {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, description }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to update collection');
+    }
+
+    // Update local state
+    if (collection) {
+      setCollection({
+        ...collection,
+        name,
+        description,
+      });
+    }
   };
 
   const handleMediaSelect = (media: MediaSearchResult) => {
@@ -465,15 +499,25 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             </Text>
           )}
         </Box>
-        <Button
-          colorPalette="teal"
-          bg="teal"
-          onClick={() => setShowAddItemModal(true)}
-          flexShrink={0}
-          alignSelf={{ base: 'stretch', md: 'flex-start' }}
-        >
-          + Add Item
-        </Button>
+        {isOwner() && (
+          <HStack gap={2} flexShrink={0} alignSelf={{ base: 'stretch', md: 'flex-start' }}>
+            <Button
+              onClick={handleEditCollection}
+              colorPalette="teal"
+              variant="ghost"
+              bg="transparent"
+            >
+              Edit
+            </Button>
+            <Button
+              colorPalette="teal"
+              bg="teal"
+              onClick={() => setShowAddItemModal(true)}
+            >
+              + Add Item
+            </Button>
+          </HStack>
+        )}
       </Flex>
 
       {items.length === 0 ? (
@@ -562,6 +606,15 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         currentListUri={collectionUri}
         onListChange={(listUri) => setNewListUri(listUri)}
         onCollectionsRefresh={refreshCollections}
+      />
+
+      {/* Edit Collection Modal */}
+      <EditCollectionModal
+        isOpen={showEditCollectionModal}
+        onClose={() => setShowEditCollectionModal(false)}
+        collectionName={collection?.name || ''}
+        collectionDescription={collection?.description || null}
+        onSave={handleSaveCollection}
       />
     </Container>
   );
