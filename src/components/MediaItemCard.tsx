@@ -1,5 +1,6 @@
-import { Box, Flex, Text, Badge, Button, HStack, Heading } from '@chakra-ui/react';
+import { Box, Flex, Text, Badge, Button, HStack, Heading, VStack, IconButton } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import { ShareButton } from './ShareButton';
 import { StarRating } from './StarRating';
 
@@ -42,6 +43,7 @@ export interface ListItem {
   cid: string;
   title: string;
   creator: string | null;
+  order: number;
   mediaType: string | null;
   mediaItemId: number | null;
   status: string | null;
@@ -57,18 +59,28 @@ interface MediaItemCardProps {
   item: ListItem;
   recommenderHandles: Record<string, string>;
   isOwner: boolean;
+  isReorderMode?: boolean;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
   apiUrl: string;
   onEdit: (item: ListItem) => void;
   onDelete: (itemUri: string) => void;
+  onMoveUp?: (item: ListItem) => void;
+  onMoveDown?: (item: ListItem) => void;
 }
 
 export function MediaItemCard({
   item,
   recommenderHandles,
   isOwner,
+  isReorderMode,
+  canMoveUp,
+  canMoveDown,
   apiUrl,
   onEdit,
   onDelete,
+  onMoveUp,
+  onMoveDown,
 }: MediaItemCardProps) {
   const navigate = useNavigate();
 
@@ -83,6 +95,30 @@ export function MediaItemCard({
       p={{ base: 4, md: 6 }}
     >
       <Flex gap={{ base: 3, md: 4 }} direction={{ base: 'column', sm: 'row' }}>
+        {isReorderMode && (
+          <VStack gap={1} flexShrink={0}>
+            <IconButton
+              aria-label="Move up"
+              size="xs"
+              variant="outline"
+              bg="transparent"
+              onClick={() => onMoveUp?.(item)}
+              disabled={!canMoveUp}
+            >
+              <LuArrowUp />
+            </IconButton>
+            <IconButton
+              aria-label="Move down"
+              size="xs"
+              variant="outline"
+              bg="transparent"
+              onClick={() => onMoveDown?.(item)}
+              disabled={!canMoveDown}
+            >
+              <LuArrowDown />
+            </IconButton>
+          </VStack>
+        )}
         {item.mediaItem?.coverImage && (
           <img
             src={item.mediaItem.coverImage}

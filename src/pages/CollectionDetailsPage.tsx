@@ -62,6 +62,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   });
   const [newListUri, setNewListUri] = useState<string | null>(null);
   const [showEditCollectionModal, setShowEditCollectionModal] = useState(false);
+  const [isReorderMode, setIsReorderMode] = useState(false);
   const navigate = useNavigate();
 
   // Handle shared link parameters
@@ -198,6 +199,84 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
 
   const handleEditCollection = () => {
     setShowEditCollectionModal(true);
+  };
+
+  const handleToggleReorderMode = () => {
+    setIsReorderMode(!isReorderMode);
+  };
+
+  const handleMoveUp = (item: ListItem) => {
+    const currentIndex = items.findIndex((i) => i.uri === item.uri);
+    if (currentIndex > 0) {
+      const newItems = [...items];
+      [newItems[currentIndex - 1], newItems[currentIndex]] = [
+        newItems[currentIndex],
+        newItems[currentIndex - 1],
+      ];
+      setItems(newItems);
+    }
+  };
+
+  const handleMoveDown = (item: ListItem) => {
+    const currentIndex = items.findIndex((i) => i.uri === item.uri);
+    if (currentIndex < items.length - 1) {
+      const newItems = [...items];
+      [newItems[currentIndex], newItems[currentIndex + 1]] = [
+        newItems[currentIndex + 1],
+        newItems[currentIndex],
+      ];
+      setItems(newItems);
+    }
+  };
+
+  const handleSaveOrder = async () => {
+    try {
+      // Assign order numbers: highest index = highest order (top of list)
+      const updates = items.map((item, index) => ({
+        uri: item.uri,
+        order: items.length - index, // Reverse so first item has highest order
+      }));
+
+      const response = await fetch(
+        `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/reorder`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ items: updates }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to save order');
+      }
+
+      setIsReorderMode(false);
+    } catch (err) {
+      console.error('Failed to save order:', err);
+      alert('Failed to save order');
+    }
+  };
+
+  const handleCancelReorder = async () => {
+    // Reload items to reset to original order
+    try {
+      const itemsRes = await fetch(
+        `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items`,
+        {
+          credentials: 'include',
+        }
+      );
+      if (itemsRes.ok) {
+        const itemsData = await itemsRes.json();
+        setItems(itemsData.items);
+      }
+    } catch (err) {
+      console.error('Failed to reload items:', err);
+    }
+    setIsReorderMode(false);
   };
 
   const handleSaveCollection = async (name: string, description: string | null) => {
@@ -501,21 +580,50 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         </Box>
         {isOwner() && (
           <HStack gap={2} flexShrink={0} alignSelf={{ base: 'stretch', md: 'flex-start' }}>
-            <Button
-              onClick={handleEditCollection}
-              colorPalette="teal"
-              variant="ghost"
-              bg="transparent"
-            >
-              Edit
-            </Button>
-            <Button
-              colorPalette="teal"
-              bg="teal"
-              onClick={() => setShowAddItemModal(true)}
-            >
-              + Add Item
-            </Button>
+            {!isReorderMode ? (
+              <>
+                <Button
+                  onClick={handleEditCollection}
+                  colorPalette="teal"
+                  variant="ghost"
+                  bg="transparent"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={handleToggleReorderMode}
+                  variant="ghost"
+                  bg="transparent"
+                >
+                  Reorder
+                </Button>
+                <Button
+                  colorPalette="teal"
+                  bg="teal"
+                  onClick={() => setShowAddItemModal(true)}
+                >
+                  + Add Item
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={handleSaveOrder}
+                  colorPalette="teal"
+                  variant="solid"
+                  bg="teal"
+                >
+                  Save Order
+                </Button>
+                <Button
+                  onClick={handleCancelReorder}
+                  variant="outline"
+                  bg="transparent"
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
           </HStack>
         )}
       </Flex>
@@ -528,15 +636,20 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         />
       ) : (
         <VStack gap={4} align="stretch">
-          {items.map((item) => (
+          {items.map((item, index) => (
             <MediaItemCard
               key={item.uri}
               item={item}
               recommenderHandles={recommenderHandles}
               isOwner={isOwner()}
+              isReorderMode={isReorderMode}
+              canMoveUp={index > 0}
+              canMoveDown={index < items.length - 1}
               apiUrl={apiUrl}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
+              onMoveUp={handleMoveUp}
+              onMoveDown={handleMoveDown}
             />
           ))}
         </VStack>
