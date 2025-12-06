@@ -60,6 +60,8 @@ export function ProgressBarDisplay({
         return 'pages';
       case 'movie':
         return 'minutes';
+      case 'video':
+        return 'minutes';
       case 'tv':
         return 'episodes';
       case 'podcast':

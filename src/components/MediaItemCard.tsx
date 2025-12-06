@@ -53,6 +53,7 @@ export interface ListItem {
   notes: string | null;
   recommendations: Recommendation[];
   createdAt: string;
+  completedAt?: string | null;
   mediaItem?: MediaItem;
 }
 

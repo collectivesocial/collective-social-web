@@ -247,6 +247,7 @@ export function ReviewSegments({
         {!isAdding && (
           <IconButton
             aria-label="Add review progress"
+            bg="transparent"
             size="sm"
             variant="outline"
             colorPalette="teal"
@@ -317,6 +318,7 @@ export function ReviewSegments({
                       size="xs"
                       variant={useLength ? 'solid' : 'outline'}
                       colorPalette="teal"
+                      bg="transparent"
                       onClick={() => setUseLength(true)}
                     >
                       By {getLengthUnit()}
@@ -325,6 +327,7 @@ export function ReviewSegments({
                       size="xs"
                       variant={!useLength ? 'solid' : 'outline'}
                       colorPalette="teal"
+                      bg="transparent"
                       onClick={() => setUseLength(false)}
                     >
                       By Percentage
@@ -383,6 +386,7 @@ export function ReviewSegments({
               <Button
                 size="sm"
                 variant="outline"
+                bg="transparent"
                 onClick={() => {
                   setIsAdding(false);
                   setNewTitle('');
@@ -396,9 +400,11 @@ export function ReviewSegments({
               <Button
                 size="sm"
                 colorPalette="teal"
+                variant="outline"
+                bg="transparent"
                 onClick={handleAddSegment}
               >
-                <LuCheck /> Add Segment
+                <LuCheck /> Add Progress
               </Button>
             </HStack>
           </VStack>
@@ -445,6 +451,7 @@ export function ReviewSegments({
                             size="xs"
                             variant={useLength ? 'solid' : 'outline'}
                             colorPalette="teal"
+                            bg="transparent"
                             onClick={() => setUseLength(true)}
                           >
                             By {getLengthUnit()}
@@ -453,6 +460,7 @@ export function ReviewSegments({
                             size="xs"
                             variant={!useLength ? 'solid' : 'outline'}
                             colorPalette="teal"
+                            bg="transparent"
                             onClick={() => setUseLength(false)}
                           >
                             By Percentage
@@ -508,12 +516,14 @@ export function ReviewSegments({
                   </Field>
 
                   <HStack justify="flex-end" gap={2}>
-                    <Button size="sm" variant="outline" onClick={cancelEditing}>
+                    <Button size="sm" variant="outline" bg="transparent" onClick={cancelEditing}>
                       <LuX /> Cancel
                     </Button>
                     <Button
                       size="sm"
                       colorPalette="teal"
+                      variant="outline"
+                      bg="transparent"
                       onClick={() => handleUpdateSegment(segment)}
                     >
                       <LuCheck /> Save
@@ -541,6 +551,7 @@ export function ReviewSegments({
                         aria-label="Edit segment"
                         size="xs"
                         variant="ghost"
+                        bg="transparent"
                         onClick={() => startEditing(segment)}
                       >
                         <LuPencil />
@@ -550,6 +561,7 @@ export function ReviewSegments({
                         size="xs"
                         variant="ghost"
                         colorPalette="red"
+                        bg="transparent"
                         onClick={() => handleDeleteSegment(segment.uri)}
                       >
                         <LuTrash2 />
@@ -571,7 +583,7 @@ export function ReviewSegments({
 
       {segments.length === 0 && !isAdding && (
         <Text fontSize="sm" color="fg.muted" textAlign="center" py={4}>
-          No review segments yet. Click the + button to add your first one!
+          No progress yet. Click the + button to add your first one!
         </Text>
       )}
     </Box>

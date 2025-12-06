@@ -10,7 +10,9 @@ import {
   VStack,
   HStack,
   Portal,
+  IconButton,
 } from '@chakra-ui/react';
+import { LuList } from 'react-icons/lu';
 import { Field } from './ui/field';
 import { MediaSearch } from './MediaSearch';
 import { StarRating } from './StarRating';
@@ -167,6 +169,7 @@ export function ItemModal({
   const [newListName, setNewListName] = useState('');
   const [selectedListUri, setSelectedListUri] = useState(currentListUri || '');
   const [isCreatingList, setIsCreatingList] = useState(false);
+  const [showCollectionDropdown, setShowCollectionDropdown] = useState(false);
 
   if (!isOpen) return null;
   const mediaTypeText = mediaTypeToText(selectedMedia?.mediaType);
@@ -218,59 +221,231 @@ export function ItemModal({
               <form onSubmit={onSubmit}>
                 <VStack gap={4} align="stretch">
                   {/* Media Display */}
-                  <Flex
-                    gap={4}
-                    p={4}
-                    bg="bg.muted"
-                    borderRadius="md"
-                  >
-                    {displayMedia?.coverImage && (
-                      <img
-                        src={displayMedia.coverImage}
-                        alt={displayMedia.title || ''}
-                        style={{
-                          width: '60px',
-                          height: '90px',
-                          objectFit: 'cover',
-                          borderRadius: '0.375rem',
-                        }}
-                      />
+                  <Box position="relative">
+                    {mode === 'edit' && collections.length > 0 && (
+                      <Box position="absolute" top={2} right={2} zIndex={1}>
+                        <IconButton
+                          aria-label="Change collection"
+                          size="sm"
+                          variant="outline"
+                          bg="transparent"
+                          onClick={() => setShowCollectionDropdown(!showCollectionDropdown)}
+                        >
+                          <LuList />
+                        </IconButton>
+                      </Box>
                     )}
-                    <Box flex={1}>
-                      <Heading size="sm" mb={1}>
-                        {displayMedia?.title}
-                      </Heading>
-                      {displayMedia?.author && (
-                        <Text color="fg.muted" fontSize="sm">
-                          by {displayMedia.author}
-                        </Text>
+                    <Flex
+                      gap={4}
+                      p={4}
+                      bg="bg.muted"
+                      borderRadius="md"
+                    >
+                      {displayMedia?.coverImage && (
+                        <img
+                          src={displayMedia.coverImage}
+                          alt={displayMedia.title || ''}
+                          style={{
+                            width: '60px',
+                            height: '90px',
+                            objectFit: 'cover',
+                            borderRadius: '0.375rem',
+                          }}
+                        />
                       )}
-                      {mode === 'add' && selectedMedia?.inDatabase && selectedMedia.totalReviews > 0 && (
-                        <HStack gap={2} mt={2} fontSize="sm">
-                          <StarRating rating={selectedMedia.averageRating || 0} size="1em" />
-                          <Text color="fg.muted">
-                            {selectedMedia.averageRating?.toFixed(1)} ({selectedMedia.totalRatings}{' '}
-                            {selectedMedia.totalRatings === 1 ? 'rating' : 'ratings'})
+                      <Box flex={1}>
+                        <Heading size="sm" mb={1}>
+                          {displayMedia?.title}
+                        </Heading>
+                        {displayMedia?.author && (
+                          <Text color="fg.muted" fontSize="sm">
+                            by {displayMedia.author}
                           </Text>
-                        </HStack>
+                        )}
+                        {mode === 'add' && selectedMedia?.inDatabase && selectedMedia.totalReviews > 0 && (
+                          <HStack gap={2} mt={2} fontSize="sm">
+                            <StarRating rating={selectedMedia.averageRating || 0} size="1em" />
+                            <Text color="fg.muted">
+                              {selectedMedia.averageRating?.toFixed(1)} ({selectedMedia.totalRatings}{' '}
+                              {selectedMedia.totalRatings === 1 ? 'rating' : 'ratings'})
+                            </Text>
+                          </HStack>
+                        )}
+                      </Box>
+                      {mode === 'add' && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          background="transparent"
+                          size="sm"
+                          onClick={() => onMediaSelect(null as any)}
+                        >
+                          ×
+                        </Button>
+                      )}
+                    </Flex>
+                  </Box>
+
+                  {/* Collection Selector Dropdown (only in edit mode) */}
+                  {mode === 'edit' && collections.length > 0 && showCollectionDropdown && (
+                    <Box>
+                      {showCollectionDropdown && (
+                        <Field label="Move to Collection">
+                          {!isCreatingNewList ? (
+                            <>
+                              <select
+                                value={selectedListUri}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '__create_new__') {
+                                    setIsCreatingNewList(true);
+                                  } else {
+                                    setSelectedListUri(value);
+                                    if (onListChange && value !== currentListUri) {
+                                      onListChange(value);
+                                    }
+                                  }
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '0.5rem 0.75rem',
+                                  backgroundColor: 'var(--chakra-colors-bg-muted)',
+                                  border: '1px solid var(--chakra-colors-border)',
+                                  borderRadius: '0.375rem',
+                                  fontSize: '1rem',
+                                  color: 'inherit',
+                                }}
+                              >
+                                {[...collections]
+                                  .sort((a, b) => a.name.localeCompare(b.name))
+                                  .map((collection) => (
+                                    <option key={collection.uri} value={collection.uri}>
+                                      {collection.name}
+                                    </option>
+                                  ))}
+                                <option value="__create_new__">+ Create New List</option>
+                              </select>
+                              {selectedListUri !== currentListUri && (
+                                <Text color="orange.500" fontSize="sm" mt={1}>
+                                  ⚠️ Saving will move this item to the selected collection
+                                </Text>
+                              )}
+                            </>
+                          ) : (
+                            <VStack gap={2} align="stretch">
+                              <Input
+                                placeholder="New list name"
+                                value={newListName}
+                                onChange={(e) => setNewListName(e.target.value)}
+                                autoFocus
+                              />
+                              <HStack gap={2}>
+                                <Button
+                                  size="sm"
+                                  colorPalette="teal"
+                                  bg="transparent"
+                                  onClick={async () => {
+                                    if (!newListName.trim()) {
+                                      alert('Please enter a list name');
+                                      return;
+                                    }
+                                    setIsCreatingList(true);
+                                    try {
+                                      const response = await fetch(`${apiUrl}/collections`, {
+                                        method: 'POST',
+                                        credentials: 'include',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                          name: newListName,
+                                          visibility: 'public',
+                                        }),
+                                      });
+                                      if (response.ok) {
+                                        const data = await response.json();
+                                        setSelectedListUri(data.uri);
+                                        if (onListChange) {
+                                          onListChange(data.uri);
+                                        }
+                                        if (onCollectionsRefresh) {
+                                          onCollectionsRefresh();
+                                        }
+                                        setIsCreatingNewList(false);
+                                        setNewListName('');
+                                      } else {
+                                        throw new Error('Failed to create list');
+                                      }
+                                    } catch (err) {
+                                      console.error('Failed to create list:', err);
+                                      alert('Failed to create new list');
+                                    } finally {
+                                      setIsCreatingList(false);
+                                    }
+                                  }}
+                                  disabled={isCreatingList}
+                                >
+                                  {isCreatingList ? 'Creating...' : 'Create'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setIsCreatingNewList(false);
+                                    setNewListName('');
+                                  }}
+                                  disabled={isCreatingList}
+                                >
+                                  Cancel
+                                </Button>
+                              </HStack>
+                            </VStack>
+                          )}
+                        </Field>
                       )}
                     </Box>
-                    {mode === 'add' && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        background="transparent"
-                        size="sm"
-                        onClick={() => onMediaSelect(null as any)}
-                      >
-                        ×
-                      </Button>
-                    )}
-                  </Flex>
+                  )}
 
                   {/* Status Buttons */}
                   <Field label="Status">
-                    <HStack gap={2} width="100%">
+                    <VStack gap={2} width="100%" display={{ base: 'flex', md: 'none' }}>
+                      <Button
+                        width="100%"
+                        size="md"
+                        variant={reviewData.status === 'want' ? 'solid' : 'outline'}
+                        colorPalette={reviewData.status === 'want' ? 'teal' : 'gray'}
+                        bg={reviewData.status === 'want' ? 'teal.500' : 'transparent'}
+                        onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
+                      >
+                        {mediaTypeText.wantText}
+                      </Button>
+                      <Button
+                        width="100%"
+                        size="md"
+                        variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
+                        colorPalette={reviewData.status === 'in-progress' ? 'teal' : 'gray'}
+                        bg={reviewData.status === 'in-progress' ? 'teal.500' : 'transparent'}
+                        onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
+                      >
+                        {mediaTypeText.inProgressText}
+                      </Button>
+                      <Button
+                        width="100%"
+                        size="md"
+                        variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
+                        colorPalette={reviewData.status === 'completed' ? 'teal' : 'gray'}
+                        bg={reviewData.status === 'completed' ? 'teal.500' : 'transparent'}
+                        onClick={() => {
+                          const today = new Date();
+                          const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .split('T')[0];
+                          const completedAt = reviewData.completedAt || localDate;
+                          onReviewDataChange({ ...reviewData, status: 'completed', completedAt });
+                        }}
+                      >
+                        {mediaTypeText.completedText}
+                      </Button>
+                    </VStack>
+                    <HStack gap={2} width="100%" display={{ base: 'none', md: 'flex' }}>
                       <Button
                         flex={1}
                         size="md"
@@ -297,7 +472,14 @@ export function ItemModal({
                         variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'completed' ? 'teal' : 'gray'}
                         bg={reviewData.status === 'completed' ? 'teal.500' : 'transparent'}
-                        onClick={() => onReviewDataChange({ ...reviewData, status: 'completed' })}
+                        onClick={() => {
+                          const today = new Date();
+                          const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .split('T')[0];
+                          const completedAt = reviewData.completedAt || localDate;
+                          onReviewDataChange({ ...reviewData, status: 'completed', completedAt });
+                        }}
                       >
                         {mediaTypeText.completedText}
                       </Button>
@@ -325,128 +507,17 @@ export function ItemModal({
 
                   {/* Completed Date (only if status is completed) */}
                   {reviewData.status === 'completed' && (
-                    <Field label="Finished on (optional)">
+                    <Field label="Finished on">
                       <Input
                         type="date"
-                        value={reviewData.completedAt}
-                        onChange={(e) =>
-                          onReviewDataChange({ ...reviewData, completedAt: e.target.value })
-                        }
+                        value={reviewData.completedAt || ''}
+                        max={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000)
+                          .toISOString()
+                          .split('T')[0]}
+                        onChange={(e) => {
+                          onReviewDataChange({ ...reviewData, completedAt: e.target.value });
+                        }}
                       />
-                    </Field>
-                  )}
-
-                  {/* List Selector (only in edit mode) */}
-                  {mode === 'edit' && collections.length > 0 && (
-                    <Field label="Collection">
-                      {!isCreatingNewList ? (
-                        <>
-                          <select
-                            value={selectedListUri}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (value === '__create_new__') {
-                                setIsCreatingNewList(true);
-                              } else {
-                                setSelectedListUri(value);
-                                if (onListChange && value !== currentListUri) {
-                                  onListChange(value);
-                                }
-                              }
-                            }}
-                            style={{
-                              width: '100%',
-                              padding: '0.5rem 0.75rem',
-                              backgroundColor: 'var(--chakra-colors-bg-muted)',
-                              border: '1px solid var(--chakra-colors-border)',
-                              borderRadius: '0.375rem',
-                              fontSize: '1rem',
-                              color: 'inherit',
-                            }}
-                          >
-                            {[...collections]
-                              .sort((a, b) => a.name.localeCompare(b.name))
-                              .map((collection) => (
-                                <option key={collection.uri} value={collection.uri}>
-                                  {collection.name}
-                                </option>
-                              ))}
-                            <option value="__create_new__">+ Create New List</option>
-                          </select>
-                          {selectedListUri !== currentListUri && (
-                            <Text color="black" fontSize="sm" mt={1}>
-                              Note: Saving will move this item to the selected collection
-                            </Text>
-                          )}
-                        </>
-                      ) : (
-                        <VStack gap={2} align="stretch">
-                          <Input
-                            placeholder="New list name"
-                            value={newListName}
-                            onChange={(e) => setNewListName(e.target.value)}
-                            autoFocus
-                          />
-                          <HStack gap={2}>
-                            <Button
-                              size="sm"
-                              colorPalette="teal"
-                              bg="transparent"
-                              onClick={async () => {
-                                if (!newListName.trim()) {
-                                  alert('Please enter a list name');
-                                  return;
-                                }
-                                setIsCreatingList(true);
-                                try {
-                                  const response = await fetch(`${apiUrl}/collections`, {
-                                    method: 'POST',
-                                    credentials: 'include',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                      name: newListName,
-                                      visibility: 'public',
-                                    }),
-                                  });
-                                  if (response.ok) {
-                                    const data = await response.json();
-                                    setSelectedListUri(data.uri);
-                                    if (onListChange) {
-                                      onListChange(data.uri);
-                                    }
-                                    if (onCollectionsRefresh) {
-                                      onCollectionsRefresh();
-                                    }
-                                    setIsCreatingNewList(false);
-                                    setNewListName('');
-                                  } else {
-                                    throw new Error('Failed to create list');
-                                  }
-                                } catch (err) {
-                                  console.error('Failed to create list:', err);
-                                  alert('Failed to create new list');
-                                } finally {
-                                  setIsCreatingList(false);
-                                }
-                              }}
-                              disabled={isCreatingList}
-                            >
-                              {isCreatingList ? 'Creating...' : 'Create'}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setIsCreatingNewList(false);
-                                setNewListName('');
-                              }}
-                              disabled={isCreatingList}
-                            >
-                              Cancel
-                            </Button>
-                          </HStack>
-                        </VStack>
-                      )}
                     </Field>
                   )}
 
@@ -466,14 +537,14 @@ export function ItemModal({
                       </Field>
 
                       {/* Public Review */}
-                      <Field label="📝 Review (optional)">
+                      <Field label="📝 Review">
                         <Textarea
                           value={reviewData.review}
                           onChange={(e) =>
                             onReviewDataChange({ ...reviewData, review: e.target.value })
                           }
                           rows={3}
-                          placeholder="Share your review..."
+                          placeholder="Review this media..."
                         />
                       </Field>
                     </>
@@ -487,7 +558,7 @@ export function ItemModal({
                         onReviewDataChange({ ...reviewData, notes: e.target.value })
                       }
                       rows={3}
-                      placeholder="Private notes about this..."
+                      placeholder="Notes about this..."
                     />
                   </Field>
 

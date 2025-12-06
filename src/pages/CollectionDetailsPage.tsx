@@ -61,6 +61,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     rating: 0,
     review: '',
     notes: '',
+    completedAt: '',
   });
   const [newListUri, setNewListUri] = useState<string | null>(null);
   const [showEditCollectionModal, setShowEditCollectionModal] = useState(false);
@@ -333,6 +334,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
       rating: item.rating || 0,
       review: item.review || '',
       notes: item.notes || '',
+      completedAt: item.completedAt || '',
     });
     setNewListUri(null);
     setShowEditItemModal(true);
@@ -446,10 +448,11 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
       setShowEditItemModal(false);
       setEditingItem(null);
       setEditData({
+        status: '',
         rating: 0,
         review: '',
         notes: '',
-        status: '',
+        completedAt: '',
       });
       setNewListUri(null);
 
@@ -766,6 +769,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             rating: 0,
             review: '',
             notes: '',
+            completedAt: '',
           });
           setNewListUri(null);
         }}
@@ -780,7 +784,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           review: editData.review,
           notes: editData.notes,
           recommendedBy: '',
-          completedAt: '',
+          completedAt: editData.completedAt,
         }}
         onReviewDataChange={(data) =>
           setEditData({
@@ -788,6 +792,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             rating: data.rating,
             review: data.review,
             notes: data.notes,
+            completedAt: data.completedAt,
           })
         }
         itemTitle={editingItem?.title}
