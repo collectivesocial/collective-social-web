@@ -7,6 +7,8 @@ interface ReviewSegment {
   cid: string;
   value: {
     percentage: number;
+    text?: string;
+    title?: string;
   };
 }
 
@@ -100,11 +102,14 @@ export function ProgressBarDisplay({
             ~{Math.round((highestPercentage / 100) * itemLength)} of {itemLength} {getLengthUnit()}
           </Text>
         )}
-        {segments.length > 0 && (
-          <Text fontSize="xs" color="fg.muted" mt={1}>
-            {segments.length} {segments.length === 1 ? 'note' : 'notes'}
-          </Text>
-        )}
+        {(() => {
+          const notesCount = segments.filter(s => s.value.text || s.value.title).length;
+          return notesCount > 0 && (
+            <Text fontSize="xs" color="fg.muted" mt={1}>
+              {notesCount} {notesCount === 1 ? 'note' : 'notes'}
+            </Text>
+          );
+        })()}
       </Box>
     );
   }

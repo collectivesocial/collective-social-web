@@ -1,6 +1,6 @@
-import { Box, Flex, Text, Badge, Button, HStack, Heading, VStack, IconButton } from '@chakra-ui/react';
+import { Box, Flex, Text, Badge, HStack, Heading, VStack, IconButton } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
+import { LuArrowUp, LuArrowDown, LuPencil, LuTrash2 } from 'react-icons/lu';
 import { ShareButton } from './ShareButton';
 import { StarRating } from './StarRating';
 import { ProgressBarDisplay } from './ProgressBarDisplay';
@@ -209,24 +209,26 @@ export function MediaItemCard({
               )}
               {isOwner && (
                 <>
-                  <Button
+                  <IconButton
                     size="xs"
                     variant="outline"
                     bg="transparent"
                     colorPalette="teal"
                     onClick={() => onEdit(item)}
+                    aria-label="Edit item"
                   >
-                    Edit
-                  </Button>
-                  <Button
+                    <LuPencil />
+                  </IconButton>
+                  <IconButton
                     size="xs"
                     variant="outline"
                     colorPalette="red"
                     bg="transparent"
                     onClick={() => onDelete(item.uri)}
+                    aria-label="Delete item"
                   >
-                    Delete
-                  </Button>
+                    <LuTrash2 />
+                  </IconButton>
                 </>
               )}
             </HStack>

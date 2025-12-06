@@ -11,7 +11,9 @@ import {
   HStack,
   Spinner,
   Center,
+  IconButton,
 } from '@chakra-ui/react';
+import { LuPencil, LuArrowDownUp } from 'react-icons/lu';
 import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
 import { ItemModal, type Collection } from '../components/ItemModal';
 import { EmptyState } from '../components/EmptyState';
@@ -607,21 +609,23 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           <HStack gap={2} flexShrink={0} alignSelf={{ base: 'stretch', md: 'flex-start' }}>
             {!isReorderMode ? (
               <>
-                <Button
+                <IconButton
                   onClick={handleEditCollection}
                   colorPalette="teal"
                   variant="ghost"
                   bg="transparent"
+                  aria-label="Edit collection"
                 >
-                  Edit
-                </Button>
-                <Button
+                  <LuPencil />
+                </IconButton>
+                <IconButton
                   onClick={handleToggleReorderMode}
                   variant="ghost"
                   bg="transparent"
+                  aria-label="Reorder items"
                 >
-                  Reorder
-                </Button>
+                  <LuArrowDownUp />
+                </IconButton>
                 <Button
                   colorPalette="teal"
                   bg="teal"
