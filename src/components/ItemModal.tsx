@@ -73,6 +73,7 @@ interface ItemModalProps {
   listItemUri?: string;
   mediaItemId?: number | null;
   mediaItemLength?: number | null;
+  onSegmentChange?: () => void;
 }
 
 const mediaTypeToText: (arg0: string | undefined) => any = (mediaType: string | undefined) => {
@@ -164,6 +165,7 @@ export function ItemModal({
   listItemUri,
   mediaItemId,
   mediaItemLength,
+  onSegmentChange,
 }: ItemModalProps) {
   const [isCreatingNewList, setIsCreatingNewList] = useState(false);
   const [newListName, setNewListName] = useState('');
@@ -501,6 +503,7 @@ export function ItemModal({
                         mediaType={selectedMedia?.mediaType || null}
                         itemLength={mediaItemLength || null}
                         apiUrl={apiUrl}
+                        onSegmentChange={onSegmentChange}
                       />
                     </Box>
                   )}

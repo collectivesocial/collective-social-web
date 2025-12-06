@@ -35,6 +35,7 @@ interface ReviewSegmentsProps {
   mediaType: string | null;
   itemLength: number | null;
   apiUrl: string;
+  onSegmentChange?: () => void;
 }
 
 export function ReviewSegments({
@@ -43,6 +44,7 @@ export function ReviewSegments({
   mediaType,
   itemLength,
   apiUrl,
+  onSegmentChange,
 }: ReviewSegmentsProps) {
   const [segments, setSegments] = useState<ReviewSegment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,11 +87,6 @@ export function ReviewSegments({
   };
 
   const handleAddSegment = async () => {
-    if (!newText.trim()) {
-      alert('Please enter some text for your review segment');
-      return;
-    }
-
     const percentage = useLength && itemLength
       ? Math.round((newLengthProgress / itemLength) * 100)
       : newPercentage;
@@ -105,7 +102,7 @@ export function ReviewSegments({
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          text: newText.trim(),
+          text: newText.trim() || undefined,
           percentage,
           title: newTitle.trim() || undefined,
           mediaItemId: mediaItemId || undefined,
@@ -121,6 +118,7 @@ export function ReviewSegments({
         setNewLengthProgress(0);
         setIsAdding(false);
         fetchSegments();
+        onSegmentChange?.();
       } else {
         alert('Failed to add review segment');
       }
@@ -131,11 +129,6 @@ export function ReviewSegments({
   };
 
   const handleUpdateSegment = async (segment: ReviewSegment) => {
-    if (!newText.trim()) {
-      alert('Please enter some text for your review segment');
-      return;
-    }
-
     const percentage = useLength && itemLength
       ? Math.round((newLengthProgress / itemLength) * 100)
       : newPercentage;
@@ -152,7 +145,7 @@ export function ReviewSegments({
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          text: newText.trim(),
+          text: newText.trim() || undefined,
           percentage,
           title: newTitle.trim() || undefined,
         }),
@@ -165,6 +158,7 @@ export function ReviewSegments({
         setNewPercentage(0);
         setNewLengthProgress(0);
         fetchSegments();
+        onSegmentChange?.();
       } else {
         alert('Failed to update review segment');
       }
@@ -188,6 +182,7 @@ export function ReviewSegments({
 
       if (response.ok) {
         fetchSegments();
+        onSegmentChange?.();
       } else {
         alert('Failed to delete review segment');
       }
@@ -300,7 +295,7 @@ export function ReviewSegments({
               />
             </Field>
 
-            <Field label="Your thoughts">
+            <Field label="Your thoughts (optional)">
               <Textarea
                 value={newText}
                 onChange={(e) => setNewText(e.target.value)}
@@ -434,7 +429,7 @@ export function ReviewSegments({
                     />
                   </Field>
 
-                  <Field label="Your thoughts">
+                  <Field label="Your thoughts (optional)">
                     <Textarea
                       value={newText}
                       onChange={(e) => setNewText(e.target.value)}

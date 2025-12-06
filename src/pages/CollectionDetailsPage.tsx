@@ -111,6 +111,23 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     }
   }, [currentUserDid]);
 
+  const refetchItems = async () => {
+    try {
+      const itemsRes = await fetch(
+        `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items`,
+        {
+          credentials: 'include',
+        }
+      );
+      if (itemsRes.ok) {
+        const itemsData = await itemsRes.json();
+        setItems(itemsData.items);
+      }
+    } catch (err) {
+      console.error('Failed to refetch items:', err);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -805,6 +822,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         listItemUri={editingItem?.uri}
         mediaItemId={editingItem?.mediaItemId}
         mediaItemLength={editingItem?.mediaItem?.length}
+        onSegmentChange={refetchItems}
       />
 
       {/* Edit Collection Modal */}
