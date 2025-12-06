@@ -14,6 +14,7 @@ import {
   Input,
   IconButton,
   Textarea,
+  Link,
 } from '@chakra-ui/react';
 import { LuPencil, LuTrash2 } from 'react-icons/lu';
 import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner } from './ui/dialog';
@@ -332,7 +333,9 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                     {item.id}
                   </Table.Cell>
                   <Table.Cell fontSize="sm">
-                    {item.title}
+                    <Link href={`/items/${item.id}`} color="teal.500" _hover={{ textDecoration: 'underline' }}>
+                      {item.title}
+                    </Link>
                   </Table.Cell>
                   <Table.Cell fontSize="sm" display={{ base: 'none', lg: 'table-cell' }}>
                     {item.creator || '-'}

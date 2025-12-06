@@ -11,12 +11,16 @@ import {
   HStack,
   Spinner,
   Center,
+  Badge,
+  IconButton,
 } from '@chakra-ui/react';
+import { LuPlus, LuX } from 'react-icons/lu';
 import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
 import { ShareButton } from '../components/ShareButton';
 import { StarRating } from '../components/StarRating';
 import { RatingDistributionDisplay } from '../components/RatingDistribution';
+import { TagInput } from '../components/TagInput';
 
 interface RatingDistribution {
   rating0: number;
@@ -63,6 +67,13 @@ interface Review {
   updatedAt: string;
 }
 
+interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+  usageCount: number;
+}
+
 interface ItemDetailsPageProps {
   apiUrl: string;
 }
@@ -76,8 +87,32 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [hasMoreReviews, setHasMoreReviews] = useState(false);
   const [reviewsOffset, setReviewsOffset] = useState(0);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [tagsLoading, setTagsLoading] = useState(false);
+  const [showTagInput, setShowTagInput] = useState(false);
+  const [currentUserDid, setCurrentUserDid] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const REVIEWS_PER_PAGE = 10;
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/users/me`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentUserDid(data.did);
+          setIsAdmin(data.isAdmin || false);
+        }
+      } catch (err) {
+        // User not logged in
+      }
+    };
+
+    fetchCurrentUser();
+  }, [apiUrl]);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -96,6 +131,9 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
         if (data.totalReviews > 0) {
           fetchReviews(0);
         }
+
+        // Fetch tags
+        fetchTags();
       } catch (err: any) {
         setError(err.message);
         setLoading(false);
@@ -134,6 +172,47 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     } catch (err: any) {
       console.error('Failed to fetch reviews:', err);
       setReviewsLoading(false);
+    }
+  };
+
+  const fetchTags = async () => {
+    if (!itemId) return;
+
+    setTagsLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/media/${itemId}/tags`, {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTags(data.tags || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch tags:', err);
+    } finally {
+      setTagsLoading(false);
+    }
+  };
+
+  const handleRemoveTag = async (tagId: number) => {
+    if (!itemId) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/media/${itemId}/tags/${tagId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        fetchTags();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to remove tag');
+      }
+    } catch (err) {
+      console.error('Failed to remove tag:', err);
+      alert('Failed to remove tag');
     }
   };
 
@@ -183,18 +262,6 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
 
   return (
     <Container maxW="container.lg" py={8}>
-      <Button
-        variant="ghost"
-        colorPalette="teal"
-        bg="transparent"
-        onClick={() => navigate(-1)}
-        mb={6}
-        size="sm"
-        px={0}
-      >
-        ← Back
-      </Button>
-
       <Box
         bg="bg.subtle"
         borderWidth="1px"
@@ -315,6 +382,83 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
             </Text>
           </Box>
         )}
+
+        {/* Tags Section */}
+        <Box mt={8} pt={8} borderTopWidth="1px" borderTopColor="border">
+          <Flex justify="space-between" align="center" mb={4}>
+            <Heading size="md">Tags</Heading>
+            {currentUserDid && !showTagInput && (
+              <Button
+                size="sm"
+                colorPalette="teal"
+                variant="outline"
+                onClick={() => setShowTagInput(true)}
+              >
+                <LuPlus /> Add Tag
+              </Button>
+            )}
+          </Flex>
+
+          {showTagInput && itemId && (
+            <Box mb={4}>
+              <TagInput
+                apiUrl={apiUrl}
+                itemId={parseInt(itemId)}
+                onTagAdded={() => {
+                  setShowTagInput(false);
+                  fetchTags();
+                }}
+                onCancel={() => setShowTagInput(false)}
+              />
+            </Box>
+          )}
+
+          {tagsLoading ? (
+            <Center py={4}>
+              <Spinner size="sm" color="teal.500" />
+            </Center>
+          ) : tags.length > 0 ? (
+            <Flex gap={2} flexWrap="wrap">
+              {tags.map((tag) => (
+                <Badge
+                  key={tag.id}
+                  colorPalette="teal"
+                  variant="subtle"
+                  fontSize="sm"
+                  px={3}
+                  py={1}
+                  borderRadius="full"
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                >
+                  {tag.name}
+                  <Text as="span" color="fg.muted" fontSize="xs">
+                    ({tag.usageCount})
+                  </Text>
+                  {isAdmin && (
+                    <IconButton
+                      size="xs"
+                      variant="ghost"
+                      colorPalette="red"
+                      onClick={() => handleRemoveTag(tag.id)}
+                      aria-label="Remove tag"
+                      h="16px"
+                      minW="16px"
+                      p={0}
+                    >
+                      <LuX size={12} />
+                    </IconButton>
+                  )}
+                </Badge>
+              ))}
+            </Flex>
+          ) : (
+            <Text color="fg.muted" fontSize="sm">
+              No tags yet. {currentUserDid && 'Be the first to add one!'}
+            </Text>
+          )}
+        </Box>
 
         {item.totalReviews === 0 && (
           <Box mt={8}>
