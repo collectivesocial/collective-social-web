@@ -10,9 +10,11 @@ import {
   Link as ChakraLink,
   SimpleGrid,
   Badge,
+  Image,
 } from '@chakra-ui/react';
 import { EmptyState } from './EmptyState';
 import { FollowButton } from './FollowButton';
+import { ProgressBarDisplay } from './ProgressBarDisplay';
 import { renderTextWithLinks } from '../utils/textUtils';
 
 interface UserProfile {
@@ -36,10 +38,44 @@ interface Collection {
   createdAt: string;
 }
 
+interface MediaItem {
+  id: number;
+  mediaType: string;
+  title: string;
+  creator: string | null;
+  isbn: string | null;
+  coverImage: string | null;
+  description: string | null;
+  publishedYear: number | null;
+  length: number | null;
+  totalRatings: number;
+  totalReviews: number;
+  totalSaves: number;
+  averageRating: number | null;
+}
+
+interface InProgressItem {
+  uri: string;
+  cid: string;
+  title: string;
+  creator: string | null;
+  mediaType: string;
+  mediaItemId: number | null;
+  status: string;
+  rating: number | null;
+  review: string | null;
+  notes: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  listUri: string;
+  mediaItem?: MediaItem;
+}
+
 interface UserProfileViewProps {
   apiUrl: string;
   user: UserProfile;
   collections: Collection[];
+  inProgressItems: InProgressItem[];
   isOwnProfile?: boolean;
   showFollowButton?: boolean;
   isFollowing?: boolean;
@@ -50,6 +86,7 @@ export function UserProfileView({
   apiUrl,
   user,
   collections,
+  inProgressItems,
   isOwnProfile = false,
   showFollowButton = false,
   isFollowing = false,
@@ -63,7 +100,7 @@ export function UserProfileView({
                        collections.length > 0;
 
   return (
-    <Container maxW="container.md" py={{ base: 4, md: 8 }}>
+    <Container maxW="container.md" py={{ base: 4 }}>
       <VStack gap={{ base: 6, md: 8 }} align="stretch">
         {/* Profile Header */}
         <Box
@@ -181,6 +218,116 @@ export function UserProfileView({
             </Box>
           )}
         </Box>
+
+        {/* In Progress Items */}
+        {inProgressItems.length > 0 && (
+          <Box
+            bg="bg.subtle"
+            borderWidth="1px"
+            borderColor="border"
+            borderRadius="lg"
+            p={{ base: 4, md: 8 }}
+          >
+            <Heading size={{ base: 'lg', md: 'xl' }} mb={{ base: 4, md: 6 }}>
+              In Progress
+            </Heading>
+            <SimpleGrid
+              columns={{ base: 1, sm: 2, md: 3, lg: 4 }}
+              gap={4}
+            >
+              {inProgressItems.map((item) => {
+                const mediaItem = item.mediaItem;
+                const coverImage = mediaItem?.coverImage || null;
+                
+                return (
+                  <Box
+                    key={item.uri}
+                    as="article"
+                    bg="bg.muted"
+                    borderWidth="1px"
+                    borderColor="border"
+                    borderRadius="md"
+                    overflow="hidden"
+                    cursor="pointer"
+                    transition="all 0.2s"
+                    _hover={{
+                      borderColor: 'teal.500',
+                      shadow: 'md',
+                    }}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'teal.500',
+                      outlineOffset: '2px',
+                    }}
+                    onClick={() => {
+                      if (mediaItem) {
+                        navigate(`/items/${mediaItem.id}`);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ' ') && mediaItem) {
+                        e.preventDefault();
+                        navigate(`/items/${mediaItem.id}`);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View ${item.title}`}
+                  >
+                    {/* Cover Image */}
+                    {coverImage ? (
+                      <Image
+                        src={coverImage}
+                        alt={item.title}
+                        width="100%"
+                        height="200px"
+                        objectFit="cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <Box
+                        width="100%"
+                        height="200px"
+                        bg="gray.200"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Text color="gray.500" fontSize="sm">
+                          No cover
+                        </Text>
+                      </Box>
+                    )}
+
+                    {/* Item Info */}
+                    <Box p={3}>
+                      <Heading size="sm" mb={1} lineClamp={2}>
+                        {item.title}
+                      </Heading>
+                      {item.creator && (
+                        <Text color="fg.muted" fontSize="sm" mb={2} lineClamp={1}>
+                          {item.creator}
+                        </Text>
+                      )}
+                      
+                      {/* Progress Bar */}
+                      {mediaItem && (
+                        <Box mt={2}>
+                          <ProgressBarDisplay
+                            listItemUri={item.uri}
+                            itemLength={mediaItem.length}
+                            mediaType={item.mediaType}
+                            apiUrl={apiUrl}
+                          />
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                );
+              })}
+            </SimpleGrid>
+          </Box>
+        )}
 
         {/* Public Collections */}
         <Box

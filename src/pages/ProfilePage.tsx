@@ -29,6 +29,39 @@ interface Collection {
   createdAt: string;
 }
 
+interface MediaItem {
+  id: number;
+  mediaType: string;
+  title: string;
+  creator: string | null;
+  isbn: string | null;
+  coverImage: string | null;
+  description: string | null;
+  publishedYear: number | null;
+  length: number | null;
+  totalRatings: number;
+  totalReviews: number;
+  totalSaves: number;
+  averageRating: number | null;
+}
+
+interface InProgressItem {
+  uri: string;
+  cid: string;
+  title: string;
+  creator: string | null;
+  mediaType: string;
+  mediaItemId: number | null;
+  status: string;
+  rating: number | null;
+  review: string | null;
+  notes: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  listUri: string;
+  mediaItem?: MediaItem;
+}
+
 interface ProfilePageProps {
   apiUrl: string;
 }
@@ -38,6 +71,7 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [inProgressItems, setInProgressItems] = useState<InProgressItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -96,9 +130,13 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
           };
           setUser(profile);
 
-          // Fetch public collections for this user
+          // Fetch public collections and in-progress items for this user
           try {
-            const collectionsRes = await fetch(`${apiUrl}/collections/public/${profileData.did}`);
+            const [collectionsRes, inProgressRes] = await Promise.all([
+              fetch(`${apiUrl}/collections/public/${profileData.did}`),
+              fetch(`${apiUrl}/collections/public/${profileData.did}/in-progress`),
+            ]);
+
             if (collectionsRes.ok) {
               const collectionsData = await collectionsRes.json();
               setCollections(collectionsData.collections);
@@ -106,6 +144,11 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
               profile.collectionCount = collectionsData.collectionCount;
               profile.reviewCount = collectionsData.reviewCount;
               setUser(profile);
+            }
+
+            if (inProgressRes.ok) {
+              const inProgressData = await inProgressRes.json();
+              setInProgressItems(inProgressData.items);
             }
           } catch (err) {
             console.error('Failed to load collections:', err);
@@ -148,14 +191,25 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
           setUser(data);
           setCurrentUser(data);
           
-          // Fetch public collections for this user
+          // Fetch public collections and in-progress items for this user
           try {
-            const collectionsRes = await fetch(`${apiUrl}/collections/public/${data.did}`, {
-              credentials: 'include',
-            });
+            const [collectionsRes, inProgressRes] = await Promise.all([
+              fetch(`${apiUrl}/collections/public/${data.did}`, {
+                credentials: 'include',
+              }),
+              fetch(`${apiUrl}/collections/public/${data.did}/in-progress`, {
+                credentials: 'include',
+              }),
+            ]);
+
             if (collectionsRes.ok) {
               const collectionsData = await collectionsRes.json();
               setCollections(collectionsData.collections);
+            }
+
+            if (inProgressRes.ok) {
+              const inProgressData = await inProgressRes.json();
+              setInProgressItems(inProgressData.items);
             }
           } catch (err) {
             console.error('Failed to load collections:', err);
@@ -201,6 +255,7 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
       apiUrl={apiUrl}
       user={user}
       collections={collections}
+      inProgressItems={inProgressItems}
       isOwnProfile={isOwnProfile}
       showFollowButton={showFollowButton}
       isFollowing={isFollowing}
