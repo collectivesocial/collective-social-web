@@ -15,6 +15,7 @@ import { Field } from './ui/field';
 import { MediaSearch } from './MediaSearch';
 import { StarRating } from './StarRating';
 import { StarRatingSelector } from './StarRatingSelector';
+import { ReviewSegments } from './ReviewSegments';
 
 export interface MediaSearchResult {
   title: string;
@@ -67,6 +68,9 @@ interface ItemModalProps {
   currentListUri?: string;
   onListChange?: (listUri: string) => void;
   onCollectionsRefresh?: () => void;
+  listItemUri?: string;
+  mediaItemId?: number | null;
+  mediaItemLength?: number | null;
 }
 
 const mediaTypeToText: (arg0: string | undefined) => any = (mediaType: string | undefined) => {
@@ -155,6 +159,9 @@ export function ItemModal({
   currentListUri,
   onListChange,
   onCollectionsRefresh,
+  listItemUri,
+  mediaItemId,
+  mediaItemLength,
 }: ItemModalProps) {
   const [isCreatingNewList, setIsCreatingNewList] = useState(false);
   const [newListName, setNewListName] = useState('');
@@ -296,6 +303,25 @@ export function ItemModal({
                       </Button>
                     </HStack>
                   </Field>
+
+                  {/* Review Segments (only in edit mode and in-progress status) */}
+                  {mode === 'edit' && reviewData.status === 'in-progress' && listItemUri && (
+                    <Box
+                      borderWidth="1px"
+                      borderColor="border"
+                      borderRadius="md"
+                      p={4}
+                      bg="bg.muted"
+                    >
+                      <ReviewSegments
+                        listItemUri={listItemUri}
+                        mediaItemId={mediaItemId || null}
+                        mediaType={selectedMedia?.mediaType || null}
+                        itemLength={mediaItemLength || null}
+                        apiUrl={apiUrl}
+                      />
+                    </Box>
+                  )}
 
                   {/* Completed Date (only if status is completed) */}
                   {reviewData.status === 'completed' && (

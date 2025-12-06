@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import { ShareButton } from './ShareButton';
 import { StarRating } from './StarRating';
+import { ProgressBarDisplay } from './ProgressBarDisplay';
 
 interface Recommendation {
   did: string;
@@ -250,6 +251,15 @@ export function MediaItemCard({
                 {item.notes}
               </Text>
             </Box>
+          )}
+
+          {item.status === 'in-progress' && isOwner && (
+            <ProgressBarDisplay
+              listItemUri={item.uri}
+              itemLength={item.mediaItem?.length || null}
+              mediaType={item.mediaType}
+              apiUrl={apiUrl}
+            />
           )}
 
           {item.mediaItem && item.mediaItem.totalRatings > 0 && (

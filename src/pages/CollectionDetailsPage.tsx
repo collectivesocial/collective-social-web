@@ -797,6 +797,9 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         currentListUri={collectionUri}
         onListChange={(listUri) => setNewListUri(listUri)}
         onCollectionsRefresh={refreshCollections}
+        listItemUri={editingItem?.uri}
+        mediaItemId={editingItem?.mediaItemId}
+        mediaItemLength={editingItem?.mediaItem?.length}
       />
 
       {/* Edit Collection Modal */}
