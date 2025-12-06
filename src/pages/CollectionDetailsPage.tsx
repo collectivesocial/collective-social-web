@@ -633,30 +633,101 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         )}
       </Flex>
 
-      {items.length === 0 ? (
+{items.length === 0 ? (
         <EmptyState
           icon="📝"
           title="No items yet"
           description="Add your first item to start tracking and reviewing."
         />
       ) : (
-        <VStack gap={4} align="stretch">
-          {items.map((item, index) => (
-            <MediaItemCard
-              key={item.uri}
-              item={item}
-              recommenderHandles={recommenderHandles}
-              isOwner={isOwner()}
-              isReorderMode={isReorderMode}
-              canMoveUp={index > 0}
-              canMoveDown={index < items.length - 1}
-              apiUrl={apiUrl}
-              onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
-              onMoveUp={handleMoveUp}
-              onMoveDown={handleMoveDown}
-            />
-          ))}
+        <VStack gap={8} align="stretch">
+          {/* In Progress Section */}
+          {items.filter((item) => item.status === 'in-progress').length > 0 && (
+            <Box>
+              <Heading size="lg" mb={4} color="teal.600">
+                In Progress
+              </Heading>
+              <VStack gap={4} align="stretch">
+                {items
+                  .filter((item) => item.status === 'in-progress')
+                  .map((item, index, filteredItems) => (
+                    <MediaItemCard
+                      key={item.uri}
+                      item={item}
+                      recommenderHandles={recommenderHandles}
+                      isOwner={isOwner()}
+                      isReorderMode={isReorderMode}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < filteredItems.length - 1}
+                      apiUrl={apiUrl}
+                      onEdit={handleEditItem}
+                      onDelete={handleDeleteItem}
+                      onMoveUp={handleMoveUp}
+                      onMoveDown={handleMoveDown}
+                    />
+                  ))}
+              </VStack>
+            </Box>
+          )}
+
+          {/* Want Section */}
+          {items.filter((item) => item.status === 'want').length > 0 && (
+            <Box>
+              <Heading size="lg" mb={4} color="fg.muted">
+                To do
+              </Heading>
+              <VStack gap={4} align="stretch">
+                {items
+                  .filter((item) => item.status === 'want')
+                  .map((item, index, filteredItems) => (
+                    <MediaItemCard
+                      key={item.uri}
+                      item={item}
+                      recommenderHandles={recommenderHandles}
+                      isOwner={isOwner()}
+                      isReorderMode={isReorderMode}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < filteredItems.length - 1}
+                      apiUrl={apiUrl}
+                      onEdit={handleEditItem}
+                      onDelete={handleDeleteItem}
+                      onMoveUp={handleMoveUp}
+                      onMoveDown={handleMoveDown}
+                    />
+                  ))}
+              </VStack>
+            </Box>
+          )}
+
+          {/* Completed Section */}
+          {items.filter((item) => item.status === 'completed').length > 0 && (
+            <Box>
+              <Heading size="lg" mb={4} color="fg.muted">
+                Completed
+              </Heading>
+              <VStack gap={4} align="stretch">
+                {items
+                  .filter((item) => item.status === 'completed')
+                  .map((item, index, filteredItems) => (
+                    <Box key={item.uri} opacity={0.6}>
+                      <MediaItemCard
+                        item={item}
+                        recommenderHandles={recommenderHandles}
+                        isOwner={isOwner()}
+                        isReorderMode={isReorderMode}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < filteredItems.length - 1}
+                        apiUrl={apiUrl}
+                        onEdit={handleEditItem}
+                        onDelete={handleDeleteItem}
+                        onMoveUp={handleMoveUp}
+                        onMoveDown={handleMoveDown}
+                      />
+                    </Box>
+                  ))}
+              </VStack>
+            </Box>
+          )}
         </VStack>
       )}
 

@@ -84,8 +84,6 @@ export function MediaItemCard({
 }: MediaItemCardProps) {
   const navigate = useNavigate();
 
-
-
   return (
     <Box
       bg="bg.subtle"
@@ -168,6 +166,16 @@ export function MediaItemCard({
               {item.mediaType === 'course' && item.mediaItem?.length && (
                 <Text color="fg.muted" fontSize="xs" mb={2}>
                   {item.mediaItem.length} modules
+                </Text>
+              )}
+              {(item.mediaType === 'movie' || item.mediaType === 'video') && item.mediaItem?.length && (
+                <Text color="fg.muted" fontSize="xs" mb={2}>
+                  {Math.floor(item.mediaItem.length / 60)}h {item.mediaItem.length % 60}m
+                </Text>
+              )}
+              {item.mediaType === 'tv' && item.mediaItem?.length && (
+                <Text color="fg.muted" fontSize="xs" mb={2}>
+                  {item.mediaItem.length} episodes
                 </Text>
               )}
             </Box>
