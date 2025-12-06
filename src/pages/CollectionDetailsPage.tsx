@@ -57,6 +57,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     completedAt: '',
   });
   const [editData, setEditData] = useState({
+    status: '',
     rating: 0,
     review: '',
     notes: '',
@@ -328,6 +329,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const handleEditItem = (item: ListItem) => {
     setEditingItem(item);
     setEditData({
+      status: item.status || 'want',
       rating: item.rating || 0,
       review: item.review || '',
       notes: item.notes || '',
@@ -446,6 +448,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         rating: 0,
         review: '',
         notes: '',
+        status: '',
       });
       setNewListUri(null);
 
@@ -687,6 +690,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           setShowEditItemModal(false);
           setEditingItem(null);
           setEditData({
+            status: '',
             rating: 0,
             review: '',
             notes: '',
@@ -699,7 +703,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         selectedMedia={null}
         onMediaSelect={() => {}}
         reviewData={{
-          status: '',
+          status: editData.status,
           rating: editData.rating,
           review: editData.review,
           notes: editData.notes,
@@ -708,6 +712,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         }}
         onReviewDataChange={(data) =>
           setEditData({
+            status: data.status,
             rating: data.rating,
             review: data.review,
             notes: data.notes,

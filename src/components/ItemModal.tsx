@@ -261,30 +261,41 @@ export function ItemModal({
                     )}
                   </Flex>
 
-                  {/* Status Selector (only in add mode) */}
-                  {mode === 'add' && (
-                    <Field label="Status">
-                      <select
-                        value={reviewData.status}
-                        onChange={(e) =>
-                          onReviewDataChange({ ...reviewData, status: e.target.value })
-                        }
-                        style={{
-                          width: '100%',
-                          padding: '0.5rem 0.75rem',
-                          backgroundColor: 'var(--chakra-colors-bg-muted)',
-                          border: '1px solid var(--chakra-colors-border)',
-                          borderRadius: '0.375rem',
-                          fontSize: '1rem',
-                          color: 'inherit',
-                        }}
+                  {/* Status Buttons */}
+                  <Field label="Status">
+                    <HStack gap={2} width="100%">
+                      <Button
+                        flex={1}
+                        size="md"
+                        variant={reviewData.status === 'want' ? 'solid' : 'outline'}
+                        colorPalette={reviewData.status === 'want' ? 'teal' : 'gray'}
+                        bg={reviewData.status === 'want' ? 'teal.500' : 'transparent'}
+                        onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
                       >
-                        <option value="want">{mediaTypeText.wantText}</option>
-                        <option value="in-progress">{mediaTypeText.inProgressText}</option>
-                        <option value="completed">{mediaTypeText.completedText}</option>
-                      </select>
-                    </Field>
-                  )}
+                        {mediaTypeText.wantText}
+                      </Button>
+                      <Button
+                        flex={1}
+                        size="md"
+                        variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
+                        colorPalette={reviewData.status === 'in-progress' ? 'teal' : 'gray'}
+                        bg={reviewData.status === 'in-progress' ? 'teal.500' : 'transparent'}
+                        onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
+                      >
+                        {mediaTypeText.inProgressText}
+                      </Button>
+                      <Button
+                        flex={1}
+                        size="md"
+                        variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
+                        colorPalette={reviewData.status === 'completed' ? 'teal' : 'gray'}
+                        bg={reviewData.status === 'completed' ? 'teal.500' : 'transparent'}
+                        onClick={() => onReviewDataChange({ ...reviewData, status: 'completed' })}
+                      >
+                        {mediaTypeText.completedText}
+                      </Button>
+                    </HStack>
+                  </Field>
 
                   {/* Completed Date (only if status is completed) */}
                   {reviewData.status === 'completed' && (
