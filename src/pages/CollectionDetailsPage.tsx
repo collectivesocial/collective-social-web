@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Container,
-  Flex,
   Heading,
   Text,
   VStack,
@@ -577,36 +576,18 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
 
   return (
     <Container maxW="container.xl" py={8}>
-      <Flex
-        direction={{ base: 'column', md: 'row' }}
-        justify="space-between"
-        align={{ base: 'stretch', md: 'center' }}
-        gap={4}
-        mb={8}
-      >
-        <Box flex={1}>
-          <Button
-            variant="ghost"
-            colorPalette="teal"
-            bg="transparent"
-            onClick={() => navigate('/collections')}
-            mb={2}
-            size="sm"
-            px={0}
-          >
-            ← Back to Collections
-          </Button>
-          <Heading size="2xl" mb={2}>
-            {collection?.name || 'Collection'}
-          </Heading>
-          {collection?.description && (
-            <Text color="fg.muted" mt={2}>
-              {collection.description}
-            </Text>
-          )}
-        </Box>
+      <Box mb={8}>
+        <Heading size="2xl" mb={2}>
+          {collection?.name || 'Collection'}
+        </Heading>
+        {collection?.description && (
+          <Text color="fg.muted" mt={2}>
+            {collection.description}
+          </Text>
+        )}
+        
         {isOwner() && (
-          <HStack gap={2} flexShrink={0} alignSelf={{ base: 'stretch', md: 'flex-start' }}>
+          <HStack gap={2} mt={4} justify="center">
             {!isReorderMode ? (
               <>
                 <IconButton
@@ -655,9 +636,9 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             )}
           </HStack>
         )}
-      </Flex>
+      </Box>
 
-{items.length === 0 ? (
+      {items.length === 0 ? (
         <EmptyState
           icon="📝"
           title="No items yet"
@@ -827,6 +808,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         mediaItemId={editingItem?.mediaItemId}
         mediaItemLength={editingItem?.mediaItem?.length}
         onSegmentChange={refetchItems}
+        itemCreatedAt={editingItem?.createdAt}
       />
 
       {/* Edit Collection Modal */}

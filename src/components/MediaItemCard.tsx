@@ -193,11 +193,6 @@ export function MediaItemCard({
                   {item.mediaType}
                 </Badge>
               )}
-              {item.status && (
-                <Badge colorPalette="gray" variant="subtle" fontSize="xs" textTransform="capitalize">
-                  {item.status.replace('-', ' ')}
-                </Badge>
-              )}
               {item.mediaItemId && (
                 <ShareButton
                   apiUrl={apiUrl}
@@ -336,12 +331,6 @@ export function MediaItemCard({
               ))}
             </Box>
           )}
-
-          <Box mt={3}>
-            <Text color="fg.muted" fontSize="xs">
-              Added {new Date(item.createdAt).toLocaleDateString()}
-            </Text>
-          </Box>
         </Box>
       </Flex>
     </Box>

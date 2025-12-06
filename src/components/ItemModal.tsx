@@ -74,6 +74,7 @@ interface ItemModalProps {
   mediaItemId?: number | null;
   mediaItemLength?: number | null;
   onSegmentChange?: () => void;
+  itemCreatedAt?: string;
 }
 
 const mediaTypeToText: (arg0: string | undefined) => any = (mediaType: string | undefined) => {
@@ -166,6 +167,7 @@ export function ItemModal({
   mediaItemId,
   mediaItemLength,
   onSegmentChange,
+  itemCreatedAt,
 }: ItemModalProps) {
   const [isCreatingNewList, setIsCreatingNewList] = useState(false);
   const [newListName, setNewListName] = useState('');
@@ -522,6 +524,15 @@ export function ItemModal({
                         }}
                       />
                     </Field>
+                  )}
+
+                  {/* Date Added (only in edit mode) */}
+                  {mode === 'edit' && itemCreatedAt && (
+                    <Box>
+                      <Text color="fg.muted" fontSize="sm">
+                        Added {new Date(itemCreatedAt).toLocaleDateString()}
+                      </Text>
+                    </Box>
                   )}
 
                   {reviewData.status === 'completed' && (
