@@ -395,7 +395,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
               creator: editingItem.creator,
               mediaType: editingItem.mediaType || 'book',
               mediaItemId: editingItem.mediaItemId,
-              status: editingItem.status,
+              status: editData.status,
               rating: editData.rating,
               review: editData.review,
               notes: editData.notes,
@@ -430,6 +430,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+              status: editData.status,
               rating: editData.rating,
               review: editData.review,
               notes: editData.notes,
