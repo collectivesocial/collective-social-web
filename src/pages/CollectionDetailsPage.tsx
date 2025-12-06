@@ -11,6 +11,7 @@ import {
   Spinner,
   Center,
   IconButton,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { LuPencil, LuArrowDownUp } from 'react-icons/lu';
 import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
@@ -592,7 +593,6 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
               <>
                 <IconButton
                   onClick={handleEditCollection}
-                  colorPalette="teal"
                   variant="ghost"
                   bg="transparent"
                   aria-label="Edit collection"
@@ -649,10 +649,16 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           {/* In Progress Section */}
           {items.filter((item) => item.status === 'in-progress').length > 0 && (
             <Box>
-              <Heading size="lg" mb={4} color="teal.600">
+              <Heading size="lg" mb={4}>
                 In Progress
               </Heading>
-              <VStack gap={4} align="stretch">
+              <SimpleGrid
+                gridTemplateColumns={{
+                  base: '1fr',
+                  md: 'repeat(auto-fit, minmax(300px, 1fr))',
+                }}
+                gap={4}
+              >
                 {items
                   .filter((item) => item.status === 'in-progress')
                   .map((item, index, filteredItems) => (
@@ -671,17 +677,23 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                       onMoveDown={handleMoveDown}
                     />
                   ))}
-              </VStack>
+              </SimpleGrid>
             </Box>
           )}
 
           {/* Want Section */}
           {items.filter((item) => item.status === 'want').length > 0 && (
             <Box>
-              <Heading size="lg" mb={4} color="fg.muted">
+              <Heading size="lg" mb={4}>
                 To do
               </Heading>
-              <VStack gap={4} align="stretch">
+              <SimpleGrid
+                gridTemplateColumns={{
+                  base: '1fr',
+                  md: 'repeat(auto-fit, minmax(300px, 1fr))',
+                }}
+                gap={4}
+              >
                 {items
                   .filter((item) => item.status === 'want')
                   .map((item, index, filteredItems) => (
@@ -700,17 +712,23 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                       onMoveDown={handleMoveDown}
                     />
                   ))}
-              </VStack>
+              </SimpleGrid>
             </Box>
           )}
 
           {/* Completed Section */}
           {items.filter((item) => item.status === 'completed').length > 0 && (
             <Box>
-              <Heading size="lg" mb={4} color="fg.muted">
+              <Heading size="lg" mb={4}>
                 Completed
               </Heading>
-              <VStack gap={4} align="stretch">
+              <SimpleGrid
+                gridTemplateColumns={{
+                  base: '1fr',
+                  md: 'repeat(auto-fit, minmax(300px, 1fr))',
+                }}
+                gap={4}
+              >
                 {items
                   .filter((item) => item.status === 'completed')
                   .map((item, index, filteredItems) => (
@@ -730,7 +748,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                       />
                     </Box>
                   ))}
-              </VStack>
+              </SimpleGrid>
             </Box>
           )}
         </VStack>

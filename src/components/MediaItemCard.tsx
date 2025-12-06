@@ -92,9 +92,12 @@ export function MediaItemCard({
       borderWidth="1px"
       borderColor="border"
       borderRadius="lg"
-      p={{ base: 4, md: 6 }}
+      p={4}
+      h="full"
+      display="flex"
+      flexDirection="column"
     >
-      <Flex gap={{ base: 3, md: 4 }} direction={{ base: 'column', sm: 'row' }}>
+      <Flex gap={3} direction="column" flex={1}>
         {isReorderMode && (
           <VStack gap={1} flexShrink={0}>
             <IconButton
@@ -124,70 +127,64 @@ export function MediaItemCard({
             src={item.mediaItem.coverImage}
             alt={item.title}
             style={{
-              width: '80px',
-              height: '120px',
+              width: '100%',
+              height: '200px',
               objectFit: 'cover',
               borderRadius: '0.375rem',
-              flexShrink: 0,
               cursor: item.mediaItemId ? 'pointer' : 'default',
-              alignSelf: 'center',
             }}
             onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
           />
         )}
 
-        <Box flex={1} minW={0}>
-          <Flex
-            direction={{ base: 'column', md: 'row' }}
-            justify="space-between"
-            align={{ base: 'stretch', md: 'flex-start' }}
-            mb={2}
-            gap={3}
+        <Box>
+          <Heading
+            size="sm"
+            cursor={item.mediaItemId ? 'pointer' : 'default'}
+            color={item.mediaItemId ? 'teal.500' : 'inherit'}
+            _hover={item.mediaItemId ? { color: 'teal.600' } : {}}
+            onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
+            mb={1}
+            textAlign="left"
+            lineClamp={2}
           >
-            <Box flex={1} minW={0}>
-              <Heading
-                size="md"
-                cursor={item.mediaItemId ? 'pointer' : 'default'}
-                color={item.mediaItemId ? 'teal.500' : 'inherit'}
-                _hover={item.mediaItemId ? { color: 'teal.600' } : {}}
-                onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
-                mb={1}
-              >
-                {item.title}
-              </Heading>
-              {item.creator && (
-                <Text color="fg.muted" fontSize="sm" mb={2}>
-                  by {item.creator}
-                </Text>
-              )}
-              {item.mediaType === 'book' && item.mediaItem?.length && (
-                <Text color="fg.muted" fontSize="xs" mb={2}>
-                  {item.mediaItem.length} pages
-                </Text>
-              )}
-              {item.mediaType === 'course' && item.mediaItem?.length && (
-                <Text color="fg.muted" fontSize="xs" mb={2}>
-                  {item.mediaItem.length} modules
-                </Text>
-              )}
-              {(item.mediaType === 'movie' || item.mediaType === 'video') && item.mediaItem?.length && (
-                <Text color="fg.muted" fontSize="xs" mb={2}>
-                  {Math.floor(item.mediaItem.length / 60)}h {item.mediaItem.length % 60}m
-                </Text>
-              )}
-              {item.mediaType === 'tv' && item.mediaItem?.length && (
-                <Text color="fg.muted" fontSize="xs" mb={2}>
-                  {item.mediaItem.length} episodes
-                </Text>
-              )}
-            </Box>
+            {item.title}
+          </Heading>
+          {item.creator && (
+            <Text color="fg.muted" fontSize="sm" mb={2} textAlign="left" lineClamp={1}>
+              by {item.creator}
+            </Text>
+          )}
+          {item.mediaType === 'book' && item.mediaItem?.length && (
+            <Text color="fg.muted" fontSize="xs" mb={2} textAlign="left">
+              {item.mediaItem.length} pages
+            </Text>
+          )}
+          {item.mediaType === 'course' && item.mediaItem?.length && (
+            <Text color="fg.muted" fontSize="xs" mb={2} textAlign="left">
+              {item.mediaItem.length} modules
+            </Text>
+          )}
+          {(item.mediaType === 'movie' || item.mediaType === 'video') && item.mediaItem?.length && (
+            <Text color="fg.muted" fontSize="xs" mb={2} textAlign="left">
+              {Math.floor(item.mediaItem.length / 60)}h {item.mediaItem.length % 60}m
+            </Text>
+          )}
+          {item.mediaType === 'tv' && item.mediaItem?.length && (
+            <Text color="fg.muted" fontSize="xs" mb={2} textAlign="left">
+              {item.mediaItem.length} episodes
+            </Text>
+          )}
+        </Box>
+      </Flex>
 
-            <HStack
-              gap={2}
-              flexWrap="wrap"
-              justify={{ base: 'flex-start', md: 'flex-end' }}
-              flexShrink={0}
-            >
+      <HStack
+        gap={2}
+        flexWrap="wrap"
+        justify={{ base: 'flex-start', md: 'flex-end' }}
+        mt="auto"
+        pt={3}
+      >
               {item.mediaType && (
                 <Badge colorPalette="teal" variant="subtle" fontSize="xs" textTransform="capitalize">
                   {item.mediaType}
@@ -208,7 +205,8 @@ export function MediaItemCard({
                     size="xs"
                     variant="outline"
                     bg="transparent"
-                    colorPalette="teal"
+                    color={{ base: 'white', _light: 'black' }}
+                    _hover={{ bg: { base: 'whiteAlpha.200', _light: 'blackAlpha.100' } }}
                     onClick={() => onEdit(item)}
                     aria-label="Edit item"
                   >
@@ -226,113 +224,110 @@ export function MediaItemCard({
                   </IconButton>
                 </>
               )}
-            </HStack>
-          </Flex>
+      </HStack>
 
-          {item.review && (
-            <Box mt={3}>
-              <Text color="fg.muted" fontSize="xs" mb={1}>
-                📝 Public Review:
-              </Text>
-              <Text fontSize="sm" lineHeight="1.6">
-                {item.review}
-              </Text>
-            </Box>
-          )}
-
-          {item.notes && (
-            <Box mt={3}>
-              <Text color="fg.muted" fontSize="xs" mb={1}>
-                🔒 Private Notes:
-              </Text>
-              <Text fontSize="sm" lineHeight="1.6" fontStyle="italic">
-                {item.notes}
-              </Text>
-            </Box>
-          )}
-
-          {item.status === 'in-progress' && isOwner && (
-            <ProgressBarDisplay
-              listItemUri={item.uri}
-              itemLength={item.mediaItem?.length || null}
-              mediaType={item.mediaType}
-              apiUrl={apiUrl}
-            />
-          )}
-
-          {item.mediaItem && item.mediaItem.totalRatings > 0 && (
-            <Box
-              mt={3}
-              pt={3}
-              borderTopWidth="1px"
-              borderTopColor="border"
-              cursor="pointer"
-              onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
-            >
-              <Flex align="center" gap={4} flexWrap="wrap">
-                {item.rating !== null && item.rating > 0 && (
-                  <Flex align="center" gap={2}>
-                    <Text color="fg.muted" fontSize="xs">
-                      Your rating:
-                    </Text>
-                    <StarRating rating={item.rating} size="0.875rem" />
-                    <Text color="fg.muted" fontSize="xs">
-                      {item.rating.toFixed(1)}
-                    </Text>
-                  </Flex>
-                )}
-                <Flex align="center" gap={2}>
-                  <Text color="fg.muted" fontSize="xs">
-                    Community:
-                  </Text>
-                  <StarRating rating={item.mediaItem.averageRating || 0} size="0.875rem" />
-                  <Text color="fg.muted" fontSize="xs">
-                    {typeof item.mediaItem.averageRating === 'number'
-                      ? item.mediaItem.averageRating.toFixed(1)
-                      : 'N/A'}{' '}
-                    ({item.mediaItem.totalRatings} ratings)
-                  </Text>
-                </Flex>
-              </Flex>
-            </Box>
-          )}
-
-          {item.recommendations && item.recommendations.length > 0 && (
-            <Box mt={3} pt={3} borderTopWidth="1px" borderTopColor="border">
-              <Text color="fg.muted" fontSize="xs" mb={2}>
-                💡 Recommended by:
-              </Text>
-              {item.recommendations.map((rec, idx) => (
-                <Flex key={idx} ml={4} mt={1} gap={2} align="center" flexWrap="wrap">
-                  <a
-                    href={`https://bsky.app/profile/${rec.did}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: 'var(--chakra-colors-teal-500)',
-                      fontSize: '0.75rem',
-                      textDecoration: 'none',
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.color = 'var(--chakra-colors-teal-600)';
-                      e.currentTarget.style.textDecoration = 'underline';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.color = 'var(--chakra-colors-teal-500)';
-                      e.currentTarget.style.textDecoration = 'none';
-                    }}
-                  >
-                    @{recommenderHandles[rec.did] || rec.did.substring(0, 24) + '...'}
-                  </a>
-                  <Text color="fg.muted" fontSize="xs">
-                    ({new Date(rec.suggestedAt).toLocaleDateString()})
-                  </Text>
-                </Flex>
-              ))}
-            </Box>
-          )}
+      {item.review && (
+        <Box mt={3}>
+          <Text color="fg.muted" fontSize="xs" mb={1}>
+            📝 Public Review:
+          </Text>
+          <Text fontSize="sm" lineHeight="1.6">
+            {item.review}
+          </Text>
         </Box>
-      </Flex>
+      )}
+
+      {item.notes && (
+        <Box mt={3}>
+          <Text color="fg.muted" fontSize="xs" mb={1}>
+            🔒 Private Notes:
+          </Text>
+          <Text fontSize="sm" lineHeight="1.6" fontStyle="italic">
+            {item.notes}
+          </Text>
+        </Box>
+      )}
+
+      {item.status === 'in-progress' && isOwner && (
+        <ProgressBarDisplay
+          listItemUri={item.uri}
+          itemLength={item.mediaItem?.length || null}
+          mediaType={item.mediaType}
+          apiUrl={apiUrl}
+        />
+      )}
+
+      {item.mediaItem && item.mediaItem.totalRatings > 0 && (
+        <Box
+          mt={3}
+          pt={3}
+          borderTopWidth="1px"
+          borderTopColor="border"
+          cursor="pointer"
+          onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
+        >
+          <Flex align="center" gap={4} flexWrap="wrap">
+            {item.rating !== null && item.rating > 0 && (
+              <Flex align="center" gap={2}>
+                <Text color="fg.muted" fontSize="xs">
+                  Your rating:
+                </Text>
+                <StarRating rating={item.rating} size="0.875rem" />
+                <Text color="fg.muted" fontSize="xs">
+                  {item.rating.toFixed(1)}
+                </Text>
+              </Flex>
+            )}
+            <Flex align="center" gap={2}>
+              <Text color="fg.muted" fontSize="xs">
+                Community:
+              </Text>
+              <StarRating rating={item.mediaItem.averageRating || 0} size="0.875rem" />
+              <Text color="fg.muted" fontSize="xs">
+                {typeof item.mediaItem.averageRating === 'number'
+                  ? item.mediaItem.averageRating.toFixed(1)
+                  : 'N/A'}{' '}
+                ({item.mediaItem.totalRatings} ratings)
+              </Text>
+            </Flex>
+          </Flex>
+        </Box>
+      )}
+
+      {item.recommendations && item.recommendations.length > 0 && (
+        <Box mt={3} pt={3} borderTopWidth="1px" borderTopColor="border">
+          <Text color="fg.muted" fontSize="xs" mb={2}>
+            💡 Recommended by:
+          </Text>
+          {item.recommendations.map((rec, idx) => (
+            <Flex key={idx} ml={4} mt={1} gap={2} align="center" flexWrap="wrap">
+              <a
+                href={`https://bsky.app/profile/${rec.did}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: 'var(--chakra-colors-teal-500)',
+                  fontSize: '0.75rem',
+                  textDecoration: 'none',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = 'var(--chakra-colors-teal-600)';
+                  e.currentTarget.style.textDecoration = 'underline';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = 'var(--chakra-colors-teal-500)';
+                  e.currentTarget.style.textDecoration = 'none';
+                }}
+              >
+                @{recommenderHandles[rec.did] || rec.did.substring(0, 24) + '...'}
+              </a>
+              <Text color="fg.muted" fontSize="xs">
+                ({new Date(rec.suggestedAt).toLocaleDateString()})
+              </Text>
+            </Flex>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }

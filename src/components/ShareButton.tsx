@@ -87,11 +87,12 @@ export function ShareButton({
       <IconButton
         aria-label="Share this item"
         onClick={handleOpenDialog}
-        colorPalette="teal"
         variant={variant}
         size={size}
         flexShrink={0}
         bg="transparent"
+        color={{ base: 'white', _light: 'black' }}
+        _hover={{ bg: { base: 'whiteAlpha.200', _light: 'blackAlpha.100' } }}
       >
         <LuShare2 />
       </IconButton>

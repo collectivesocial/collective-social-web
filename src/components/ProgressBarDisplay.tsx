@@ -97,16 +97,20 @@ export function ProgressBarDisplay({
             <Progress.Range />
           </Progress.Track>
         </Progress.Root>
-        {itemLength && highestPercentage > 0 && (
-          <Text fontSize="xs" color="fg.muted" mt={1}>
-            ~{Math.round((highestPercentage / 100) * itemLength)} of {itemLength} {getLengthUnit()}
-          </Text>
-        )}
         {(() => {
           const notesCount = segments.filter(s => s.value.text || s.value.title).length;
-          return notesCount > 0 && (
+          const hasLength = itemLength && highestPercentage > 0;
+          const hasNotes = notesCount > 0;
+
+          if (!hasLength && !hasNotes) {
+            return <Box h="16px" mt={1} />;
+          }
+
+          return (
             <Text fontSize="xs" color="fg.muted" mt={1}>
-              {notesCount} {notesCount === 1 ? 'note' : 'notes'}
+              {hasLength && `${Math.round((highestPercentage / 100) * itemLength)} of ${itemLength} ${getLengthUnit()}`}
+              {hasLength && hasNotes && ' • '}
+              {hasNotes && `${notesCount} ${notesCount === 1 ? 'note' : 'notes'}`}
             </Text>
           );
         })()}
