@@ -16,6 +16,7 @@ import { AdminUserFeedbackPage } from './pages/admin/AdminUserFeedbackPage'
 import { AdminMediaItemsPage } from './pages/admin/AdminMediaItemsPage'
 import { AdminShareLinksPage } from './pages/admin/AdminShareLinksPage'
 import { AdminTagsPage } from './pages/admin/AdminTagsPage'
+import { AdminTagReportsPage } from './pages/admin/AdminTagReportsPage'
 import { FeedbackPage } from './pages/FeedbackPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { ShareRedirectPage } from './pages/ShareRedirectPage'
@@ -139,6 +140,14 @@ function App() {
               <Route 
                 path="/admin/tags" 
                 element={<AdminTagsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/tags" 
+                element={<AdminTagsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/tag-reports" 
+                element={<AdminTagReportsPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/feedback" 

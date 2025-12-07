@@ -362,6 +362,23 @@ if (error) {
 }
 ```
 
+### Admin Error Handling
+```tsx
+const response = await fetch(`${apiUrl}/admin/endpoint`, {
+  credentials: 'include',
+});
+
+if (!response.ok) {
+  console.error('Failed to fetch, status:', response.status);
+  const errorData = await response.json().catch(() => ({}));
+  console.error('Error details:', errorData);
+  if (response.status === 401 || response.status === 403) {
+    navigate('/');
+  }
+  return;
+}
+```
+
 ### Empty States
 ```tsx
 import { EmptyState } from '../components/EmptyState';
@@ -442,6 +459,7 @@ Use Chakra's gap/padding scale:
 8. **Icons**: Import from `react-icons/lu` (Lucide icons)
 9. **Star Rating**: Use existing components, don't recreate with emojis
 10. **Text Links**: Use `renderTextWithLinks` utility for bio/description text
+11. **Admin Error Handling**: Always log response status and error details before redirecting. Only redirect on 401/403, not on other errors
 
 ## Testing
 

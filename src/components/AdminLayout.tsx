@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Flex, VStack, Text, IconButton, Drawer } from '@chakra-ui/react';
-import { LuUsers, LuMessageSquare, LuFilm, LuShare2, LuMenu, LuTags } from 'react-icons/lu';
+import { LuUsers, LuMessageSquare, LuFilm, LuShare2, LuMenu, LuTags, LuFlag } from 'react-icons/lu';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -38,6 +38,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         { label: 'Media Items', path: '/admin/media-items', icon: <LuFilm size={18} /> },
         { label: 'Share Links', path: '/admin/share-links', icon: <LuShare2 size={18} /> },
         { label: 'Tags', path: '/admin/tags', icon: <LuTags size={18} /> },
+        { label: 'Tag Reports', path: '/admin/tag-reports', icon: <LuFlag size={18} /> },
       ],
     },
   ];

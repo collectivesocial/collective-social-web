@@ -21,6 +21,7 @@ import { ShareButton } from '../components/ShareButton';
 import { StarRating } from '../components/StarRating';
 import { RatingDistributionDisplay } from '../components/RatingDistribution';
 import { TagInput } from '../components/TagInput';
+import { ReportTagModal } from '../components/ReportTagModal';
 
 interface RatingDistribution {
   rating0: number;
@@ -251,6 +252,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
           <Text color="red.500">Error: {error || 'Item not found'}</Text>
           <Button
             colorPalette="teal"
+            bg="transparent"
             onClick={() => navigate(-1)}
           >
             Go Back
@@ -392,6 +394,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                 size="sm"
                 colorPalette="teal"
                 variant="outline"
+                bg="transparent"
                 onClick={() => setShowTagInput(true)}
               >
                 <LuPlus /> Add Tag
@@ -436,6 +439,17 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                   <Text as="span" color="fg.muted" fontSize="xs">
                     ({tag.usageCount})
                   </Text>
+                  {currentUserDid && !isAdmin && (
+                    <ReportTagModal
+                      apiUrl={apiUrl}
+                      itemId={parseInt(itemId!)}
+                      tagId={tag.id}
+                      tagName={tag.name}
+                      onReported={() => {
+                        // Optionally refresh tags or show confirmation
+                      }}
+                    />
+                  )}
                   {isAdmin && (
                     <IconButton
                       size="xs"
@@ -443,6 +457,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                       colorPalette="red"
                       onClick={() => handleRemoveTag(tag.id)}
                       aria-label="Remove tag"
+                      bg="transparent"
                       h="16px"
                       minW="16px"
                       p={0}
@@ -554,6 +569,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                   colorPalette="teal"
                   onClick={loadMoreReviews}
                   disabled={reviewsLoading}
+                  bg="transparent"
                   size="lg"
                 >
                   {reviewsLoading ? 'Loading...' : 'Load More Reviews'}
