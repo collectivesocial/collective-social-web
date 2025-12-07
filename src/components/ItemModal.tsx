@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -11,8 +11,10 @@ import {
   HStack,
   Portal,
   IconButton,
+  Badge,
 } from '@chakra-ui/react';
 import { LuList } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 import { Field } from './ui/field';
 import { MediaSearch } from './MediaSearch';
 import { StarRating } from './StarRating';
@@ -174,6 +176,22 @@ export function ItemModal({
   const [selectedListUri, setSelectedListUri] = useState(currentListUri || '');
   const [isCreatingList, setIsCreatingList] = useState(false);
   const [showCollectionDropdown, setShowCollectionDropdown] = useState(false);
+  const [tags, setTags] = useState<Array<{ id: number; name: string; slug: string; usageCount: number }>>([]);
+  const navigate = useNavigate();
+
+  // Fetch tags when modal opens in edit mode with a mediaItemId
+  useEffect(() => {
+    if (isOpen && mode === 'edit' && mediaItemId) {
+      fetch(`${apiUrl}/media/${mediaItemId}/tags`, {
+        credentials: 'include',
+      })
+        .then(res => res.json())
+        .then(data => setTags(data.tags || []))
+        .catch(err => console.error('Failed to fetch tags:', err));
+    } else {
+      setTags([]);
+    }
+  }, [isOpen, mode, mediaItemId, apiUrl]);
 
   if (!isOpen) return null;
   const mediaTypeText = mediaTypeToText(selectedMedia?.mediaType);
@@ -265,6 +283,30 @@ export function ItemModal({
                           <Text color="fg.muted" fontSize="sm">
                             by {displayMedia.author}
                           </Text>
+                        )}
+                        {mode === 'edit' && tags.length > 0 && (
+                          <Flex gap={2} mt={2} flexWrap="wrap">
+                            {tags.map((tag) => (
+                              <Badge
+                                key={tag.id}
+                                colorPalette="teal"
+                                variant="subtle"
+                                fontSize="xs"
+                                px={2}
+                                py={1}
+                                borderRadius="full"
+                                cursor="pointer"
+                                _hover={{ bg: 'teal.100' }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onClose();
+                                  navigate(`/tags/${tag.slug}`);
+                                }}
+                              >
+                                {tag.name}
+                              </Badge>
+                            ))}
+                          </Flex>
                         )}
                         {mode === 'add' && selectedMedia?.inDatabase && selectedMedia.totalReviews > 0 && (
                           <HStack gap={2} mt={2} fontSize="sm">

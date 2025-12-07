@@ -13,8 +13,9 @@ import {
   Badge,
   Table,
   Input,
+  IconButton,
 } from '@chakra-ui/react';
-import { LuMerge, LuX } from 'react-icons/lu';
+import { LuMerge, LuX, LuPencil } from 'react-icons/lu';
 import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner, DialogCloseTrigger } from '../../components/ui/dialog';
 import { AdminLayout } from '../../components/AdminLayout';
 
@@ -57,6 +58,10 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
   const [mergePreview, setMergePreview] = useState<MergePreview | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [merging, setMerging] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingTag, setEditingTag] = useState<Tag | null>(null);
+  const [editedName, setEditedName] = useState('');
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
   const fetchTags = async () => {
@@ -141,6 +146,44 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
       loadMergePreview();
     }
   }, [sourceTag, targetTag]);
+
+  const openEditModal = (tag: Tag) => {
+    setEditingTag(tag);
+    setEditedName(tag.name);
+    setEditModalOpen(true);
+  };
+
+  const handleEdit = async () => {
+    if (!editingTag || !editedName.trim()) return;
+
+    setSaving(true);
+    try {
+      const response = await fetch(`${apiUrl}/admin/tags/${editingTag.id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: editedName.trim(),
+        }),
+      });
+
+      if (response.ok) {
+        alert('Tag updated successfully!');
+        setEditModalOpen(false);
+        fetchTags(); // Refresh the list
+      } else {
+        const error = await response.json();
+        alert(`Failed to update tag: ${error.error}`);
+      }
+    } catch (err) {
+      console.error('Failed to update tag:', err);
+      alert('Failed to update tag');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleMerge = async () => {
     if (!sourceTag || !targetTag) return;
@@ -305,17 +348,32 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                     </Badge>
                   </Table.Cell>
                   <Table.Cell textAlign="center">
-                    {tag.status === 'active' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        colorPalette="teal"
-                        bg="transparent"
-                        onClick={() => openMergeModal(tag)}
-                      >
-                        <LuMerge /> Merge
-                      </Button>
-                    )}
+                    <HStack gap={2} justify="center">
+                      {tag.status === 'active' && (
+                        <>
+                          <IconButton
+                            size="sm"
+                            variant="outline"
+                            colorPalette="blue"
+                            bg="transparent"
+                            onClick={() => openEditModal(tag)}
+                            aria-label="Edit tag"
+                          >
+                            <LuPencil />
+                          </IconButton>
+                          <IconButton
+                            size="sm"
+                            variant="outline"
+                            colorPalette="teal"
+                            bg="transparent"
+                            onClick={() => openMergeModal(tag)}
+                            aria-label="Merge tag"
+                          >
+                            <LuMerge />
+                          </IconButton>
+                        </>
+                      )}
+                    </HStack>
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -553,6 +611,69 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                 disabled={!targetTag || merging || loadingPreview}
               >
                 {merging ? 'Merging...' : 'Merge Tags'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPositioner>
+      </DialogRoot>
+
+      {/* Edit Tag Modal */}
+      <DialogRoot open={editModalOpen} onOpenChange={(e) => setEditModalOpen(e.open)}>
+        <DialogBackdrop />
+        <DialogPositioner>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Tag</DialogTitle>
+              <DialogCloseTrigger bg="transparent">
+                <LuX />
+              </DialogCloseTrigger>
+            </DialogHeader>
+            <DialogBody>
+              <VStack align="stretch" gap={4}>
+                <Box>
+                  <Text fontSize="sm" fontWeight="medium" mb={2}>
+                    Tag Name
+                  </Text>
+                  <Input
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    placeholder="Enter tag name"
+                  />
+                  <Text fontSize="xs" color="fg.muted" mt={2}>
+                    The tag will be automatically converted to lowercase and trimmed.
+                  </Text>
+                </Box>
+                {editingTag && (
+                  <Box p={3} bg="bg.muted" borderRadius="md">
+                    <Text fontSize="sm" color="fg.muted" mb={1}>
+                      Current: <strong>{editingTag.name}</strong>
+                    </Text>
+                    <Text fontSize="sm" color="fg.muted">
+                      Slug: <Text as="span" fontFamily="mono">{editingTag.slug}</Text>
+                    </Text>
+                    <Text fontSize="sm" color="fg.muted" mt={2}>
+                      Used on {editingTag.itemCount} {editingTag.itemCount === 1 ? 'item' : 'items'} by {editingTag.userCount} {editingTag.userCount === 1 ? 'user' : 'users'}
+                    </Text>
+                  </Box>
+                )}
+              </VStack>
+            </DialogBody>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                bg="transparent"
+                onClick={() => setEditModalOpen(false)}
+                mr={3}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorPalette="teal"
+                variant="solid"
+                onClick={handleEdit}
+                disabled={!editedName.trim() || saving || editedName.trim().toLowerCase() === editingTag?.name}
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
               </Button>
             </DialogFooter>
           </DialogContent>
