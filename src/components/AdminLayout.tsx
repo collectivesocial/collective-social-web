@@ -95,7 +95,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <>
-      <Flex minH="calc(100vh - 120px)">
+      <Flex minH="100vh">
         {/* Desktop Left Navigation */}
         <Box
           w="250px"
@@ -104,8 +104,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           borderRightColor="border"
           p={6}
           position="sticky"
-          top="60px"
-          h="calc(100vh - 120px)"
+          top="0"
+          h="100vh"
           overflowY="auto"
           display={{ base: 'none', md: 'block' }}
         >

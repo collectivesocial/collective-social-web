@@ -638,9 +638,10 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                     value={editedName}
                     onChange={(e) => setEditedName(e.target.value)}
                     placeholder="Enter tag name"
+                    maxLength={36}
                   />
                   <Text fontSize="xs" color="fg.muted" mt={2}>
-                    The tag will be automatically converted to lowercase and trimmed.
+                    The tag will be automatically converted to lowercase and trimmed. Maximum 36 characters.
                   </Text>
                 </Box>
                 {editingTag && (

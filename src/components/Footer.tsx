@@ -11,7 +11,7 @@ export function Footer() {
       borderTopWidth="1px"
       borderTopColor="border"
       py={{ base: 6, md: 8 }}
-      mt={{ base: 8, md: 16 }}
+      mt={0}
     >
       <Container maxW="container.xl">
         <Flex

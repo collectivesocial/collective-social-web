@@ -171,6 +171,7 @@ export function TagInput({ apiUrl, itemId, onTagAdded, onCancel }: TagInputProps
             placeholder="Type a tag name..."
             size="sm"
             disabled={submitting}
+            maxLength={36}
           />
 
           {showSuggestions && (suggestions.length > 0 || loading) && (
