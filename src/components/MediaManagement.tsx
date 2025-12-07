@@ -16,7 +16,7 @@ import {
   Textarea,
   Link,
 } from '@chakra-ui/react';
-import { LuPencil, LuTrash2 } from 'react-icons/lu';
+import { LuPencil, LuTrash2, LuX } from 'react-icons/lu';
 import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner } from './ui/dialog';
 import { Field } from './ui/field';
 import { StarRating } from './StarRating';
@@ -74,6 +74,8 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
   const [filteredMediaItems, setFilteredMediaItems] = useState<MediaItem[]>([]);
   const [mediaPage, setMediaPage] = useState(1);
   const [mediaPerPage] = useState(20);
+  const [mediaTags, setMediaTags] = useState<Array<{ id: number; name: string; slug: string; usageCount: number }>>([]);
+  const [loadingTags, setLoadingTags] = useState(false);
 
   // Fetch media items with pagination
   useEffect(() => {
@@ -126,6 +128,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
     setEditingMedia(item);
     setMediaModalOpen(true);
     setLoadingMediaDetails(true);
+    setLoadingTags(true);
     
     // Fetch full media item details from the database
     try {
@@ -162,6 +165,49 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
       setEditMediaLength(item.length?.toString() || '');
     } finally {
       setLoadingMediaDetails(false);
+    }
+
+    // Fetch tags for this media item
+    try {
+      const tagsResponse = await fetch(`${apiUrl}/media/${item.id}/tags`, {
+        credentials: 'include',
+      });
+      
+      if (tagsResponse.ok) {
+        const tagsData = await tagsResponse.json();
+        setMediaTags(tagsData.tags || []);
+      } else {
+        setMediaTags([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch tags:', err);
+      setMediaTags([]);
+    } finally {
+      setLoadingTags(false);
+    }
+  };
+
+  const handleRemoveTag = async (tagId: number) => {
+    if (!editingMedia) return;
+
+    if (!confirm('Remove this tag from the item?')) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/media/${editingMedia.id}/tags/${tagId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        // Refresh tags
+        setMediaTags(mediaTags.filter(tag => tag.id !== tagId));
+      } else {
+        const error = await response.json();
+        alert(`Failed to remove tag: ${error.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error('Failed to remove tag:', err);
+      alert('Failed to remove tag');
     }
   };
 
@@ -570,6 +616,58 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                       </Text>
                     </Box>
                   )}
+
+                  {/* Tags Section */}
+                  <Box>
+                    <Text fontSize="sm" fontWeight="medium" mb={2}>
+                      Tags
+                    </Text>
+                    {loadingTags ? (
+                      <Center py={4}>
+                        <Spinner size="sm" color="teal.500" />
+                      </Center>
+                    ) : mediaTags.length > 0 ? (
+                      <Flex gap={2} flexWrap="wrap">
+                        {mediaTags.map((tag) => (
+                          <Badge
+                            key={tag.id}
+                            colorPalette="teal"
+                            variant="subtle"
+                            fontSize="sm"
+                            px={3}
+                            py={1}
+                            borderRadius="full"
+                            display="flex"
+                            alignItems="center"
+                            gap={2}
+                          >
+                            {tag.name}
+                            <Text as="span" color="fg.muted" fontSize="xs">
+                              ({tag.usageCount})
+                            </Text>
+                            <IconButton
+                              size="2xs"
+                              variant="ghost"
+                              colorPalette="red"
+                              onClick={() => handleRemoveTag(tag.id)}
+                              aria-label="Remove tag"
+                              bg="transparent"
+                              h="14px"
+                              minW="14px"
+                              w="14px"
+                              p={0}
+                            >
+                              <LuX size={10} />
+                            </IconButton>
+                          </Badge>
+                        ))}
+                      </Flex>
+                    ) : (
+                      <Text fontSize="sm" color="fg.muted">
+                        No tags on this item
+                      </Text>
+                    )}
+                  </Box>
                 </VStack>
               )}
             </DialogBody>
