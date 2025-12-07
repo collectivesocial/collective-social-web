@@ -11,7 +11,11 @@ import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { SearchResultsPage } from './pages/SearchResultsPage'
-import { AdminPage } from './pages/AdminPage'
+import { AdminUsersPage } from './pages/admin/AdminUsersPage'
+import { AdminUserFeedbackPage } from './pages/admin/AdminUserFeedbackPage'
+import { AdminMediaItemsPage } from './pages/admin/AdminMediaItemsPage'
+import { AdminShareLinksPage } from './pages/admin/AdminShareLinksPage'
+import { AdminTagsPage } from './pages/admin/AdminTagsPage'
 import { FeedbackPage } from './pages/FeedbackPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { ShareRedirectPage } from './pages/ShareRedirectPage'
@@ -114,7 +118,27 @@ function App() {
               />
               <Route 
                 path="/admin" 
-                element={<AdminPage apiUrl={apiUrl} />} 
+                element={<AdminUsersPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/users" 
+                element={<AdminUsersPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/user-feedback" 
+                element={<AdminUserFeedbackPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/media-items" 
+                element={<AdminMediaItemsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/share-links" 
+                element={<AdminShareLinksPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/tags" 
+                element={<AdminTagsPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/feedback" 
