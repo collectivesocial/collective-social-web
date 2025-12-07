@@ -11,6 +11,7 @@ import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { SearchResultsPage } from './pages/SearchResultsPage'
+import { TagSearchPage } from './pages/TagSearchPage'
 import { AdminUsersPage } from './pages/admin/AdminUsersPage'
 import { AdminUserFeedbackPage } from './pages/admin/AdminUserFeedbackPage'
 import { AdminMediaItemsPage } from './pages/admin/AdminMediaItemsPage'
@@ -112,6 +113,10 @@ function App() {
               <Route 
                 path="/search" 
                 element={<SearchResultsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/tags/:tagSlug" 
+                element={<TagSearchPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/items/:itemId" 

@@ -310,6 +310,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                         size="sm"
                         variant="outline"
                         colorPalette="teal"
+                        bg="transparent"
                         onClick={() => openMergeModal(tag)}
                       >
                         <LuMerge /> Merge
@@ -418,6 +419,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                           <Button
                             size="xs"
                             variant="ghost"
+                            bg="transparent"
                             onClick={() => setTargetTag(null)}
                           >
                             <LuX />
@@ -538,6 +540,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
             <DialogFooter>
               <Button
                 variant="outline"
+                bg="transparent"
                 onClick={() => setMergeModalOpen(false)}
                 mr={3}
               >
@@ -546,6 +549,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
               <Button
                 colorPalette="teal"
                 onClick={handleMerge}
+                bg="transparent"
                 disabled={!targetTag || merging || loadingPreview}
               >
                 {merging ? 'Merging...' : 'Merge Tags'}

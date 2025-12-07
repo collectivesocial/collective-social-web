@@ -87,7 +87,6 @@ export function ReportTagModal({
       <Button
         size="xs"
         variant="ghost"
-        colorPalette="red"
         bg="transparent"
         onClick={() => setOpen(true)}
         title="Report this tag"

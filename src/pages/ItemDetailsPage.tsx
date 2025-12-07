@@ -73,6 +73,7 @@ interface Tag {
   name: string;
   slug: string;
   usageCount: number;
+  hasAdminTag: boolean;
 }
 
 interface ItemDetailsPageProps {
@@ -434,28 +435,36 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                   display="flex"
                   alignItems="center"
                   gap={2}
+                  cursor="pointer"
+                  _hover={{ bg: 'teal.100' }}
+                  onClick={() => navigate(`/tags/${tag.slug}`)}
                 >
                   {tag.name}
                   <Text as="span" color="fg.muted" fontSize="xs">
                     ({tag.usageCount})
                   </Text>
-                  {currentUserDid && !isAdmin && (
-                    <ReportTagModal
-                      apiUrl={apiUrl}
-                      itemId={parseInt(itemId!)}
-                      tagId={tag.id}
-                      tagName={tag.name}
-                      onReported={() => {
-                        // Optionally refresh tags or show confirmation
-                      }}
-                    />
+                  {currentUserDid && !isAdmin && tag.usageCount < 5 && !tag.hasAdminTag && (
+                    <Box onClick={(e) => e.stopPropagation()}>
+                      <ReportTagModal
+                        apiUrl={apiUrl}
+                        itemId={parseInt(itemId!)}
+                        tagId={tag.id}
+                        tagName={tag.name}
+                        onReported={() => {
+                          // Optionally refresh tags or show confirmation
+                        }}
+                      />
+                    </Box>
                   )}
                   {isAdmin && (
                     <IconButton
                       size="xs"
                       variant="ghost"
                       colorPalette="red"
-                      onClick={() => handleRemoveTag(tag.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveTag(tag.id);
+                      }}
                       aria-label="Remove tag"
                       bg="transparent"
                       h="16px"
