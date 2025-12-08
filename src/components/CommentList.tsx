@@ -172,10 +172,30 @@ function CommentItem({
 
       if (response.ok) {
         onDelete(comment.uri);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to delete comment:', errorData);
+        alert('Failed to delete comment. Please try again.');
       }
     } catch (err) {
       console.error('Failed to delete comment:', err);
+      alert('Failed to delete comment. Please try again.');
     }
+  };
+
+  const handleDeleteReply = (replyUri: string) => {
+    setReplies((prev) => prev.filter((r) => r.uri !== replyUri));
+    setReplyCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleUpdateReply = (replyUri: string, text: string) => {
+    setReplies((prev) =>
+      prev.map((r) =>
+        r.uri === replyUri
+          ? { ...r, text, updatedAt: new Date().toISOString() }
+          : r
+      )
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -236,7 +256,7 @@ function CommentItem({
                 }}
               />
               <HStack mt={2} gap={2}>
-                <Button size="sm" colorPalette="teal" bg="transparent" onClick={handleEdit}>
+                <Button size="sm" colorPalette="teal" bg="transparent" variant="outline" onClick={handleEdit}>
                   Save
                 </Button>
                 <Button
@@ -335,8 +355,8 @@ function CommentItem({
                       apiUrl={apiUrl}
                       currentUserDid={currentUserDid}
                       onReply={onReply}
-                      onDelete={onDelete}
-                      onUpdate={onUpdate}
+                      onDelete={handleDeleteReply}
+                      onUpdate={handleUpdateReply}
                       depth={depth + 1}
                     />
                   ))}
