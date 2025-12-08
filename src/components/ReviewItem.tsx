@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Box, Flex, Text, HStack, Button } from '@chakra-ui/react';
-import { LuMessageSquare, LuPlus, LuMinus } from 'react-icons/lu';
+import { LuMessageSquare, LuChevronDown, LuChevronUp } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from './ui/avatar';
 import { StarRating } from './StarRating';
@@ -113,7 +113,7 @@ export function ReviewItem({
               onClick={() => setShowComments(!showComments)}
               title={showComments ? 'Hide Comments' : 'View Comments'}
             >
-              {showComments ? <LuMinus /> : <LuPlus />}
+              {showComments ? <LuChevronUp /> : <LuChevronDown />}
             </Button>
 
             {currentUserDid && (
