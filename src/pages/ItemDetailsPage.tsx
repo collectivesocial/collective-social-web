@@ -15,13 +15,13 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { LuPlus, LuX } from 'react-icons/lu';
-import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
 import { ShareButton } from '../components/ShareButton';
 import { StarRating } from '../components/StarRating';
 import { RatingDistributionDisplay } from '../components/RatingDistribution';
 import { TagInput } from '../components/TagInput';
 import { ReportTagModal } from '../components/ReportTagModal';
+import { ReviewItem } from '../components/ReviewItem';
 
 interface RatingDistribution {
   rating0: number;
@@ -502,73 +502,13 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
             
             <VStack gap={4} align="stretch">
               {reviews.map((review) => (
-                <Box
+                <ReviewItem
                   key={review.id}
-                  bg="bg.muted"
-                  borderWidth="1px"
-                  borderColor="border"
-                  borderRadius="lg"
-                  p={{ base: 4, md: 6 }}
-                >
-                  <Flex gap={4} mb={4} direction={{ base: 'column', sm: 'row' }}>
-                    <Avatar
-                      size="lg"
-                      name={review.authorDisplayName}
-                      src={review.authorAvatar || undefined}
-                      fallback="👤"
-                      bg="transparent"
-                      flexShrink={0}
-                    />
-                    
-                    <Box flex={1} minW={0}>
-                      <Flex
-                        direction={{ base: 'column', sm: 'row' }}
-                        justify="space-between"
-                        gap={2}
-                      >
-                        <Flex
-                          align="center"
-                          gap={2}
-                          flexWrap="wrap"
-                          cursor="pointer"
-                          onClick={() => navigate(`/profile/${review.authorHandle}`)}
-                        >
-                          <Text
-                            fontWeight="bold"
-                            _hover={{ color: 'teal.500' }}
-                          >
-                            {review.authorDisplayName}
-                          </Text>
-                          <Text
-                            color="fg.muted"
-                            fontSize="sm"
-                            _hover={{ color: 'teal.500' }}
-                          >
-                            @{review.authorHandle}
-                          </Text>
-                          <Text color="fg.muted" fontSize="sm">·</Text>
-                          <Text color="fg.muted" fontSize="sm">
-                            {formatDate(review.createdAt)}
-                          </Text>
-                        </Flex>
-                        <HStack gap={1} flexShrink={0}>
-                          <StarRating rating={review.rating} size="1.25rem" />
-                          <Text color="fg.muted" fontSize="sm">
-                            {review.rating.toFixed(1)}
-                          </Text>
-                        </HStack>
-                      </Flex>
-                    </Box>
-                  </Flex>
-                  
-                  <Text
-                    lineHeight="1.6"
-                    fontSize="sm"
-                    whiteSpace="pre-wrap"
-                  >
-                    {review.review}
-                  </Text>
-                </Box>
+                  review={review}
+                  apiUrl={apiUrl}
+                  currentUserDid={currentUserDid}
+                  formatDate={formatDate}
+                />
               ))}
             </VStack>
 
