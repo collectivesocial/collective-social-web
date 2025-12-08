@@ -71,12 +71,32 @@ function CommentItem({
   const isOwnComment = currentUserDid === comment.userDid;
   const maxDepth = 3; // Limit nesting to 3 levels
 
+  // Fetch reply count on mount
+  useEffect(() => {
+    fetchReplyCount();
+  }, []);
+
   // Fetch replies when expanded
   useEffect(() => {
     if (showReplies && replies.length === 0) {
       fetchReplies();
     }
   }, [showReplies]);
+
+  const fetchReplyCount = async () => {
+    try {
+      const encodedUri = encodeURIComponent(comment.uri);
+      const response = await fetch(`${apiUrl}/comments/${encodedUri}/replies`, {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setReplyCount(data.replies?.length || 0);
+      }
+    } catch (err) {
+      console.error('Failed to fetch reply count:', err);
+    }
+  };
 
   const fetchReplies = async () => {
     setLoadingReplies(true);
@@ -216,12 +236,13 @@ function CommentItem({
                 }}
               />
               <HStack mt={2} gap={2}>
-                <Button size="sm" colorPalette="teal" onClick={handleEdit}>
+                <Button size="sm" colorPalette="teal" bg="transparent" onClick={handleEdit}>
                   Save
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
+                  bg="transparent"
                   onClick={() => {
                     setIsEditing(false);
                     setEditText(comment.text);
@@ -233,13 +254,14 @@ function CommentItem({
             </Box>
           ) : (
             <>
-              <Text fontSize="sm">{renderTextWithLinks(comment.text)}</Text>
+              <Text fontSize="sm" textAlign="left">{renderTextWithLinks(comment.text)}</Text>
 
               <HStack gap={3} mt={1}>
                 {currentUserDid && depth < maxDepth && (
                   <Button
                     size="xs"
                     variant="ghost"
+                    bg="transparent"
                     onClick={() => setShowReplyForm(!showReplyForm)}
                   >
                     <LuReply />
@@ -252,6 +274,7 @@ function CommentItem({
                     <Button
                       size="xs"
                       variant="ghost"
+                      bg="transparent"
                       onClick={() => setIsEditing(true)}
                     >
                       <LuPencil />
@@ -261,6 +284,7 @@ function CommentItem({
                       size="xs"
                       variant="ghost"
                       colorPalette="red"
+                      bg="transparent"
                       onClick={handleDelete}
                     >
                       <LuTrash2 />
@@ -273,6 +297,7 @@ function CommentItem({
                   <Button
                     size="xs"
                     variant="ghost"
+                    bg="transparent"
                     onClick={() => setShowReplies(!showReplies)}
                   >
                     {showReplies ? 'Hide' : 'Show'} {replyCount}{' '}
@@ -428,16 +453,6 @@ export function CommentList({
         <Text fontSize="lg" fontWeight="semibold">
           Comments ({comments.length})
         </Text>
-        {currentUserDid && !showCommentForm && (
-          <Button
-            size="sm"
-            colorPalette="teal"
-            onClick={() => setShowCommentForm(true)}
-          >
-            <LuMessageSquare />
-            Add Comment
-          </Button>
-        )}
       </HStack>
 
       {showCommentForm && (

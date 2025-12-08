@@ -69,13 +69,15 @@ export function CommentForm({
           onClick={handleSubmit}
           disabled={submitting || !text.trim()}
           colorPalette="teal"
+          variant="outline"
+          bg="transparent"
           size="sm"
         >
           <LuMessageSquare />
           {submitting ? 'Posting...' : 'Post Comment'}
         </Button>
         {onCancel && (
-          <Button onClick={onCancel} variant="ghost" size="sm">
+          <Button onClick={onCancel} variant="ghost" size="sm" bg="transparent">
             Cancel
           </Button>
         )}
