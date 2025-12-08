@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Box, Flex, Text, HStack, Button } from '@chakra-ui/react';
-import { LuMessageSquare } from 'react-icons/lu';
+import { LuMessageSquare, LuPlus, LuMinus } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from './ui/avatar';
 import { StarRating } from './StarRating';
 import { CommentList } from './CommentList';
+import { Reactions } from './Reactions';
 
 interface Review {
   id: number;
@@ -103,16 +104,16 @@ export function ReviewItem({
 
       {review.reviewUri && (
         <Box mt={4}>
-          <HStack gap={2}>
+          <HStack gap={2} wrap="wrap">
             <Button
               size="xs"
               variant="ghost"
               bg="transparent"
               colorPalette="teal"
               onClick={() => setShowComments(!showComments)}
+              title={showComments ? 'Hide Comments' : 'View Comments'}
             >
-              <LuMessageSquare />
-              {showComments ? 'Hide Comments' : 'View Comments'}
+              {showComments ? <LuMinus /> : <LuPlus />}
             </Button>
 
             {currentUserDid && (
@@ -122,11 +123,18 @@ export function ReviewItem({
                 bg="transparent"
                 variant="outline"
                 onClick={handleAddComment}
+                title="Add Comment"
               >
-                <LuMessageSquare />
-                Add Comment
+                <LuMessageSquare /> Comment
               </Button>
             )}
+
+            <Reactions
+              subjectUri={review.reviewUri}
+              subjectType="review"
+              apiUrl={apiUrl}
+              currentUserDid={currentUserDid}
+            />
           </HStack>
 
           {showComments && (

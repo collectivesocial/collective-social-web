@@ -8,10 +8,11 @@ import {
   Center,
   Button,
 } from '@chakra-ui/react';
-import { LuMessageSquare, LuPencil, LuTrash2, LuReply } from 'react-icons/lu';
+import { LuPencil, LuTrash2, LuReply } from 'react-icons/lu';
 import { Avatar } from './ui/avatar';
 import { CommentForm } from './CommentForm';
 import { renderTextWithLinks } from '../utils/textUtils';
+import { Reactions } from './Reactions';
 
 interface User {
   did: string;
@@ -276,16 +277,16 @@ function CommentItem({
             <>
               <Text fontSize="sm" textAlign="left">{renderTextWithLinks(comment.text)}</Text>
 
-              <HStack gap={3} mt={1}>
+              <HStack gap={2} mt={2} wrap="wrap">
                 {currentUserDid && depth < maxDepth && (
                   <Button
                     size="xs"
                     variant="ghost"
                     bg="transparent"
                     onClick={() => setShowReplyForm(!showReplyForm)}
+                    title="Reply"
                   >
                     <LuReply />
-                    Reply
                   </Button>
                 )}
 
@@ -296,19 +297,18 @@ function CommentItem({
                       variant="ghost"
                       bg="transparent"
                       onClick={() => setIsEditing(true)}
+                      title="Edit"
                     >
                       <LuPencil />
-                      Edit
                     </Button>
                     <Button
                       size="xs"
                       variant="ghost"
-                      colorPalette="red"
                       bg="transparent"
                       onClick={handleDelete}
+                      title="Delete"
                     >
                       <LuTrash2 />
-                      Delete
                     </Button>
                   </>
                 )}
@@ -324,6 +324,13 @@ function CommentItem({
                     {replyCount === 1 ? 'reply' : 'replies'}
                   </Button>
                 )}
+
+                <Reactions
+                  subjectUri={comment.uri}
+                  subjectType="comment"
+                  apiUrl={apiUrl}
+                  currentUserDid={currentUserDid}
+                />
               </HStack>
             </>
           )}
