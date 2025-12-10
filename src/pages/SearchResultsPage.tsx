@@ -15,6 +15,7 @@ import {
 import { LuChevronLeft, LuChevronRight, LuBook } from 'react-icons/lu';
 import { StarRating } from '../components/StarRating';
 import { EmptyState } from '../components/EmptyState';
+import { AddMediaModal } from '../components/AddMediaModal';
 
 interface MediaSearchResult {
   title: string;
@@ -46,6 +47,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState(0);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -307,9 +309,33 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                 </Button>
               </Flex>
             )}
+
+            {/* Add Media Button */}
+            <Box textAlign="center" pt={6} borderTopWidth="1px" borderColor="border">
+              <Button
+                onClick={() => setShowAddModal(true)}
+                variant="outline"
+                colorPalette="teal"
+                bg="transparent"
+                size="lg"
+              >
+                Not finding what you're looking for? Add it!
+              </Button>
+            </Box>
           </>
         )}
       </VStack>
+
+      {/* Add Media Modal */}
+      <AddMediaModal
+        apiUrl={apiUrl}
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={(mediaItemId) => {
+          setShowAddModal(false);
+          navigate(`/items/${mediaItemId}`);
+        }}
+      />
     </Container>
   );
 }

@@ -12,6 +12,7 @@ import {
 import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner } from './ui/dialog';
 import { Field } from './ui/field';
 import { StarRating } from './StarRating';
+import { AddMediaModal } from './AddMediaModal';
 
 export interface MediaSearchResult {
   title: string;
@@ -44,6 +45,8 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
   const [results, setResults] = useState<MediaSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +57,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
 
     setSearching(true);
     setError(null);
+    setHasSearched(false);
 
     try {
       // For articles, videos, and courses, use link endpoint
@@ -69,10 +73,6 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
             mediaType,
           }),
         });
-        
-        console.log({response})
-        console.log({searchQuery})
-        console.log({mediaType})
 
         if (!response.ok) {
           throw new Error('Failed to fetch link metadata');
@@ -111,6 +111,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
       console.error(err);
     } finally {
       setSearching(false);
+      setHasSearched(true);
     }
   };
 
@@ -173,6 +174,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   setPendingCourseResult(null);
                   setResults([]);
                   setError(null);
+                  setHasSearched(false);
                 }}
                 style={{
                   width: '100%',
@@ -241,75 +243,127 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
       )}
 
       {results.length > 0 && (
-        <Box maxH="400px" overflowY="auto">
-          <VStack gap={3} align="stretch">
-            {results.map((result, index) => (
-              <Flex
-                key={index}
-                gap={4}
-                p={4}
-                bg="bg.muted"
-                borderWidth="1px"
-                borderColor="border"
-                borderRadius="md"
-                cursor="pointer"
-                transition="border-color 0.2s"
-                _hover={{ borderColor: 'teal.500' }}
-                onClick={() => handleSelectResult(result)}
-              >
-                {result.coverImage && (
-                  <img
-                    src={result.coverImage}
-                    alt={result.title}
-                    style={{
-                      width: '60px',
-                      height: '90px',
-                      objectFit: 'cover',
-                      borderRadius: '0.375rem',
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
-                <VStack align="stretch" flex={1} gap={2}>
-                  <Heading size="sm">{result.title}</Heading>
-                  {result.author && (
-                    <Text color="fg.muted" fontSize="sm">
-                      by {result.author}
-                    </Text>
+        <>
+          <Box maxH="400px" overflowY="auto">
+            <VStack gap={3} align="stretch">
+              {results.map((result, index) => (
+                <Flex
+                  key={index}
+                  gap={4}
+                  p={4}
+                  bg="bg.muted"
+                  borderWidth="1px"
+                  borderColor="border"
+                  borderRadius="md"
+                  cursor="pointer"
+                  transition="border-color 0.2s"
+                  _hover={{ borderColor: 'teal.500' }}
+                  onClick={() => handleSelectResult(result)}
+                >
+                  {result.coverImage && (
+                    <img
+                      src={result.coverImage}
+                      alt={result.title}
+                      style={{
+                        width: '60px',
+                        height: '90px',
+                        objectFit: 'cover',
+                        borderRadius: '0.375rem',
+                        flexShrink: 0,
+                      }}
+                    />
                   )}
-                  <HStack gap={4} fontSize="sm" color="fg.muted">
-                    {result.publishYear && <Text>{result.publishYear}</Text>}
-                    {result.pages && <Text>{result.pages} pages</Text>}
-                    {result.isbn && <Text>ISBN: {result.isbn}</Text>}
-                  </HStack>
-                  {result.inDatabase && (
-                    <HStack gap={2} fontSize="sm">
-                      {result.averageRating !== null && (
-                        <>
-                          <StarRating rating={result.averageRating} size="1em" />
-                          <Text color="fg.muted">
-                            {result.averageRating.toFixed(1)}
-                          </Text>
-                        </>
-                      )}
-                      <Text color="fg.muted">
-                        ({result.totalReviews}{' '}
-                        {result.totalReviews === 1 ? 'review' : 'reviews'})
+                  <VStack align="stretch" flex={1} gap={2}>
+                    <Heading size="sm">{result.title}</Heading>
+                    {result.author && (
+                      <Text color="fg.muted" fontSize="sm">
+                        by {result.author}
                       </Text>
+                    )}
+                    <HStack gap={4} fontSize="sm" color="fg.muted">
+                      {result.publishYear && <Text>{result.publishYear}</Text>}
+                      {result.pages && <Text>{result.pages} pages</Text>}
+                      {result.isbn && <Text>ISBN: {result.isbn}</Text>}
                     </HStack>
-                  )}
-                </VStack>
-              </Flex>
-            ))}
-          </VStack>
-        </Box>
+                    {result.inDatabase && (
+                      <HStack gap={2} fontSize="sm">
+                        {result.averageRating !== null && (
+                          <>
+                            <StarRating rating={result.averageRating} size="1em" />
+                            <Text color="fg.muted">
+                              {result.averageRating.toFixed(1)}
+                            </Text>
+                          </>
+                        )}
+                        <Text color="fg.muted">
+                          ({result.totalReviews}{' '}
+                          {result.totalReviews === 1 ? 'review' : 'reviews'})
+                        </Text>
+                      </HStack>
+                    )}
+                  </VStack>
+                </Flex>
+              ))}
+            </VStack>
+          </Box>
+          
+          {/* Add Media Button after results */}
+          <Box textAlign="center" pt={4} borderTopWidth="1px" borderColor="border">
+            <Button
+              onClick={() => setShowAddModal(true)}
+              variant="outline"
+              colorPalette="teal"
+              size="lg"
+            >
+              Not finding what you're looking for? Add it!
+            </Button>
+          </Box>
+        </>
       )}
 
-      {!searching && results.length === 0 && searchQuery && (
+      {hasSearched && !searching && results.length === 0 && searchQuery && !error && (
         <Box p={8} textAlign="center" color="fg.muted" bg="bg.muted" borderRadius="md">
           No results found. Try a different search.
         </Box>
       )}
+
+      {/* Add Media Button */}
+      {hasSearched && !searching && searchQuery && (
+        <Box textAlign="center" pt={4} borderTopWidth="1px" borderColor="border">
+          <Button
+            onClick={() => setShowAddModal(true)}
+            variant="outline"
+            colorPalette="teal"
+            bg="transparent"
+            size="lg"
+          >
+            Not finding what you're looking for? Add it!
+          </Button>
+        </Box>
+      )}
+
+      {/* Add Media Modal */}
+      <AddMediaModal
+        apiUrl={apiUrl}
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={(mediaItemId) => {
+          setShowAddModal(false);
+          // Optionally trigger parent callback with the new item
+          onSelect({
+            title: '',
+            author: null,
+            publishYear: null,
+            isbn: null,
+            coverImage: null,
+            inDatabase: true,
+            totalRatings: 0,
+            totalReviews: 0,
+            averageRating: null,
+            mediaItemId,
+          });
+        }}
+      />
 
       {/* Module Count Dialog for Courses */}
       <DialogRoot open={showModulePrompt} onOpenChange={(e) => setShowModulePrompt(e.open)}>

@@ -22,6 +22,8 @@ import { RatingDistributionDisplay } from '../components/RatingDistribution';
 import { TagInput } from '../components/TagInput';
 import { ReportTagModal } from '../components/ReportTagModal';
 import { ReviewItem } from '../components/ReviewItem';
+import { ItemModal } from '../components/ItemModal';
+import type { Collection } from '../components/ItemModal';
 
 interface RatingDistribution {
   rating0: number;
@@ -94,6 +96,17 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
   const [showTagInput, setShowTagInput] = useState(false);
   const [currentUserDid, setCurrentUserDid] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showItemModal, setShowItemModal] = useState(false);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [selectedListUri, setSelectedListUri] = useState<string>('');
+  const [reviewData, setReviewData] = useState({
+    status: 'want',
+    rating: 0,
+    review: '',
+    notes: '',
+    recommendedBy: '',
+    completedAt: '',
+  });
   const navigate = useNavigate();
   const REVIEWS_PER_PAGE = 10;
 
@@ -185,7 +198,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
       const response = await fetch(`${apiUrl}/media/${itemId}/tags`, {
         credentials: 'include',
       });
-
+      
       if (response.ok) {
         const data = await response.json();
         setTags(data.tags || []);
@@ -197,7 +210,84 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     }
   };
 
-  const handleRemoveTag = async (tagId: number) => {
+  const fetchCollections = async () => {
+    if (!currentUserDid) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/collections/public/${currentUserDid}`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCollections(data.collections || []);
+        if (data.collections.length > 0) {
+          setSelectedListUri(data.collections[0].uri);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch collections:', err);
+    }
+  };
+
+  const handleAddToCollection = () => {
+    if (!currentUserDid) {
+      navigate('/');
+      return;
+    }
+    fetchCollections();
+    setShowItemModal(true);
+  };
+
+  const handleItemModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!item || !selectedListUri) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/collections/items`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listUri: selectedListUri,
+          mediaItemId: item.id,
+          title: item.title,
+          creator: item.creator,
+          mediaType: item.mediaType,
+          status: reviewData.status,
+          rating: reviewData.rating || null,
+          review: reviewData.review || null,
+          notes: reviewData.notes || null,
+          recommendedBy: reviewData.recommendedBy || null,
+          completedAt: reviewData.completedAt || null,
+        }),
+      });
+
+      if (response.ok) {
+        setShowItemModal(false);
+        // Reset review data
+        setReviewData({
+          status: 'want',
+          rating: 0,
+          review: '',
+          notes: '',
+          recommendedBy: '',
+          completedAt: '',
+        });
+        // Optionally show success message
+        alert('Successfully added to collection!');
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to add to collection');
+      }
+    } catch (err) {
+      console.error('Failed to add to collection:', err);
+      alert('Failed to add to collection');
+    }
+  };  const handleRemoveTag = async (tagId: number) => {
     if (!itemId) return;
 
     try {
@@ -305,13 +395,26 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                   {item.title}
                 </Heading>
               </Box>
-              <ShareButton
-                apiUrl={apiUrl}
-                mediaItemId={item.id}
-                mediaType={item.mediaType}
-                size="md"
-                variant="outline"
-              />
+              <HStack gap={2}>
+                {currentUserDid && (
+                  <Button
+                    onClick={handleAddToCollection}
+                    colorPalette="teal"
+                    size="md"
+                    title="Add to Collection"
+                    bg="transparent"
+                  >
+                    <LuPlus />
+                  </Button>
+                )}
+                <ShareButton
+                  apiUrl={apiUrl}
+                  mediaItemId={item.id}
+                  mediaType={item.mediaType}
+                  size="md"
+                  variant="outline"
+                />
+              </HStack>
             </Flex>
             
             {item.creator && (
@@ -528,6 +631,37 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
           </Box>
         )}
       </Box>
+
+      {/* Add to Collection Modal */}
+      <ItemModal
+        isOpen={showItemModal}
+        onClose={() => setShowItemModal(false)}
+        onSubmit={handleItemModalSubmit}
+        apiUrl={apiUrl}
+        mode="add"
+        selectedMedia={item ? {
+          title: item.title,
+          author: item.creator,
+          publishYear: item.publishedYear,
+          isbn: item.isbn,
+          coverImage: item.coverImage,
+          mediaType: item.mediaType,
+          inDatabase: true,
+          totalRatings: item.totalRatings,
+          totalReviews: item.totalReviews,
+          averageRating: item.averageRating,
+          mediaItemId: item.id,
+        } : null}
+        onMediaSelect={() => {}}
+        reviewData={reviewData}
+        onReviewDataChange={setReviewData}
+        collections={collections}
+        currentListUri={selectedListUri}
+        onListChange={setSelectedListUri}
+        onCollectionsRefresh={fetchCollections}
+        mediaItemId={item?.id}
+        mediaItemLength={item?.length}
+      />
     </Container>
   );
 }
