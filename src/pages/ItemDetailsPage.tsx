@@ -13,8 +13,10 @@ import {
   Center,
   Badge,
   IconButton,
+  Input,
+  Textarea,
 } from '@chakra-ui/react';
-import { LuPlus, LuX } from 'react-icons/lu';
+import { LuPlus, LuX, LuPencil, LuCheck } from 'react-icons/lu';
 import { EmptyState } from '../components/EmptyState';
 import { ShareButton } from '../components/ShareButton';
 import { StarRating } from '../components/StarRating';
@@ -24,6 +26,7 @@ import { ReportTagModal } from '../components/ReportTagModal';
 import { ReviewItem } from '../components/ReviewItem';
 import { ItemModal } from '../components/ItemModal';
 import type { Collection } from '../components/ItemModal';
+import { Field } from '../components/ui/field';
 
 interface RatingDistribution {
   rating0: number;
@@ -53,6 +56,7 @@ interface MediaItem {
   totalReviews: number;
   totalSaves: number;
   averageRating: number | null;
+  createdBy: string | null;
   ratingDistribution?: RatingDistribution;
 }
 
@@ -106,6 +110,22 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     notes: '',
     recommendedBy: '',
     completedAt: '',
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedItem, setEditedItem] = useState<{
+    title: string;
+    creator: string;
+    coverImage: string;
+    description: string;
+    publishedYear: string;
+    length: string;
+  }>({
+    title: '',
+    creator: '',
+    coverImage: '',
+    description: '',
+    publishedYear: '',
+    length: '',
   });
   const navigate = useNavigate();
   const REVIEWS_PER_PAGE = 10;
@@ -239,20 +259,80 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     setShowItemModal(true);
   };
 
+  const handleEditClick = () => {
+    if (!item) return;
+    setEditedItem({
+      title: item.title,
+      creator: item.creator || '',
+      coverImage: item.coverImage || '',
+      description: item.description || '',
+      publishedYear: item.publishedYear?.toString() || '',
+      length: item.length?.toString() || '',
+    });
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!item) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/media/${item.id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: editedItem.title,
+          creator: editedItem.creator || null,
+          coverImage: editedItem.coverImage || null,
+          description: editedItem.description || null,
+          publishedYear: editedItem.publishedYear ? parseInt(editedItem.publishedYear) : null,
+          length: editedItem.length ? parseInt(editedItem.length) : null,
+        }),
+      });
+
+      if (response.ok) {
+        // Refresh the item data
+        const itemResponse = await fetch(`${apiUrl}/media/${item.id}`);
+        if (itemResponse.ok) {
+          const data = await itemResponse.json();
+          setItem(data);
+        }
+        setIsEditing(false);
+        alert('Successfully updated item!');
+      } else {
+        const data = await response.json().catch(() => ({ error: 'Unknown error' }));
+        alert(data.error || 'Failed to update item');
+      }
+    } catch (err) {
+      console.error('Failed to update item:', err);
+      alert('Failed to update item');
+    }
+  };
+
   const handleItemModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!item || !selectedListUri) return;
+    if (!item || !selectedListUri) {
+      console.error('Missing required data:', { item, selectedListUri });
+      alert('Please select a collection');
+      return;
+    }
 
     try {
-      const response = await fetch(`${apiUrl}/collections/items`, {
+      const encodedListUri = encodeURIComponent(selectedListUri);
+      const response = await fetch(`${apiUrl}/collections/${encodedListUri}/items`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          listUri: selectedListUri,
           mediaItemId: item.id,
           title: item.title,
           creator: item.creator,
@@ -280,12 +360,13 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
         // Optionally show success message
         alert('Successfully added to collection!');
       } else {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Server error response:', data);
         alert(data.error || 'Failed to add to collection');
       }
     } catch (err) {
       console.error('Failed to add to collection:', err);
-      alert('Failed to add to collection');
+      alert('Failed to add to collection: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };  const handleRemoveTag = async (tagId: number) => {
     if (!itemId) return;
@@ -391,57 +472,145 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
               gap={4}
             >
               <Box flex={1}>
-                <Heading size={{ base: 'xl', md: '2xl' }}>
-                  {item.title}
-                </Heading>
+                {isEditing ? (
+                  <Input
+                    value={editedItem.title}
+                    onChange={(e) => setEditedItem({ ...editedItem, title: e.target.value })}
+                    size="lg"
+                    fontWeight="bold"
+                  />
+                ) : (
+                  <Heading size={{ base: 'xl', md: '2xl' }}>
+                    {item.title}
+                  </Heading>
+                )}
               </Box>
               <HStack gap={2}>
-                {currentUserDid && (
+                {currentUserDid && item.createdBy === currentUserDid && (
+                  <>
+                    {isEditing ? (
+                      <>
+                        <Button
+                          onClick={handleSaveEdit}
+                          colorPalette="teal"
+                          size="md"
+                          title="Save Changes"
+                        >
+                          <LuCheck />
+                        </Button>
+                        <Button
+                          onClick={handleCancelEdit}
+                          variant="outline"
+                          bg="transparent"
+                          size="md"
+                          title="Cancel"
+                        >
+                          <LuX />
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={handleEditClick}
+                        colorPalette="teal"
+                        variant="outline"
+                        bg="transparent"
+                        size="md"
+                        title="Edit Item"
+                      >
+                        <LuPencil />
+                      </Button>
+                    )}
+                  </>
+                )}
+                {currentUserDid && !isEditing && (
                   <Button
                     onClick={handleAddToCollection}
                     colorPalette="teal"
                     size="md"
+                    variant="outline"
                     title="Add to Collection"
                     bg="transparent"
                   >
                     <LuPlus />
                   </Button>
                 )}
-                <ShareButton
-                  apiUrl={apiUrl}
-                  mediaItemId={item.id}
-                  mediaType={item.mediaType}
-                  size="md"
-                  variant="outline"
-                />
+                {!isEditing && (
+                  <ShareButton
+                    apiUrl={apiUrl}
+                    mediaItemId={item.id}
+                    mediaType={item.mediaType}
+                    size="md"
+                    variant="outline"
+                  />
+                )}
               </HStack>
             </Flex>
             
-            {item.creator && (
+            {isEditing ? (
+              <Input
+                value={editedItem.creator}
+                onChange={(e) => setEditedItem({ ...editedItem, creator: e.target.value })}
+                placeholder="Creator (author, director, artist, etc.)"
+              />
+            ) : item.creator ? (
               <Text color="fg.muted" fontSize={{ base: 'lg', md: 'xl' }}>
                 by {item.creator}
               </Text>
+            ) : null}
+
+            {isEditing ? (
+              <VStack align="stretch" gap={3} w="full">
+                <HStack gap={3}>
+                  <Box flex={1}>
+                    <Field label="Year">
+                      <Input
+                        type="number"
+                        value={editedItem.publishedYear}
+                        onChange={(e) => setEditedItem({ ...editedItem, publishedYear: e.target.value })}
+                        placeholder="2025"
+                      />
+                    </Field>
+                  </Box>
+                  <Box flex={1}>
+                    <Field label={item.mediaType === 'book' ? 'Pages' : 'Length'}>
+                      <Input
+                        type="number"
+                        value={editedItem.length}
+                        onChange={(e) => setEditedItem({ ...editedItem, length: e.target.value })}
+                        placeholder="0"
+                      />
+                    </Field>
+                  </Box>
+                </HStack>
+                <Field label="Cover Image URL">
+                  <Input
+                    value={editedItem.coverImage}
+                    onChange={(e) => setEditedItem({ ...editedItem, coverImage: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </Field>
+              </VStack>
+            ) : (
+              <VStack align={{ base: 'center', md: 'flex-start' }} gap={2}>
+                {item.publishedYear && (
+                  <Text color="fg.muted" fontSize="sm">
+                    Published: {item.publishedYear}
+                  </Text>
+                )}
+
+                {item.mediaType === 'book' && item.length && (
+                  <Text color="fg.muted" fontSize="sm">
+                    {item.length} pages
+                  </Text>
+                )}
+
+                {item.isbn && (
+                  <Text color="fg.muted" fontSize="sm">
+                    ISBN: {item.isbn}
+                  </Text>
+                )}
+              </VStack>
             )}
-
-            <VStack align={{ base: 'center', md: 'flex-start' }} gap={2}>
-              {item.publishedYear && (
-                <Text color="fg.muted" fontSize="sm">
-                  Published: {item.publishedYear}
-                </Text>
-              )}
-
-              {item.mediaType === 'book' && item.length && (
-                <Text color="fg.muted" fontSize="sm">
-                  {item.length} pages
-                </Text>
-              )}
-
-              {item.isbn && (
-                <Text color="fg.muted" fontSize="sm">
-                  ISBN: {item.isbn}
-                </Text>
-              )}
-            </VStack>
 
             {item.totalReviews > 0 && (
               <VStack align={{ base: 'stretch', md: 'flex-start' }} gap={3} w={{ base: 'full', md: 'auto' }}>
@@ -474,18 +643,28 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
           </VStack>
         </Flex>
 
-        {item.description && (
+        {(item.description || isEditing) && (
           <Box mt={8}>
             <Heading size="lg" mb={4}>
               Description
             </Heading>
-            <Text
-              lineHeight="1.6"
-              fontSize="sm"
-              whiteSpace="pre-wrap"
-            >
-              {item.description}
-            </Text>
+            {isEditing ? (
+              <Textarea
+                value={editedItem.description}
+                onChange={(e) => setEditedItem({ ...editedItem, description: e.target.value })}
+                placeholder="Enter description..."
+                rows={6}
+                resize="vertical"
+              />
+            ) : (
+              <Text
+                lineHeight="1.6"
+                fontSize="sm"
+                whiteSpace="pre-wrap"
+              >
+                {item.description}
+              </Text>
+            )}
           </Box>
         )}
 

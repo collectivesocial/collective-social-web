@@ -332,6 +332,121 @@ export function ItemModal({
                     </Flex>
                   </Box>
 
+                  {/* Collection Selector for Add Mode */}
+                  {mode === 'add' && collections.length > 0 && (
+                    <Field label="Add to Collection" required>
+                      {!isCreatingNewList ? (
+                        <VStack gap={2} align="stretch">
+                          <select
+                            value={selectedListUri}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === '__create_new__') {
+                                setIsCreatingNewList(true);
+                              } else {
+                                setSelectedListUri(value);
+                                if (onListChange) {
+                                  onListChange(value);
+                                }
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem 0.75rem',
+                              backgroundColor: 'var(--chakra-colors-bg-muted)',
+                              border: '1px solid var(--chakra-colors-border)',
+                              borderRadius: '0.375rem',
+                              fontSize: '1rem',
+                              color: 'inherit',
+                            }}
+                          >
+                            {[...collections]
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((collection) => (
+                                <option key={collection.uri} value={collection.uri}>
+                                  {collection.name}
+                                </option>
+                              ))}
+                            <option value="__create_new__">+ Create New List</option>
+                          </select>
+                        </VStack>
+                      ) : (
+                        <VStack gap={2} align="stretch">
+                          <Input
+                            placeholder="New list name"
+                            value={newListName}
+                            onChange={(e) => setNewListName(e.target.value)}
+                            autoFocus
+                          />
+                          <HStack gap={2}>
+                            <Button
+                              size="sm"
+                              colorPalette="teal"
+                              bg="transparent"
+                              onClick={async () => {
+                                if (!newListName.trim()) {
+                                  alert('Please enter a list name');
+                                  return;
+                                }
+                                setIsCreatingList(true);
+                                try {
+                                  const response = await fetch(`${apiUrl}/collections`, {
+                                    method: 'POST',
+                                    credentials: 'include',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      name: newListName,
+                                      description: '',
+                                      visibility: 'public',
+                                      purpose: 'collection',
+                                    }),
+                                  });
+
+                                  if (response.ok) {
+                                    const data = await response.json();
+                                    setNewListName('');
+                                    setIsCreatingNewList(false);
+                                    setSelectedListUri(data.uri);
+                                    if (onCollectionsRefresh) {
+                                      await onCollectionsRefresh();
+                                    }
+                                    if (onListChange) {
+                                      onListChange(data.uri);
+                                    }
+                                  } else {
+                                    const errorData = await response.json();
+                                    alert(errorData.error || 'Failed to create list');
+                                  }
+                                } catch (err) {
+                                  console.error('Failed to create list:', err);
+                                  alert('Failed to create list');
+                                } finally {
+                                  setIsCreatingList(false);
+                                }
+                              }}
+                              disabled={isCreatingList || !newListName.trim()}
+                            >
+                              {isCreatingList ? 'Creating...' : 'Create'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              bg="transparent"
+                              onClick={() => {
+                                setIsCreatingNewList(false);
+                                setNewListName('');
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </HStack>
+                        </VStack>
+                      )}
+                    </Field>
+                  )}
+
                   {/* Collection Selector Dropdown (only in edit mode) */}
                   {mode === 'edit' && collections.length > 0 && showCollectionDropdown && (
                     <Box>
