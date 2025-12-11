@@ -13,7 +13,7 @@ import {
   IconButton,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { LuPencil, LuArrowDownUp } from 'react-icons/lu';
+import { LuPencil, LuArrowDownUp, LuCopy } from 'react-icons/lu';
 import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
 import { ItemModal, type Collection } from '../components/ItemModal';
 import { EmptyState } from '../components/EmptyState';
@@ -44,6 +44,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const [currentUserDid, setCurrentUserDid] = useState<string | null>(null);
   const [collection, setCollection] = useState<Collection | null>(null);
   const [allCollections, setAllCollections] = useState<Collection[]>([]);
+  const [parentCollectionName, setParentCollectionName] = useState<string | null>(null);
   const [items, setItems] = useState<ListItem[]>([]);
   const [recommenderHandles, setRecommenderHandles] = useState<Record<string, string>>({});
   const [showAddItemModal, setShowAddItemModal] = useState(false);
@@ -157,6 +158,16 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         );
         if (foundCollection) {
           setCollection(foundCollection);
+          
+          // If this collection has a parent, find the parent's name
+          if (foundCollection.parentListUri) {
+            const parentCollection = collectionsData.collections.find(
+              (c: Collection) => c.uri === foundCollection.parentListUri
+            );
+            if (parentCollection) {
+              setParentCollectionName(parentCollection.name);
+            }
+          }
         }
 
         // Fetch items
@@ -221,6 +232,34 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
 
   const handleEditCollection = () => {
     setShowEditCollectionModal(true);
+  };
+
+  const handleCloneCollection = async () => {
+    if (!window.confirm('Clone this collection? A copy will be created with all items.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/clone`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to clone collection');
+      }
+
+      const data = await response.json();
+      
+      // Navigate to the new cloned collection
+      navigate(`/collections/${encodeURIComponent(data.uri)}`);
+    } catch (err) {
+      console.error('Failed to clone collection:', err);
+      alert('Failed to clone collection');
+    }
   };
 
   const handleToggleReorderMode = () => {
@@ -586,6 +625,25 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             {collection.description}
           </Text>
         )}
+        {collection?.parentListUri && (
+          <Text color="fg.muted" mt={2} fontSize="sm">
+            Copied from{' '}
+            <Text
+              as="span"
+              color="teal.500"
+              cursor="pointer"
+              textDecoration="underline"
+              onClick={() => navigate(`/collections/${encodeURIComponent(collection.parentListUri!)}`)}
+            >
+              {parentCollectionName || 'another collection'}
+            </Text>
+          </Text>
+        )}
+        {collection?.copyCount !== undefined && collection.copyCount > 0 && (
+          <Text color="fg.muted" mt={2} fontSize="sm">
+            Copied {collection.copyCount} {collection.copyCount === 1 ? 'time' : 'times'}
+          </Text>
+        )}
         
         {isOwner() && (
           <HStack gap={2} mt={4} justify="center">
@@ -598,6 +656,14 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   aria-label="Edit collection"
                 >
                   <LuPencil />
+                </IconButton>
+                <IconButton
+                  onClick={handleCloneCollection}
+                  variant="ghost"
+                  bg="transparent"
+                  aria-label="Clone collection"
+                >
+                  <LuCopy />
                 </IconButton>
                 <IconButton
                   onClick={handleToggleReorderMode}

@@ -48,11 +48,13 @@ export interface Collection {
   uri: string;
   name: string;
   description: string | null;
+  parentListUri?: string | null;
   visibility: string;
   purpose: string;
   avatar: string | null;
   createdAt: string;
   itemCount?: number;
+  copyCount?: number;
 }
 
 interface ItemModalProps {
