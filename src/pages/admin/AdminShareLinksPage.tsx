@@ -19,8 +19,10 @@ interface ShareLink {
   id: number;
   shortCode: string;
   userDid: string;
-  mediaItemId: number;
-  mediaType: string;
+  mediaItemId: number | null;
+  mediaType: string | null;
+  collectionUri: string | null;
+  collectionName: string | null;
   timesClicked: number;
   createdAt: string;
   updatedAt: string;
@@ -181,7 +183,16 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
               {shareLinks.map((link) => (
                 <Table.Row key={link.id}>
                   <Table.Cell>
-                    {link.title ? (
+                    {link.collectionUri ? (
+                      <Box>
+                        <Text fontSize="sm" fontWeight="medium">
+                          {link.collectionName || 'Untitled Collection'}
+                        </Text>
+                        <Text fontSize="xs" color="fg.muted">
+                          Collection
+                        </Text>
+                      </Box>
+                    ) : link.title ? (
                       <Box>
                         <Text fontSize="sm" fontWeight="medium">
                           {link.title}

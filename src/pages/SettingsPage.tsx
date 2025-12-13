@@ -42,8 +42,10 @@ interface UserProfile {
 interface ShareLink {
   id: number;
   shortCode: string;
-  mediaItemId: number;
-  mediaType: string;
+  mediaItemId: number | null;
+  mediaType: string | null;
+  collectionUri: string | null;
+  collectionName: string | null;
   timesClicked: number;
   createdAt: string;
   updatedAt: string;
@@ -223,22 +225,41 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                     {shareLinks.map((link) => (
                       <Table.Row key={link.id}>
                         <Table.Cell>
-                          <Link
-                            onClick={() => navigate(`/items/${link.mediaItemId}`)}
-                            color="teal.500"
-                            fontWeight="medium"
-                            cursor="pointer"
-                            _hover={{ textDecoration: 'underline' }}
-                          >
-                            <HStack gap={1}>
-                              <Text>{link.title || 'Untitled'}</Text>
-                              <LuExternalLink size={14} />
-                            </HStack>
-                          </Link>
-                          {link.creator && (
-                            <Text fontSize="xs" color="fg.muted">
-                              by {link.creator}
-                            </Text>
+                          {link.collectionUri ? (
+                            // Collection link
+                            <Link
+                              onClick={() => navigate(`/collections/${encodeURIComponent(link.collectionUri!)}`)}
+                              color="teal.500"
+                              fontWeight="medium"
+                              cursor="pointer"
+                              _hover={{ textDecoration: 'underline' }}
+                            >
+                              <HStack gap={1}>
+                                <Text>{link.collectionName || 'Untitled Collection'}</Text>
+                                <LuExternalLink size={14} />
+                              </HStack>
+                            </Link>
+                          ) : (
+                            // Media item link
+                            <>
+                              <Link
+                                onClick={() => navigate(`/items/${link.mediaItemId}`)}
+                                color="teal.500"
+                                fontWeight="medium"
+                                cursor="pointer"
+                                _hover={{ textDecoration: 'underline' }}
+                              >
+                                <HStack gap={1}>
+                                  <Text>{link.title || 'Untitled'}</Text>
+                                  <LuExternalLink size={14} />
+                                </HStack>
+                              </Link>
+                              {link.creator && (
+                                <Text fontSize="xs" color="fg.muted">
+                                  by {link.creator}
+                                </Text>
+                              )}
+                            </>
                           )}
                         </Table.Cell>
                         <Table.Cell>
