@@ -11,6 +11,7 @@ interface ShareLinkData {
   mediaItemId?: number;
   mediaType?: string;
   collectionUri?: string;
+  reviewId?: number;
   recommendedBy: string;
   timesClicked: number;
   createdAt: string;
@@ -75,7 +76,11 @@ export function ShareRedirectPage({ apiUrl }: ShareRedirectPageProps) {
 
       try {
         // Resolve the share link
-        const response = await fetch(`${apiUrl}/share/${shortCode}`);
+        const response = await fetch(`${apiUrl}/share/${shortCode}`, {
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -120,6 +125,26 @@ export function ShareRedirectPage({ apiUrl }: ShareRedirectPageProps) {
 
         const collectionsData = await collectionsRes.json();
         const collections: Collection[] = collectionsData.collections || [];
+
+        // Handle review sharing
+        if (data.reviewId) {
+          // For review shares, we need to get the review details to find the media item
+          // We'll need to fetch the reviews for the item and find our review
+          // But we don't know the mediaItemId yet, so let's add it to the share link response
+          // For now, redirect to a waiting state
+          setTimeout(() => {
+            // The review share should include mediaItemId in the response
+            // Let's check if we have it in the data
+            if (data.mediaItemId) {
+              navigate(`/items/${data.mediaItemId}?reviewId=${data.reviewId}`);
+            } else {
+              // If not, we need to fetch it - but we need a proper endpoint
+              setError('Unable to locate the review. Please try again.');
+              setLoading(false);
+            }
+          }, 2000);
+          return;
+        }
 
         // Handle collection sharing
         if (data.collectionUri) {

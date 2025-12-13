@@ -46,6 +46,7 @@ interface ShareLink {
   mediaType: string | null;
   collectionUri: string | null;
   collectionName: string | null;
+  reviewId: number | null;
   timesClicked: number;
   createdAt: string;
   updatedAt: string;
@@ -236,6 +237,20 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             >
                               <HStack gap={1}>
                                 <Text>{link.collectionName || 'Untitled Collection'}</Text>
+                                <LuExternalLink size={14} />
+                              </HStack>
+                            </Link>
+                          ) : link.reviewId ? (
+                            // Review link
+                            <Link
+                              onClick={() => navigate(`/items/${link.mediaItemId}?reviewId=${link.reviewId}`)}
+                              color="teal.500"
+                              fontWeight="medium"
+                              cursor="pointer"
+                              _hover={{ textDecoration: 'underline' }}
+                            >
+                              <HStack gap={1}>
+                                <Text>{link.title || 'Review'}</Text>
                                 <LuExternalLink size={14} />
                               </HStack>
                             </Link>

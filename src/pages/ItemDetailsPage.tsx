@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -128,6 +128,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     length: '',
   });
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const REVIEWS_PER_PAGE = 10;
 
   useEffect(() => {
@@ -195,10 +196,31 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
 
       const data = await response.json();
       
+      // Check if we need to highlight a specific review (from share link)
+      const highlightReviewId = searchParams.get('reviewId');
+      let reviewsList = data.reviews;
+      
+      if (highlightReviewId && offset === 0) {
+        // Find the highlighted review and move it to the top
+        const highlightedIndex = reviewsList.findIndex(
+          (r: any) => r.id === parseInt(highlightReviewId)
+        );
+        
+        if (highlightedIndex > 0) {
+          // Move highlighted review to the top
+          const highlightedReview = reviewsList[highlightedIndex];
+          reviewsList = [
+            highlightedReview,
+            ...reviewsList.slice(0, highlightedIndex),
+            ...reviewsList.slice(highlightedIndex + 1),
+          ];
+        }
+      }
+      
       if (offset === 0) {
-        setReviews(data.reviews);
+        setReviews(reviewsList);
       } else {
-        setReviews(prev => [...prev, ...data.reviews]);
+        setReviews(prev => [...prev, ...reviewsList]);
       }
       
       setHasMoreReviews(data.hasMore);

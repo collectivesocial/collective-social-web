@@ -47,8 +47,11 @@ interface ShareLink {
   id: number;
   shortCode: string;
   userDid: string;
-  mediaItemId: number;
-  mediaType: string;
+  mediaItemId: number | null;
+  mediaType: string | null;
+  collectionUri: string | null;
+  collectionName: string | null;
+  reviewId: number | null;
   timesClicked: number;
   createdAt: string;
   updatedAt: string;

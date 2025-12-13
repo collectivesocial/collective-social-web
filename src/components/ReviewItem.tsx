@@ -6,6 +6,7 @@ import { Avatar } from './ui/avatar';
 import { StarRating } from './StarRating';
 import { CommentList } from './CommentList';
 import { Reactions } from './Reactions';
+import { ShareReviewButton } from './ShareReviewButton';
 
 interface Review {
   id: number;
@@ -128,6 +129,13 @@ export function ReviewItem({
                 <LuMessageSquare /> Comment
               </Button>
             )}
+
+            <ShareReviewButton
+              apiUrl={apiUrl}
+              reviewId={review.id}
+              size="xs"
+              variant="ghost"
+            />
 
             <Reactions
               subjectUri={review.reviewUri}
