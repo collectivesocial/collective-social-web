@@ -11,6 +11,7 @@ import {
   Center,
   Badge,
   Table,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import { EmptyState } from '../../components/EmptyState';
 import { AdminLayout } from '../../components/AdminLayout';
@@ -19,10 +20,12 @@ interface ShareLink {
   id: number;
   shortCode: string;
   userDid: string;
+  userHandle: string | null;
   mediaItemId: number | null;
   mediaType: string | null;
   collectionUri: string | null;
   collectionName: string | null;
+  reviewId: number | null;
   timesClicked: number;
   createdAt: string;
   updatedAt: string;
@@ -159,6 +162,13 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
                 <Table.ColumnHeader
                   color="fg.muted"
                   fontWeight="medium"
+                  display={{ base: 'none', sm: 'table-cell' }}
+                >
+                  User
+                </Table.ColumnHeader>
+                <Table.ColumnHeader
+                  color="fg.muted"
+                  fontWeight="medium"
                   display={{ base: 'none', md: 'table-cell' }}
                 >
                   Share Link
@@ -207,6 +217,21 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
                       <Text fontSize="sm" color="fg.muted">
                         Unknown Item
                       </Text>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell display={{ base: 'none', sm: 'table-cell' }}>
+                    {link.userHandle ? (
+                      <ChakraLink
+                        onClick={() => navigate(`/profile/${link.userDid}`)}
+                        color="teal.500"
+                        fontSize="sm"
+                        cursor="pointer"
+                        _hover={{ textDecoration: 'underline' }}
+                      >
+                        @{link.userHandle}
+                      </ChakraLink>
+                    ) : (
+                      <Text fontSize="sm" color="fg.muted">Unknown User</Text>
                     )}
                   </Table.Cell>
                   <Table.Cell
