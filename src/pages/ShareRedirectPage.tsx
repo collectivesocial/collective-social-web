@@ -8,8 +8,9 @@ interface ShareRedirectPageProps {
 }
 
 interface ShareLinkData {
-  mediaItemId: number;
-  mediaType: string;
+  mediaItemId?: number;
+  mediaType?: string;
+  collectionUri?: string;
   recommendedBy: string;
   timesClicked: number;
   createdAt: string;
@@ -120,6 +121,20 @@ export function ShareRedirectPage({ apiUrl }: ShareRedirectPageProps) {
         const collectionsData = await collectionsRes.json();
         const collections: Collection[] = collectionsData.collections || [];
 
+        // Handle collection sharing
+        if (data.collectionUri) {
+          // Redirect to the shared collection
+          setTimeout(() => {
+            navigate(`/collections/${encodeURIComponent(data.collectionUri!)}`);
+          }, 2000);
+          return;
+        }
+
+        // Handle media item sharing
+        if (!data.mediaItemId) {
+          throw new Error('Invalid share link data');
+        }
+
         if (collections.length === 0) {
           // No collections - redirect to item page
           setTimeout(() => {
@@ -144,8 +159,8 @@ export function ShareRedirectPage({ apiUrl }: ShareRedirectPageProps) {
         setTimeout(() => {
           const params = new URLSearchParams({
             add: 'true',
-            mediaId: data.mediaItemId.toString(),
-            mediaType: data.mediaType,
+            mediaId: data.mediaItemId!.toString(),
+            mediaType: data.mediaType!,
             title: mediaItem.title,
             creator: mediaItem.creator || '',
             isbn: mediaItem.isbn || '',

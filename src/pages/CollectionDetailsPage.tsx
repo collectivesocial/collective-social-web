@@ -18,6 +18,7 @@ import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
 import { ItemModal, type Collection } from '../components/ItemModal';
 import { EmptyState } from '../components/EmptyState';
 import { EditCollectionModal } from '../components/EditCollectionModal';
+import { ShareCollectionButton } from '../components/ShareCollectionButton';
 
 interface MediaSearchResult {
   title: string;
@@ -665,6 +666,12 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                 >
                   <LuCopy />
                 </IconButton>
+                <ShareCollectionButton
+                  apiUrl={apiUrl}
+                  collectionUri={collectionUri!}
+                  collectionName={collection?.name || 'Collection'}
+                  variant="ghost"
+                />
                 <IconButton
                   onClick={handleToggleReorderMode}
                   variant="ghost"
