@@ -201,6 +201,7 @@ export function MediaItemCard({
                   <IconButton
                     size="xs"
                     bg="transparent"
+                    variant="outline"
                     aria-label="Open link"
                     title="Open in new tab"
                   >

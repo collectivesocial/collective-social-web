@@ -558,20 +558,22 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                   </Button>
                 )}
                 {!isEditing && item.url && (
-                  <IconButton
-                    as="a"
+                  <a
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    colorPalette="teal"
-                    size="md"
-                    variant="outline"
-                    aria-label="Open link"
-                    title="Open in new tab"
-                    bg="transparent"
+                    style={{ display: 'inline-flex' }}
                   >
-                    <LuExternalLink />
-                  </IconButton>
+                    <IconButton
+                      size="xs"
+                      bg="transparent"
+                      variant="outline"
+                      aria-label="Open link"
+                      title="Open in new tab"
+                    >
+                      <LuExternalLink />
+                    </IconButton>
+                  </a>
                 )}
                 {!isEditing && (
                   <ShareButton
