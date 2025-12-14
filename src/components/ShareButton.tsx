@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { IconButton, Button, Dialog, Portal, VStack, Text, Input, HStack, Box, QrCode } from '@chakra-ui/react';
 import { toaster } from './ui/toaster';
 import { LuShare2, LuCopy } from 'react-icons/lu';
+import { SiBluesky } from 'react-icons/si';
 
 interface ShareButtonProps {
   apiUrl: string;
@@ -153,7 +154,7 @@ export function ShareButton({
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          🦋 Share on Bluesky
+                          <SiBluesky /> Share on Bluesky
                         </a>
                       </Button>
                     </Box>

@@ -10,6 +10,7 @@ import {
 } from './ui/dialog';
 import { toaster } from './ui/toaster';
 import { LuShare2, LuCopy, LuX } from 'react-icons/lu';
+import { SiBluesky } from 'react-icons/si';
 import { VStack, Text, Input, HStack, Box } from '@chakra-ui/react';
 import { QrCode } from './ui/qr-code';
 
@@ -143,7 +144,7 @@ export function ShareReviewButton({
                   width="full"
                   color="white"
                 >
-                  Share on Bluesky
+                  <SiBluesky /> Share on Bluesky
                 </Button>
 
                 <Box>
