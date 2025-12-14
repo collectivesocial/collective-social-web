@@ -16,7 +16,7 @@ import {
   Input,
   Textarea,
 } from '@chakra-ui/react';
-import { LuPlus, LuX, LuPencil, LuCheck } from 'react-icons/lu';
+import { LuPlus, LuX, LuPencil, LuCheck, LuExternalLink } from 'react-icons/lu';
 import { EmptyState } from '../components/EmptyState';
 import { ShareButton } from '../components/ShareButton';
 import { StarRating } from '../components/StarRating';
@@ -58,6 +58,7 @@ interface MediaItem {
   averageRating: number | null;
   createdBy: string | null;
   ratingDistribution?: RatingDistribution;
+  url?: string | null;
 }
 
 interface Review {
@@ -555,6 +556,22 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                   >
                     <LuPlus />
                   </Button>
+                )}
+                {!isEditing && item.url && (
+                  <IconButton
+                    as="a"
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    colorPalette="teal"
+                    size="md"
+                    variant="outline"
+                    aria-label="Open link"
+                    title="Open in new tab"
+                    bg="transparent"
+                  >
+                    <LuExternalLink />
+                  </IconButton>
                 )}
                 {!isEditing && (
                   <ShareButton

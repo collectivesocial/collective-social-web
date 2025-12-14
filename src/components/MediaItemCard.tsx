@@ -1,6 +1,6 @@
 import { Box, Flex, Text, Badge, HStack, Heading, VStack, IconButton } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { LuArrowUp, LuArrowDown, LuPencil, LuTrash2 } from 'react-icons/lu';
+import { LuArrowUp, LuArrowDown, LuPencil, LuTrash2, LuExternalLink } from 'react-icons/lu';
 import { ShareButton } from './ShareButton';
 import { StarRating } from './StarRating';
 import { ProgressBarDisplay } from './ProgressBarDisplay';
@@ -37,6 +37,7 @@ interface MediaItem {
   totalReviews: number;
   averageRating: number | null;
   ratingDistribution?: RatingDistribution;
+  url?: string | null;
 }
 
 export interface ListItem {
@@ -189,6 +190,23 @@ export function MediaItemCard({
                 <Badge colorPalette="teal" variant="subtle" fontSize="xs" textTransform="capitalize">
                   {item.mediaType}
                 </Badge>
+              )}
+              {item.mediaItem?.url && (
+                <a
+                  href={item.mediaItem.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: 'inline-flex' }}
+                >
+                  <IconButton
+                    size="xs"
+                    bg="transparent"
+                    aria-label="Open link"
+                    title="Open in new tab"
+                  >
+                    <LuExternalLink />
+                  </IconButton>
+                </a>
               )}
               {item.mediaItemId && (
                 <ShareButton

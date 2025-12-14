@@ -12,6 +12,8 @@ import {
   Center,
   IconButton,
   SimpleGrid,
+  Flex,
+  Progress,
 } from '@chakra-ui/react';
 import { LuPencil, LuArrowDownUp, LuCopy } from 'react-icons/lu';
 import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
@@ -71,6 +73,53 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const [showEditCollectionModal, setShowEditCollectionModal] = useState(false);
   const [isReorderMode, setIsReorderMode] = useState(false);
   const navigate = useNavigate();
+
+  // Calculate resource summary and progress
+  const getResourceSummary = () => {
+    const typeCounts: Record<string, number> = {};
+    items.forEach(item => {
+      const type = item.mediaType || 'item';
+      typeCounts[type] = (typeCounts[type] || 0) + 1;
+    });
+    return typeCounts;
+  };
+
+  const getProgressStats = () => {
+    const total = items.length;
+    const completed = items.filter(item => item.status === 'completed').length;
+    const inProgress = items.filter(item => item.status === 'in-progress').length;
+    const want = items.filter(item => item.status === 'want' || !item.status).length;
+    
+    const completedPercent = total > 0 ? (completed / total) * 100 : 0;
+    const inProgressPercent = total > 0 ? (inProgress / total) * 100 : 0;
+    const wantPercent = total > 0 ? (want / total) * 100 : 0;
+    
+    return {
+      total,
+      completed,
+      inProgress,
+      want,
+      completedPercent,
+      inProgressPercent,
+      wantPercent
+    };
+  };
+
+  const formatResourceType = (type: string, count: number) => {
+    const typeLabels: Record<string, string> = {
+      book: 'book',
+      movie: 'movie',
+      tv: 'show',
+      music: 'album',
+      game: 'game',
+      article: 'article',
+      video: 'video',
+      course: 'course',
+      podcast: 'podcast',
+    };
+    const label = typeLabels[type] || type;
+    return `${count} ${label}${count !== 1 ? 's' : ''}`;
+  };
 
   // Handle shared link parameters
   useEffect(() => {
@@ -644,6 +693,65 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           <Text color="fg.muted" mt={2} fontSize="sm">
             Copied {collection.copyCount} {collection.copyCount === 1 ? 'time' : 'times'}
           </Text>
+        )}
+
+        {/* Resource Summary and Progress Bar */}
+        {items.length > 0 && (
+          <Box mt={6} mb={4}>
+            {/* Resource Types Summary */}
+            <Flex gap={3} flexWrap="wrap" mb={3} justify="center" align="center">
+              {Object.entries(getResourceSummary()).map(([type, count], index, arr) => (
+                <>
+                  <Text key={type} fontSize="sm" color="fg.muted">
+                    <Text as="span" fontWeight="bold">{count}</Text> {formatResourceType(type, count).replace(/^\d+\s/, '')}
+                  </Text>
+                  {index < arr.length - 1 && (
+                    <Text key={`dot-${type}`} fontSize="sm" color="fg.muted">•</Text>
+                  )}
+                </>
+              ))}
+            </Flex>
+
+            {/* Progress Bar */}
+            <Box maxW={{ base: '100%', md: '50%' }} mx="auto">
+              <Flex justify="space-between" mb={2} fontSize="sm" color="fg.muted">
+                <Text>Progress</Text>
+                <Text>
+                  {getProgressStats().completed} / {getProgressStats().total} completed
+                </Text>
+              </Flex>
+              <Box position="relative" h="20px" bg="bg.muted" borderRadius="md" overflow="hidden">
+                {/* Completed section (solid) */}
+                <Box
+                  position="absolute"
+                  left="0"
+                  top="0"
+                  h="100%"
+                  w={`${getProgressStats().completedPercent}%`}
+                  bg="teal.500"
+                  transition="width 0.3s ease"
+                />
+                
+                {/* In Progress section (dashed pattern) */}
+                <Box
+                  position="absolute"
+                  left={`${getProgressStats().completedPercent}%`}
+                  top="0"
+                  h="100%"
+                  w={`${getProgressStats().inProgressPercent}%`}
+                  bg="teal.300"
+                  backgroundImage="repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 4px,
+                    rgba(255, 255, 255, 0.3) 4px,
+                    rgba(255, 255, 255, 0.3) 8px
+                  )"
+                  transition="width 0.3s ease, left 0.3s ease"
+                />
+              </Box>
+            </Box>
+          </Box>
         )}
         
         {isOwner() && (
