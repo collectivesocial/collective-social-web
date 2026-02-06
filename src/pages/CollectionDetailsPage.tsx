@@ -856,6 +856,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                       onDelete={handleDeleteItem}
                       onMoveUp={handleMoveUp}
                       onMoveDown={handleMoveDown}
+                      onClick={handleEditItem}
                     />
                   ))}
               </SimpleGrid>
@@ -891,6 +892,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                       onDelete={handleDeleteItem}
                       onMoveUp={handleMoveUp}
                       onMoveDown={handleMoveDown}
+                      onClick={handleEditItem}
                     />
                   ))}
               </SimpleGrid>
@@ -926,6 +928,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                         onDelete={handleDeleteItem}
                         onMoveUp={handleMoveUp}
                         onMoveDown={handleMoveDown}
+                        onClick={handleEditItem}
                       />
                     </Box>
                   ))}
@@ -1008,6 +1011,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         mediaItemLength={editingItem?.mediaItem?.length}
         onSegmentChange={refetchItems}
         itemCreatedAt={editingItem?.createdAt}
+        mediaType={editingItem?.mediaType || undefined}
       />
 
       {/* Edit Collection Modal */}

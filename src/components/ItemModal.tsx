@@ -80,6 +80,7 @@ interface ItemModalProps {
   mediaItemLength?: number | null;
   onSegmentChange?: () => void;
   itemCreatedAt?: string;
+  mediaType?: string;
 }
 
 const mediaTypeToText: (arg0: string | undefined) => any = (mediaType: string | undefined) => {
@@ -144,8 +145,8 @@ const mediaTypeToText: (arg0: string | undefined) => any = (mediaType: string | 
       return {
         searchText: 'Search for something to add to your collection',
         displayText: 'Media',
-        wantText: 'Want to Watch',
-        inProgressText: 'Currently Watching',
+        wantText: 'Want to Start',
+        inProgressText: 'In Progress',
         completedText: 'Completed',
       };
   }
@@ -168,6 +169,7 @@ export function ItemModal({
   currentListUri,
   onListChange,
   onCollectionsRefresh,
+  mediaType,
   listItemUri,
   mediaItemId,
   mediaItemLength,
@@ -197,7 +199,7 @@ export function ItemModal({
   }, [isOpen, mode, mediaItemId, apiUrl]);
 
   if (!isOpen) return null;
-  const mediaTypeText = mediaTypeToText(selectedMedia?.mediaType);
+  const mediaTypeText = mediaTypeToText(selectedMedia?.mediaType || mediaType);
   const displayMedia = mode === 'edit'
     ? { title: itemTitle, author: itemCreator, coverImage: itemCoverImage }
     : selectedMedia;

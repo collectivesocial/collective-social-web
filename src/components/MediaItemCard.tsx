@@ -70,6 +70,7 @@ interface MediaItemCardProps {
   onDelete: (itemUri: string) => void;
   onMoveUp?: (item: ListItem) => void;
   onMoveDown?: (item: ListItem) => void;
+  onClick?: (item: ListItem) => void;
 }
 
 export function MediaItemCard({
@@ -84,6 +85,7 @@ export function MediaItemCard({
   onDelete,
   onMoveUp,
   onMoveDown,
+  onClick,
 }: MediaItemCardProps) {
   const navigate = useNavigate();
 
@@ -137,8 +139,8 @@ export function MediaItemCard({
             w="100%"
             h="220px"
             objectFit="cover"
-            cursor={item.mediaItemId ? 'pointer' : 'default'}
-            onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
+            cursor="pointer"
+            onClick={() => onClick ? onClick(item) : item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
           />
         )}
 
@@ -146,10 +148,10 @@ export function MediaItemCard({
           <Heading
             size="sm"
             fontFamily="heading"
-            cursor={item.mediaItemId ? 'pointer' : 'default'}
+            cursor="pointer"
             color={item.mediaItemId ? 'accent.default' : 'fg.default'}
-            _hover={item.mediaItemId ? { color: 'accent.hover' } : {}}
-            onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
+            _hover={{ color: 'accent.hover' }}
+            onClick={() => onClick ? onClick(item) : item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
             mb={1}
             textAlign="left"
             lineClamp={2}
@@ -294,7 +296,7 @@ export function MediaItemCard({
           borderTopWidth="1px"
           borderTopColor="border.subtle"
           cursor="pointer"
-          onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
+          onClick={() => onClick ? onClick(item) : item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
         >
           <Flex align="center" gap={4} flexWrap="wrap">
             {item.rating !== null && item.rating > 0 && (
