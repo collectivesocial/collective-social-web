@@ -230,7 +230,7 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
     return (
       <Center minH="50vh">
         <VStack gap={4}>
-          <Spinner size="xl" color="accent.500" />
+          <Spinner size="xl" color="accent.default" />
           <Text color="fg.muted">Loading profile...</Text>
         </VStack>
       </Center>
@@ -240,7 +240,7 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
   if (error || !user) {
     return (
       <Center minH="50vh">
-        <Text color="red.500" fontSize="lg">
+        <Text color="fg.error" fontSize="lg">
           Error: {error || 'Unable to load profile'}
         </Text>
       </Center>

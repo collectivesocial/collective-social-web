@@ -5,6 +5,7 @@ import {
   Container,
   Flex,
   Heading,
+  Image,
   Text,
   VStack,
   HStack,
@@ -138,7 +139,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
       <Container maxW="container.xl" py={8}>
         <Center py={12}>
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Searching...</Text>
           </VStack>
         </Center>
@@ -162,11 +163,11 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
       <Container maxW="container.xl" py={8}>
         <Box
           p={6}
-          bg="red.500/20"
+          bg="red.500/10"
           borderWidth="1px"
-          borderColor="red.500"
-          borderRadius="md"
-          color="red.300"
+          borderColor="red.500/30"
+          borderRadius="xl"
+          color="fg.error"
         >
           {error}
         </Box>
@@ -178,7 +179,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
     <Container maxW="container.xl" py={8}>
       <VStack gap={6} align="stretch">
         <Box>
-          <Heading size={{ base: 'xl', md: '2xl' }} mb={2}>
+          <Heading size={{ base: 'xl', md: '2xl' }} mb={2} fontFamily="heading">
             Search Results
           </Heading>
           <Text color="fg.muted" fontSize="md">
@@ -199,14 +200,14 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                   key={index}
                   gap={4}
                   p={4}
-                  bg="bg.subtle"
+                  bg="bg.card"
                   borderWidth="1px"
-                  borderColor="border"
-                  borderRadius="lg"
+                  borderColor="border.card"
+                  borderRadius="xl"
                   cursor="pointer"
                   transition="all 0.2s"
                   _hover={{
-                    borderColor: 'accent.500',
+                    borderColor: 'border.focus',
                     transform: 'translateY(-2px)',
                     shadow: 'md',
                   }}
@@ -222,15 +223,13 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                 >
                   <Box flexShrink={0}>
                     {result.coverImage ? (
-                      <img
+                      <Image
                         src={result.coverImage}
                         alt={result.title}
-                        style={{
-                          width: '80px',
-                          height: '120px',
-                          objectFit: 'cover',
-                          borderRadius: '0.5rem',
-                        }}
+                        width="80px"
+                        height="120px"
+                        objectFit="cover"
+                        borderRadius="lg"
                       />
                     ) : (
                       <Flex
@@ -249,7 +248,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                     )}
                   </Box>
                   <VStack align="stretch" flex={1} gap={2}>
-                    <Heading size="md">{result.title}</Heading>
+                    <Heading size="md" fontFamily="heading">{result.title}</Heading>
                     {result.author && (
                       <Text color="fg.muted" fontSize="sm">
                         by {result.author}
@@ -269,7 +268,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                       </HStack>
                     )}
                     {!result.inDatabase && (
-                      <Text fontSize="xs" color="accent.500" fontWeight="medium">
+                      <Text fontSize="xs" color="accent.default" fontWeight="medium">
                         New to Collective
                       </Text>
                     )}

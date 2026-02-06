@@ -6,6 +6,7 @@ import {
   Container,
   Flex,
   Heading,
+  Image,
   Text,
   VStack,
   HStack,
@@ -433,7 +434,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     return (
       <Center py={8}>
         <VStack gap={4}>
-          <Spinner size="xl" color="accent.500" />
+          <Spinner size="xl" color="accent.default" />
           <Text color="fg.muted">Loading item details...</Text>
         </VStack>
       </Center>
@@ -444,7 +445,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     return (
       <Center py={8}>
         <VStack gap={4}>
-          <Text color="red.500">Error: {error || 'Item not found'}</Text>
+          <Text color="fg.error">Error: {error || 'Item not found'}</Text>
           <Button
             colorPalette="accent"
             bg="transparent"
@@ -460,10 +461,10 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
   return (
     <Container maxW="container.lg" py={8}>
       <Box
-        bg="bg.subtle"
+        bg="bg.card"
         borderWidth="1px"
-        borderColor="border"
-        borderRadius="lg"
+        borderColor="border.card"
+        borderRadius="xl"
         p={{ base: 4, md: 8 }}
       >
         <Flex
@@ -473,16 +474,14 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
           align={{ base: 'center', md: 'flex-start' }}
         >
           {item.coverImage && (
-            <img
+            <Image
               src={item.coverImage}
               alt={item.title}
-              style={{
-                width: '200px',
-                height: '300px',
-                objectFit: 'cover',
-                borderRadius: '0.5rem',
-                flexShrink: 0,
-              }}
+              width="200px"
+              height="300px"
+              objectFit="cover"
+              borderRadius="lg"
+              flexShrink={0}
             />
           )}
           
@@ -503,7 +502,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                     fontWeight="bold"
                   />
                 ) : (
-                  <Heading size={{ base: 'xl', md: '2xl' }}>
+                  <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">
                     {item.title}
                   </Heading>
                 )}

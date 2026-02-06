@@ -30,12 +30,12 @@ export function HomePage({ isAuthenticated, user, apiUrl }: HomePageProps) {
           >
             <Box
               p={6}
-              bg="bg.subtle"
-              borderRadius="lg"
+              bg="bg.card"
+              borderRadius="xl"
               borderWidth="1px"
-              borderColor="border"
+              borderColor="border.card"
             >
-              <Heading size="lg" mb={4}>
+              <Heading size="lg" mb={4} fontFamily="heading">
                 Recent Activity
               </Heading>
               <FeedList apiUrl={apiUrl} limit={20} />

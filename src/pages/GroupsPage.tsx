@@ -59,17 +59,17 @@ function GroupCard({
 
   return (
     <Box
-      bg="bg.panel"
-      borderRadius="lg"
+      bg="bg.card"
+      borderRadius="xl"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.card"
       p={5}
-      transition="box-shadow 0.2s"
-      _hover={{ shadow: 'md' }}
+      transition="all 0.2s"
+      _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
     >
       <Flex justify="space-between" align="start" mb={2}>
         <Box>
-          <Heading size="sm" mb={1}>
+          <Heading size="sm" mb={1} fontFamily="heading">
             {displayName}
           </Heading>
           <Text fontSize="xs" color="fg.muted">
@@ -146,7 +146,7 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
           gap={{ base: 4, md: 0 }}
         >
           <Box>
-            <Heading size={{ base: 'xl', md: '2xl' }} mb={2}>
+            <Heading size={{ base: 'xl', md: '2xl' }} mb={2} fontFamily="heading">
               Groups
             </Heading>
             <Text color="fg.muted">

@@ -272,7 +272,7 @@ export function ShareRedirectPage({ apiUrl }: ShareRedirectPageProps) {
       <VStack gap={6}>
         {loading ? (
           <>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text fontSize="lg" fontWeight="medium">
               Loading recommendation...
             </Text>
@@ -306,7 +306,7 @@ export function ShareRedirectPage({ apiUrl }: ShareRedirectPageProps) {
                 Someone shared this with you!
               </Text>
             )}
-            <Spinner size="sm" color="accent.500" />
+            <Spinner size="sm" color="accent.default" />
             <Text color="fg.muted" fontSize="sm">
               Redirecting...
             </Text>

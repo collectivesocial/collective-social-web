@@ -119,10 +119,10 @@ export function UserProfileView({
             <Avatar.Root
               size="2xl"
               borderWidth="3px"
-              borderColor="accent.500"
+              borderColor="accent.default"
             >
               <Avatar.Image src={user.avatar} />
-              <Avatar.Fallback bg="accent.500" color="white" fontSize="3xl" fontWeight="bold">
+              <Avatar.Fallback bg="accent.default" color="white" fontSize="3xl" fontWeight="bold">
                 {(user.displayName || user.handle).charAt(0).toUpperCase()}
               </Avatar.Fallback>
             </Avatar.Root>
@@ -141,7 +141,7 @@ export function UserProfileView({
                 textAlign={{ base: 'center', sm: 'left' }}
                 flex={1}
               >
-                <Heading size={{ base: 'xl', md: '2xl' }}>
+                <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">
                   {user.displayName || user.handle}
                 </Heading>
                 <Flex gap={2} align="center" flexWrap="wrap" justify={{ base: 'center', sm: 'flex-start' }}>
@@ -151,7 +151,7 @@ export function UserProfileView({
                     rel="noopener noreferrer"
                     color="fg.muted"
                     fontSize={{ base: 'md', md: 'lg' }}
-                    _hover={{ color: 'accent.500', textDecoration: 'underline' }}
+                    _hover={{ color: 'accent.default', textDecoration: 'underline' }}
                   >
                     @{user.handle}
                   </ChakraLink>
@@ -192,11 +192,11 @@ export function UserProfileView({
           {user.description ? (
             <Box
               p={{ base: 4, md: 6 }}
-              bg="bg.muted"
-              borderRadius="md"
+              bg="bg.subtle"
+              borderRadius="lg"
               mt={{ base: 4, md: 6 }}
             >
-              <Heading size="md" mb={3}>
+              <Heading size="md" mb={3} fontFamily="heading">
                 Bio
               </Heading>
               <Text
@@ -209,8 +209,8 @@ export function UserProfileView({
           ) : (
             <Box
               p={{ base: 4, md: 6 }}
-              bg="bg.muted"
-              borderRadius="md"
+              bg="bg.subtle"
+              borderRadius="lg"
               mt={{ base: 4, md: 6 }}
               textAlign="center"
             >
@@ -222,13 +222,13 @@ export function UserProfileView({
         {/* In Progress Items */}
         {inProgressItems.length > 0 && (
           <Box
-            bg="bg.subtle"
+            bg="bg.card"
             borderWidth="1px"
-            borderColor="border"
-            borderRadius="lg"
+            borderColor="border.card"
+            borderRadius="xl"
             p={{ base: 4, md: 8 }}
           >
-            <Heading size={{ base: 'lg', md: 'xl' }} mb={{ base: 4, md: 6 }}>
+            <Heading size={{ base: 'lg', md: 'xl' }} mb={{ base: 4, md: 6 }} fontFamily="heading">
               In Progress
             </Heading>
             <SimpleGrid
@@ -243,20 +243,21 @@ export function UserProfileView({
                   <Box
                     key={item.uri}
                     as="article"
-                    bg="bg.muted"
+                    bg="bg.subtle"
                     borderWidth="1px"
-                    borderColor="border"
-                    borderRadius="md"
+                    borderColor="border.card"
+                    borderRadius="xl"
                     overflow="hidden"
                     cursor="pointer"
                     transition="all 0.2s"
                     _hover={{
-                      borderColor: 'accent.500',
+                      borderColor: 'border.focus',
                       shadow: 'md',
+                      transform: 'translateY(-2px)',
                     }}
                     _focusVisible={{
                       outline: '2px solid',
-                      outlineColor: 'accent.500',
+                      outlineColor: 'border.focus',
                       outlineOffset: '2px',
                     }}
                     onClick={() => {
@@ -288,12 +289,12 @@ export function UserProfileView({
                       <Box
                         width="100%"
                         height="200px"
-                        bg="gray.200"
+                        bg="bg.subtle"
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
                       >
-                        <Text color="gray.500" fontSize="sm">
+                        <Text color="fg.muted" fontSize="sm">
                           No cover
                         </Text>
                       </Box>
@@ -301,7 +302,7 @@ export function UserProfileView({
 
                     {/* Item Info */}
                     <Box p={3}>
-                      <Heading size="sm" mb={1} lineClamp={2}>
+                      <Heading size="sm" mb={1} lineClamp={2} fontFamily="heading">
                         {item.title}
                       </Heading>
                       {item.creator && (
@@ -331,13 +332,13 @@ export function UserProfileView({
 
         {/* Public Collections */}
         <Box
-          bg="bg.subtle"
+          bg="bg.card"
           borderWidth="1px"
-          borderColor="border"
-          borderRadius="lg"
+          borderColor="border.card"
+          borderRadius="xl"
           p={{ base: 4, md: 8 }}
         >
-          <Heading size={{ base: 'lg', md: 'xl' }} mb={{ base: 4, md: 6 }}>
+          <Heading size={{ base: 'lg', md: 'xl' }} mb={{ base: 4, md: 6 }} fontFamily="heading">
             Public Collections
           </Heading>
           {collections.length === 0 ? (
@@ -354,20 +355,21 @@ export function UserProfileView({
                 <Box
                   key={collection.uri}
                   as="article"
-                  bg="bg.muted"
+                  bg="bg.subtle"
                   borderWidth="1px"
-                  borderColor="border"
-                  borderRadius="md"
+                  borderColor="border.card"
+                  borderRadius="xl"
                   p={5}
                   cursor="pointer"
                   transition="all 0.2s"
                   _hover={{
-                    borderColor: 'accent.500',
+                    borderColor: 'border.focus',
                     shadow: 'md',
+                    transform: 'translateY(-2px)',
                   }}
                   _focusVisible={{
                     outline: '2px solid',
-                    outlineColor: 'accent.500',
+                    outlineColor: 'border.focus',
                     outlineOffset: '2px',
                   }}
                   onClick={() => navigate(`/collections/${encodeURIComponent(collection.uri)}`)}
@@ -381,7 +383,7 @@ export function UserProfileView({
                   role="button"
                   aria-label={`View collection: ${collection.name}`}
                 >
-                  <Heading size="sm" mb={2} lineClamp={1}>
+                  <Heading size="sm" mb={2} lineClamp={1} fontFamily="heading">
                     {collection.name}
                   </Heading>
                   {collection.description && (

@@ -178,27 +178,27 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
   return (
     <Container maxW="container.md" py={{ base: 4, md: 8 }}>
       <VStack gap={{ base: 6, md: 8 }} align="stretch">
-        <Heading size={{ base: 'xl', md: '2xl' }}>
+        <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">
           Settings
         </Heading>
 
         {/* Share Links Section */}
         <Box
-          bg="bg.subtle"
+          bg="bg.card"
           borderWidth="1px"
-          borderColor="border"
-          borderRadius="lg"
+          borderColor="border.card"
+          borderRadius="xl"
           p={{ base: 4, md: 6 }}
         >
           <VStack align="stretch" gap={4}>
-            <Heading size="lg">Your Share Links</Heading>
+            <Heading size="lg" fontFamily="heading">Your Share Links</Heading>
             <Text color="fg.muted" fontSize="sm">
               Manage your shared item links. These links allow others to quickly add items you've recommended to their collections.
             </Text>
 
             {loadingLinks ? (
               <Flex justify="center" py={8}>
-                <Spinner size="lg" color="accent.500" />
+                <Spinner size="lg" color="accent.default" />
               </Flex>
             ) : shareLinks.length === 0 ? (
               <Box
@@ -230,7 +230,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             // Collection link
                             <Link
                               onClick={() => navigate(`/collections/${encodeURIComponent(link.collectionUri!)}`)}
-                              color="accent.500"
+                              color="accent.default"
                               fontWeight="medium"
                               cursor="pointer"
                               _hover={{ textDecoration: 'underline' }}
@@ -244,7 +244,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             // Review link
                             <Link
                               onClick={() => navigate(`/items/${link.mediaItemId}?reviewId=${link.reviewId}`)}
-                              color="accent.500"
+                              color="accent.default"
                               fontWeight="medium"
                               cursor="pointer"
                               _hover={{ textDecoration: 'underline' }}
@@ -259,7 +259,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             <>
                               <Link
                                 onClick={() => navigate(`/items/${link.mediaItemId}`)}
-                                color="accent.500"
+                                color="accent.default"
                                 fontWeight="medium"
                                 cursor="pointer"
                                 _hover={{ textDecoration: 'underline' }}
@@ -328,15 +328,15 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
 
         {/* Danger Zone Section */}
         <Box
-          bg="bg.subtle"
+          bg="bg.card"
           borderWidth="2px"
           borderColor="red.500"
-          borderRadius="lg"
+          borderRadius="xl"
           p={{ base: 4, md: 6 }}
           mt={{ base: 8, md: 12 }}
         >
           <VStack align="stretch" gap={4}>
-            <Heading size="lg" color="red.500">
+            <Heading size="lg" color="red.500" fontFamily="heading">
               Danger Zone
             </Heading>
             <Text color="fg.muted">
@@ -345,13 +345,13 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
 
             <Box
               p={4}
-              bg="bg.muted"
+              bg="bg.subtle"
               borderWidth="1px"
-              borderColor="border"
-              borderRadius="md"
+              borderColor="border.card"
+              borderRadius="lg"
             >
               <VStack align="stretch" gap={3}>
-                <Heading size="md">Delete Account</Heading>
+                <Heading size="md" fontFamily="heading">Delete Account</Heading>
                 <Text fontSize="sm" color="fg.muted">
                   Permanently delete your account and all associated data including collections, reviews, and settings.
                 </Text>

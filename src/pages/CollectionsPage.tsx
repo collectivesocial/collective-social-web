@@ -212,7 +212,7 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
   if (loading) {
     return (
       <Center py={20}>
-        <Spinner size="xl" color="accent.500" />
+        <Spinner size="xl" color="accent.default" />
       </Center>
     );
   }
@@ -239,7 +239,7 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
         mb={8}
       >
         <Box>
-          <Heading size={{ base: 'xl', md: '2xl' }} mb={2}>
+          <Heading size={{ base: 'xl', md: '2xl' }} mb={2} fontFamily="heading">
             Collections
           </Heading>
           <Text color="fg.muted">

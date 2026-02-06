@@ -5,6 +5,7 @@ import {
   Container,
   Flex,
   Heading,
+  Image,
   Text,
   VStack,
   Spinner,
@@ -85,7 +86,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
       <Container maxW="6xl" py={8}>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Loading items...</Text>
           </VStack>
         </Center>
@@ -97,7 +98,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
     return (
       <Container maxW="6xl" py={8}>
         <Center minH="50vh">
-          <Text color="red.500">{error}</Text>
+          <Text color="fg.error">{error}</Text>
         </Center>
       </Container>
     );
@@ -109,7 +110,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
         <Box>
           <Flex align="center" gap={3} mb={2}>
             <LuTag size={32} />
-            <Heading size={{ base: 'xl', md: '2xl' }}>
+            <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">
               Tag: <Badge colorPalette="accent" fontSize="inherit">{tagName}</Badge>
             </Heading>
           </Flex>
@@ -149,31 +150,30 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
               <Box
                 key={item.id}
                 p={4}
-                bg="bg.subtle"
+                bg="bg.card"
                 borderWidth="1px"
-                borderColor="border"
-                borderRadius="lg"
+                borderColor="border.card"
+                borderRadius="xl"
                 cursor="pointer"
-                _hover={{ bg: 'bg.muted' }}
+                transition="all 0.2s"
+                _hover={{ borderColor: 'border.focus', transform: 'translateY(-2px)', shadow: 'md' }}
                 onClick={() => window.location.href = `/items/${item.id}`}
               >
                 <Flex gap={4} align="flex-start">
                   {item.coverImage && (
-                    <img
+                    <Image
                       src={item.coverImage}
                       alt={item.title}
-                      style={{
-                        width: '80px',
-                        height: '120px',
-                        objectFit: 'cover',
-                        borderRadius: '8px',
-                        flexShrink: 0,
-                      }}
+                      width="80px"
+                      height="120px"
+                      objectFit="cover"
+                      borderRadius="lg"
+                      flexShrink={0}
                     />
                   )}
                   <VStack align="stretch" flex="1" gap={2}>
                     <Box>
-                      <Heading size="md" mb={1}>{item.title}</Heading>
+                      <Heading size="md" mb={1} fontFamily="heading">{item.title}</Heading>
                       {item.creator && (
                         <Text color="fg.muted" fontSize="sm">
                           by {item.creator}

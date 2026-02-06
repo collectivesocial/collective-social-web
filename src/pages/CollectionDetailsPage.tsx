@@ -649,7 +649,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     return (
       <Center py={8}>
         <VStack gap={4}>
-          <Spinner size="xl" color="accent.500" />
+          <Spinner size="xl" color="accent.default" />
           <Text color="fg.muted">Loading collection...</Text>
         </VStack>
       </Center>
@@ -659,7 +659,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   if (error) {
     return (
       <Center py={8}>
-        <Text color="red.500">Error: {error}</Text>
+        <Text color="fg.error">Error: {error}</Text>
       </Center>
     );
   }
@@ -667,7 +667,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   return (
     <Container maxW="container.xl" py={8}>
       <Box mb={8}>
-        <Heading size="2xl" mb={2}>
+        <Heading size="2xl" mb={2} fontFamily="heading">
           {collection?.name || 'Collection'}
         </Heading>
         {collection?.description && (
@@ -680,7 +680,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             Copied from{' '}
             <Text
               as="span"
-              color="accent.500"
+              color="accent.default"
               cursor="pointer"
               textDecoration="underline"
               onClick={() => navigate(`/collections/${encodeURIComponent(collection.parentListUri!)}`)}
@@ -728,7 +728,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   top="0"
                   h="100%"
                   w={`${getProgressStats().completedPercent}%`}
-                  bg="accent.500"
+                  bg="accent.default"
                   transition="width 0.3s ease"
                 />
                 
@@ -739,7 +739,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   top="0"
                   h="100%"
                   w={`${getProgressStats().inProgressPercent}%`}
-                  bg="accent.300"
+                  bg="accent.muted"
                   backgroundImage="repeating-linear-gradient(
                     45deg,
                     transparent,
