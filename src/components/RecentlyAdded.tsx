@@ -64,7 +64,7 @@ export function RecentlyAdded({ apiUrl, limit = 6 }: RecentlyAddedProps) {
       </Heading>
       {loading ? (
         <Center py={8}>
-          <Spinner size="lg" color="accent.500" />
+          <Spinner size="lg" color="accent.default" />
         </Center>
       ) : (
         <SimpleGrid columns={2} gap={3}>

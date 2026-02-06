@@ -238,7 +238,7 @@ export function ReviewSegments({
   return (
     <Box>
       <Flex align="center" justify="space-between" mb={3}>
-        <Heading size="sm">Progress</Heading>
+        <Heading size="sm" fontFamily="heading">Progress</Heading>
         {!isAdding && (
           <IconButton
             aria-label="Add review progress"
@@ -259,7 +259,7 @@ export function ReviewSegments({
           <Text fontSize="sm" fontWeight="medium">
             Overall Progress
           </Text>
-          <Text fontSize="sm" color="accent.500" fontWeight="bold">
+          <Text fontSize="sm" color="accent.default" fontWeight="bold">
             {highestPercentage}%
           </Text>
         </Flex>
@@ -278,12 +278,12 @@ export function ReviewSegments({
       {/* Add New Segment Form */}
       {isAdding && (
         <Box
-          bg="bg.muted"
+          bg="bg.subtle"
           borderRadius="md"
           p={4}
           mb={4}
           borderWidth="1px"
-          borderColor="accent.500"
+          borderColor="accent.default"
         >
           <VStack gap={3} align="stretch">
             <Field label="Title (optional)">
@@ -416,7 +416,7 @@ export function ReviewSegments({
               borderRadius="md"
               p={3}
               borderWidth="1px"
-              borderColor="border"
+              borderColor="border.card"
             >
               {editingUri === segment.uri ? (
                 <VStack gap={3} align="stretch">
@@ -534,7 +534,7 @@ export function ReviewSegments({
                           {segment.value.title}
                         </Text>
                       )}
-                      <Text fontSize="xs" color="accent.500" fontWeight="bold">
+                      <Text fontSize="xs" color="accent.default" fontWeight="bold">
                         At {segment.value.percentage}%
                         {itemLength && (
                           <> (~{Math.round((segment.value.percentage / 100) * itemLength)} {getLengthUnit()})</>

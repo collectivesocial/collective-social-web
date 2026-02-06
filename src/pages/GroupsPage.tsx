@@ -21,6 +21,7 @@ interface Community {
   pds_host: string;
   created_at: string;
   is_admin: boolean;
+  is_member: boolean;
   display_name: string | null;
   description: string | null;
 }
@@ -76,11 +77,18 @@ function GroupCard({
             @{community.handle}
           </Text>
         </Box>
-        {community.is_admin && (
-          <Badge colorPalette="purple" size="sm">
-            Admin
-          </Badge>
-        )}
+        <Flex gap={1}>
+          {community.is_member && (
+            <Badge colorPalette="green" size="sm">
+              Member
+            </Badge>
+          )}
+          {community.is_admin && (
+            <Badge colorPalette="purple" size="sm">
+              Admin
+            </Badge>
+          )}
+        </Flex>
       </Flex>
 
       {description && (
@@ -93,16 +101,28 @@ function GroupCard({
         Created {new Date(community.created_at).toLocaleDateString()}
       </Text>
 
-      <Button
-        size="sm"
-        colorPalette="accent"
-        variant="outline"
-        width="full"
-        onClick={handleJoin}
-        disabled={joining}
-      >
-        {joining ? 'Joining...' : 'Join Group'}
-      </Button>
+      {community.is_member ? (
+        <Button
+          size="sm"
+          colorPalette="green"
+          variant="outline"
+          width="full"
+          disabled
+        >
+          ✓ Joined
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          colorPalette="accent"
+          variant="outline"
+          width="full"
+          onClick={handleJoin}
+          disabled={joining}
+        >
+          {joining ? 'Joining...' : 'Join Group'}
+        </Button>
+      )}
     </Box>
   );
 }

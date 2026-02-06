@@ -308,7 +308,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'lg', md: 'xl' }}>Media Items</Heading>
+          <Heading size={{ base: 'lg', md: 'xl' }} fontFamily="heading">Media Items</Heading>
           <Badge
             colorPalette="gray"
             size="lg"
@@ -331,13 +331,13 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
         <Box
           bg="bg.subtle"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="border.card"
           borderRadius="lg"
           overflow={{ base: 'auto', md: 'hidden' }}
         >
           <Table.Root size={{ base: 'sm', md: 'md' }}>
             <Table.Header>
-              <Table.Row bg="bg.muted">
+              <Table.Row bg="bg.subtle">
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   ID
                 </Table.ColumnHeader>
@@ -380,7 +380,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                     {item.id}
                   </Table.Cell>
                   <Table.Cell fontSize="sm">
-                    <Link href={`/items/${item.id}`} color="accent.500" _hover={{ textDecoration: 'underline' }}>
+                    <Link href={`/items/${item.id}`} color="accent.default" _hover={{ textDecoration: 'underline' }}>
                       {item.title}
                     </Link>
                   </Table.Cell>
@@ -506,7 +506,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
               {loadingMediaDetails ? (
                 <Center py={8}>
                   <VStack gap={4}>
-                    <Spinner size="lg" color="accent.500" />
+                    <Spinner size="lg" color="accent.default" />
                     <Text color="fg.muted">Loading media details...</Text>
                   </VStack>
                 </Center>
@@ -602,7 +602,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                   )}
 
                   {editingMedia && (
-                    <Box p={3} bg="bg.muted" borderRadius="md" fontSize="sm">
+                    <Box p={3} bg="bg.subtle" borderRadius="md" fontSize="sm">
                       <Text color="fg.muted">
                         <strong>Media Type:</strong> {editingMedia.mediaType}
                       </Text>
@@ -624,7 +624,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                     </Text>
                     {loadingTags ? (
                       <Center py={4}>
-                        <Spinner size="sm" color="accent.500" />
+                        <Spinner size="sm" color="accent.default" />
                       </Center>
                     ) : mediaTags.length > 0 ? (
                       <Flex gap={2} flexWrap="wrap">

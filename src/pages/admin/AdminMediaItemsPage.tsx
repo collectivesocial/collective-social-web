@@ -52,7 +52,7 @@ export function AdminMediaItemsPage({ apiUrl }: AdminMediaItemsPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Loading media items...</Text>
           </VStack>
         </Center>
@@ -63,7 +63,7 @@ export function AdminMediaItemsPage({ apiUrl }: AdminMediaItemsPageProps) {
   return (
     <AdminLayout>
       <Box>
-        <Heading size={{ base: 'xl', md: '2xl' }} mb={6}>
+        <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading" mb={6}>
           Media Items
         </Heading>
         <MediaManagement apiUrl={apiUrl} />

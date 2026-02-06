@@ -170,7 +170,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Loading tag reports...</Text>
           </VStack>
         </Center>
@@ -188,7 +188,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'xl', md: '2xl' }}>Tag Reports</Heading>
+          <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">Tag Reports</Heading>
           <Badge colorPalette="red" size="lg" px={4} py={2}>
             Pending: {reportCounts.reduce((sum, rc) => sum + rc.report_count, 0)}
           </Badge>
@@ -243,8 +243,8 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
                 key={`${group.itemId}-${group.tagId}`}
                 bg="bg.subtle"
                 borderWidth="1px"
-                borderColor="border"
-                borderRadius="lg"
+                borderColor="border.card"
+                borderRadius="xl"
                 p={{ base: 4, md: 6 }}
               >
                 <Flex
@@ -270,7 +270,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
                         {group.itemMediaType}
                       </Badge>
                     </Flex>
-                    <Heading size="md" mb={1}>
+                    <Heading size="md" fontFamily="heading" mb={1}>
                       Tag: <Badge colorPalette="orange" fontSize="md">{group.tagName}</Badge>
                     </Heading>
                     <Text fontSize="sm" color="fg.muted" mb={2}>
@@ -303,7 +303,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
                 </Flex>
 
                 <Box
-                  bg="bg.muted"
+                  bg="bg.subtle"
                   borderWidth="1px"
                   borderRadius="md"
                   overflow="hidden"

@@ -13,8 +13,8 @@ export function EmptyState({ icon, title, description }: EmptyStateProps) {
       bg="bg.subtle"
       borderWidth="2px"
       borderStyle="dashed"
-      borderColor="border"
-      borderRadius="lg"
+      borderColor="border.card"
+      borderRadius="xl"
     >
       <VStack gap={3}>
         {icon && (
@@ -22,7 +22,7 @@ export function EmptyState({ icon, title, description }: EmptyStateProps) {
             {icon}
           </Text>
         )}
-        <Heading size="md" color="fg.muted">
+        <Heading size="md" color="fg.muted" fontFamily="heading">
           {title}
         </Heading>
         {description && (

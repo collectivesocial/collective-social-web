@@ -157,7 +157,7 @@ export function ShareReviewButton({
                 </Box>
               </VStack>
             ) : (
-              <Text color="red.500">Failed to create share link</Text>
+              <Text color="fg.error">Failed to create share link</Text>
             )}
           </DialogBody>
         </DialogContent>

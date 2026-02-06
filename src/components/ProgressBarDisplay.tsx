@@ -83,12 +83,12 @@ export function ProgressBarDisplay({
   // Show progress if there are segments OR if there's a length (potential for progress)
   if (!loading && (segments.length > 0 || itemLength)) {
     return (
-      <Box mt={3} pt={3} borderTopWidth="1px" borderTopColor="border">
+      <Box mt={3} pt={3} borderTopWidth="1px" borderTopColor="border.subtle">
         <Flex justify="space-between" align="center" mb={2}>
           <Text fontSize="xs" fontWeight="medium" color="fg.muted">
             Progress
           </Text>
-          <Text fontSize="xs" color="accent.500" fontWeight="bold">
+          <Text fontSize="xs" color="accent.default" fontWeight="bold">
             {highestPercentage}%
           </Text>
         </Flex>

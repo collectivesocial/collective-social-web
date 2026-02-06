@@ -86,7 +86,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Loading users...</Text>
           </VStack>
         </Center>
@@ -104,7 +104,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'xl', md: '2xl' }}>Users</Heading>
+          <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">Users</Heading>
           <Badge colorPalette="gray" size="lg" px={4} py={2}>
             Total: {totalUsers}
           </Badge>
@@ -122,13 +122,13 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
         <Box
           bg="bg.subtle"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="border.card"
           borderRadius="lg"
           overflow={{ base: 'auto', md: 'hidden' }}
         >
           <Table.Root size={{ base: 'sm', md: 'md' }}>
             <Table.Header>
-              <Table.Row bg="bg.muted">
+              <Table.Row bg="bg.subtle">
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   Handle
                 </Table.ColumnHeader>
@@ -158,7 +158,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
                     {user.handle ? (
                       <ChakraLink
                         href={`/profile/${user.handle}`}
-                        color="accent.500"
+                        color="accent.default"
                         _hover={{ textDecoration: 'underline' }}
                       >
                         @{user.handle}
@@ -168,7 +168,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
                         href={`https://pdsls.dev/at://${user.did}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        color="accent.500"
+                        color="accent.default"
                         fontFamily="mono"
                         fontSize="xs"
                         _hover={{ textDecoration: 'underline' }}

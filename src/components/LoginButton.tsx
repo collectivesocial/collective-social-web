@@ -40,7 +40,7 @@ export function LoginButton({ apiUrl = 'http://127.0.0.1:3000' }: LoginButtonPro
     <Box maxW="400px" mx="auto">
       <form onSubmit={handleLogin}>
         <VStack gap={4} align="stretch">
-          <Heading size="lg">Login with Bluesky</Heading>
+          <Heading size="lg" fontFamily="heading">Login with Bluesky</Heading>
           <Field label="Handle or DID">
             <Input
               type="text"

@@ -91,7 +91,7 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Loading share links...</Text>
           </VStack>
         </Center>
@@ -109,7 +109,7 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'xl', md: '2xl' }}>Share Links</Heading>
+          <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">Share Links</Heading>
           <Badge colorPalette="gray" size="lg" px={4} py={2}>
             Total: {totalShareLinks}
           </Badge>
@@ -124,7 +124,7 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
             }}
             colorPalette="accent"
             variant="outline"
-            color={shareLinksSortBy === 'timesClicked' ? 'accent.500' : 'gray'}
+            color={shareLinksSortBy === 'timesClicked' ? 'accent.default' : 'gray'}
             bg="transparent"
             size="sm"
           >
@@ -138,7 +138,7 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
             }}
             colorPalette="accent"
             variant="outline"
-            color={shareLinksSortBy === 'createdAt' ? 'accent.500' : 'gray'}
+            color={shareLinksSortBy === 'createdAt' ? 'accent.default' : 'gray'}
             bg="transparent"
             size="sm"
           >
@@ -149,13 +149,13 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
         <Box
           bg="bg.subtle"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="border.card"
           borderRadius="lg"
           overflow={{ base: 'auto', md: 'hidden' }}
         >
           <Table.Root size={{ base: 'sm', md: 'md' }}>
             <Table.Header>
-              <Table.Row bg="bg.muted">
+              <Table.Row bg="bg.subtle">
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   Item
                 </Table.ColumnHeader>
@@ -223,7 +223,7 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
                     {link.userHandle ? (
                       <ChakraLink
                         onClick={() => navigate(`/profile/${link.userDid}`)}
-                        color="accent.500"
+                        color="accent.default"
                         fontSize="sm"
                         cursor="pointer"
                         _hover={{ textDecoration: 'underline' }}

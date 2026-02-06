@@ -57,7 +57,7 @@ export function CommentForm({
         disabled={submitting}
       />
       {error && (
-        <Text color="red.500" fontSize="sm" mt={2}>
+        <Text color="fg.error" fontSize="sm" mt={2}>
           {error}
         </Text>
       )}

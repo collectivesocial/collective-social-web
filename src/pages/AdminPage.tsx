@@ -228,7 +228,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
     return (
       <Center minH="50vh">
         <VStack gap={4}>
-          <Spinner size="xl" color="accent.500" />
+          <Spinner size="xl" color="accent.default" />
           <Text color="fg.muted">Loading admin dashboard...</Text>
         </VStack>
       </Center>
@@ -256,7 +256,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
 
   return (
     <Container maxW="container.xl" py={{ base: 4, md: 8 }}>
-      <Heading size={{ base: 'xl', md: '2xl' }} mb={{ base: 6, md: 8 }}>
+      <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading" mb={{ base: 6, md: 8 }}>
         Admin Dashboard
       </Heading>
 
@@ -269,8 +269,8 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
         <Tabs.Content 
           value="users" 
           borderWidth="1px" 
-          borderColor="border" 
-          borderRadius="lg" 
+          borderColor="border.card" 
+          borderRadius="xl" 
           p={{ base: 4, md: 6 }}
           bg="bg.subtle"
         >
@@ -283,7 +283,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'lg', md: 'xl' }}>Users</Heading>
+          <Heading size={{ base: 'lg', md: 'xl' }} fontFamily="heading">Users</Heading>
           <Badge
             colorPalette="gray"
             size="lg"
@@ -306,13 +306,13 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
         <Box
           bg="bg.subtle"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="border.card"
           borderRadius="lg"
           overflow={{ base: 'auto', md: 'hidden' }}
         >
           <Table.Root size={{ base: 'sm', md: 'md' }}>
             <Table.Header>
-              <Table.Row bg="bg.muted">
+              <Table.Row bg="bg.subtle">
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   Handle
                 </Table.ColumnHeader>
@@ -334,7 +334,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                     {user.handle ? (
                       <ChakraLink
                         href={`/profile/${user.handle}`}
-                        color="accent.500"
+                        color="accent.default"
                         _hover={{ textDecoration: 'underline' }}
                       >
                         @{user.handle}
@@ -344,7 +344,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                         href={`https://pdsls.dev/at://${user.did}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        color="accent.500"
+                        color="accent.default"
                         fontFamily="mono"
                         fontSize="xs"
                         _hover={{ textDecoration: 'underline' }}
@@ -395,7 +395,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'lg', md: 'xl' }}>User Feedback</Heading>
+          <Heading size={{ base: 'lg', md: 'xl' }} fontFamily="heading">User Feedback</Heading>
           <Badge
             colorPalette="gray"
             size="lg"
@@ -412,8 +412,8 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
               key={item.id}
               bg="bg.subtle"
               borderWidth="1px"
-              borderColor="border"
-              borderRadius="lg"
+              borderColor="border.card"
+              borderRadius="xl"
               p={{ base: 4, md: 6 }}
             >
               <Flex
@@ -439,7 +439,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                       {item.userHandle ? (
                         <ChakraLink
                           href={`/profile/${item.userHandle}`}
-                          color="accent.500"
+                          color="accent.default"
                           _hover={{ textDecoration: 'underline' }}
                         >
                           @{item.userHandle}
@@ -483,8 +483,8 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                       style={{
                         width: '100%',
                         padding: '0.5rem 0.75rem',
-                        backgroundColor: 'var(--chakra-colors-bg-muted)',
-                        border: '1px solid var(--chakra-colors-border)',
+                        backgroundColor: 'var(--chakra-colors-bg-subtle)',
+                        border: '1px solid var(--chakra-colors-border-card)',
                         borderRadius: '0.375rem',
                         fontSize: '0.875rem',
                         color: 'inherit',
@@ -582,8 +582,8 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
         <Tabs.Content 
           value="media" 
           borderWidth="1px" 
-          borderColor="border" 
-          borderRadius="lg" 
+          borderColor="border.card" 
+          borderRadius="xl" 
           p={{ base: 4, md: 6 }}
           bg="bg.subtle"
         >

@@ -69,10 +69,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   py={2}
                   borderRadius="md"
                   cursor="pointer"
-                  bg={isActive ? 'accent.500' : 'transparent'}
+                  bg={isActive ? 'accent.default' : 'transparent'}
                   color={isActive ? 'white' : 'fg'}
                   _hover={{
-                    bg: isActive ? 'accent.600' : 'bg.muted',
+                    bg: isActive ? 'accent.hover' : 'bg.subtle',
                   }}
                   onClick={() => {
                     navigate(item.path);
@@ -101,7 +101,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           w="250px"
           bg="bg.subtle"
           borderRightWidth="1px"
-          borderRightColor="border"
+          borderRightColor="border.subtle"
           p={6}
           position="sticky"
           top="0"

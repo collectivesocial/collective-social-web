@@ -60,8 +60,8 @@ export function CollectionModal({
         <Box
           bg="bg"
           borderWidth="1px"
-          borderColor="border"
-          borderRadius="lg"
+          borderColor="border.card"
+          borderRadius="xl"
           p={6}
           maxW="500px"
           w="full"
@@ -69,7 +69,7 @@ export function CollectionModal({
           onClick={(e) => e.stopPropagation()}
         >
           <VStack gap={4} align="stretch">
-            <Heading size="lg">
+            <Heading size="lg" fontFamily="heading">
               {title}
               {isDefault && (
                 <Text as="span" fontSize="sm" color="fg.muted" fontWeight="normal" ml={2}>

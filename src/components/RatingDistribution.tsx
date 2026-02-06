@@ -57,7 +57,7 @@ export function RatingDistributionDisplay({ distribution, totalRatings }: Rating
           }
         }}
       >
-        <Text fontSize="sm" color="gray.600" textDecoration="underline">
+        <Text fontSize="sm" color="fg.muted" textDecoration="underline">
           {expanded ? 'Hide' : 'Show'} rating breakdown
         </Text>
       </Box>
@@ -81,13 +81,13 @@ export function RatingDistributionDisplay({ distribution, totalRatings }: Rating
                     top={0}
                     bottom={0}
                     width={`${barWidth}%`}
-                    bg="accent.500"
+                    bg="accent.default"
                     borderRadius="sm"
                     transition="width 0.3s"
                   />
                 </Box>
                 <Box width="80px" flexShrink={0} textAlign="right">
-                  <Text fontSize="sm" color="gray.700">
+                  <Text fontSize="sm" color="fg.muted">
                     {percentage.toFixed(1)}% ({count})
                   </Text>
                 </Box>

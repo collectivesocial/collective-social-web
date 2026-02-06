@@ -7,7 +7,7 @@ interface StarRatingProps {
   color?: string;
 }
 
-export function StarRating({ rating, size = '1em', color = 'accent.500' }: StarRatingProps) {
+export function StarRating({ rating, size = '1em', color = 'var(--chakra-colors-accent-default)' }: StarRatingProps) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
@@ -19,7 +19,7 @@ export function StarRating({ rating, size = '1em', color = 'accent.500' }: StarR
       ))}
       {hasHalfStar && <LuStarHalf size={size} color={color} fill={color} />}
       {[...Array(emptyStars)].map((_, i) => (
-        <LuStar key={`empty-${i}`} size={size} color="gray" />
+        <LuStar key={`empty-${i}`} size={size} color="var(--chakra-colors-fg-subtle)" />
       ))}
     </HStack>
   );

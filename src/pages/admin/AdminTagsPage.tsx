@@ -224,7 +224,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Loading tags...</Text>
           </VStack>
         </Center>
@@ -242,7 +242,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'xl', md: '2xl' }}>Tags</Heading>
+          <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">Tags</Heading>
           <Badge colorPalette="gray" size="lg" px={4} py={2}>
             Total: {tags.length}
           </Badge>
@@ -260,13 +260,13 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
         <Box
           bg="bg.subtle"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="border.card"
           borderRadius="lg"
           overflow={{ base: 'auto', md: 'hidden' }}
         >
           <Table.Root size={{ base: 'sm', md: 'md' }}>
             <Table.Header>
-              <Table.Row bg="bg.muted">
+              <Table.Row bg="bg.subtle">
                 <Table.ColumnHeader color="fg.muted" fontWeight="medium">
                   Name
                 </Table.ColumnHeader>
@@ -533,7 +533,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                             borderBottomWidth="1px"
                             _last={{ borderBottomWidth: 0 }}
                             cursor="pointer"
-                            _hover={{ bg: 'bg.muted' }}
+                            _hover={{ bg: 'bg.subtle' }}
                             onClick={() => setTargetTag(tag)}
                             justify="space-between"
                             align="center"
@@ -560,7 +560,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                     p={4}
                     borderWidth="1px"
                     borderRadius="md"
-                    bg="bg.muted"
+                    bg="bg.subtle"
                   >
                     <Text fontSize="sm" fontWeight="bold" mb={3}>
                       Merge Preview
@@ -645,7 +645,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                   </Text>
                 </Box>
                 {editingTag && (
-                  <Box p={3} bg="bg.muted" borderRadius="md">
+                  <Box p={3} bg="bg.subtle" borderRadius="md">
                     <Text fontSize="sm" color="fg.muted" mb={1}>
                       Current: <strong>{editingTag.name}</strong>
                     </Text>

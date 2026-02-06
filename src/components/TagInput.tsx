@@ -182,9 +182,9 @@ export function TagInput({ apiUrl, itemId, onTagAdded, onCancel }: TagInputProps
               left={0}
               right={0}
               mt={1}
-              bg="bg.panel"
+              bg="bg.elevated"
               borderWidth="1px"
-              borderColor="border"
+              borderColor="border.card"
               borderRadius="md"
               boxShadow="lg"
               maxH="200px"
@@ -193,7 +193,7 @@ export function TagInput({ apiUrl, itemId, onTagAdded, onCancel }: TagInputProps
             >
               {loading ? (
                 <Box p={3} textAlign="center">
-                  <Spinner size="sm" color="accent.500" />
+                  <Spinner size="sm" color="accent.default" />
                 </Box>
               ) : (
                 <VStack gap={0} align="stretch">

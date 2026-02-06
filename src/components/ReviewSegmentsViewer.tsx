@@ -101,7 +101,7 @@ export function ReviewSegmentsViewer({
 
   return (
     <Box>
-      <Heading size="sm" mb={3}>Reading Journey</Heading>
+      <Heading size="sm" fontFamily="heading" mb={3}>Reading Journey</Heading>
 
       {/* Progress Bar */}
       <Box mb={4}>
@@ -109,7 +109,7 @@ export function ReviewSegmentsViewer({
           <Text fontSize="sm" fontWeight="medium">
             Progress
           </Text>
-          <Text fontSize="sm" color="accent.500" fontWeight="bold">
+          <Text fontSize="sm" color="accent.default" fontWeight="bold">
             {highestPercentage}%
           </Text>
         </Flex>
@@ -134,7 +134,7 @@ export function ReviewSegmentsViewer({
             borderRadius="md"
             p={3}
             borderWidth="1px"
-            borderColor="border"
+            borderColor="border.card"
           >
             <Flex justify="space-between" align="flex-start" mb={2}>
               <Box flex="1">
@@ -143,7 +143,7 @@ export function ReviewSegmentsViewer({
                     {segment.value.title}
                   </Text>
                 )}
-                <Text fontSize="xs" color="accent.500" fontWeight="bold">
+                <Text fontSize="xs" color="accent.default" fontWeight="bold">
                   At {segment.value.percentage}%
                   {itemLength && (
                     <> (~{Math.round((segment.value.percentage / 100) * itemLength)} {getLengthUnit()})</>

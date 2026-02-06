@@ -333,7 +333,7 @@ function CommentItem({
           )}
 
           {showReplyForm && (
-            <Box mt={3} pl={4} borderLeft="2px solid" borderColor="border">
+            <Box mt={3} pl={4} borderLeft="2px solid" borderColor="border.subtle">
               <CommentForm
                 parentCommentUri={comment.uri}
                 placeholder="Write a reply..."
@@ -345,7 +345,7 @@ function CommentItem({
           )}
 
           {showReplies && (
-            <Box mt={3} pl={4} borderLeft="2px solid" borderColor="border">
+            <Box mt={3} pl={4} borderLeft="2px solid" borderColor="border.subtle">
               {loadingReplies ? (
                 <Center py={4}>
                   <Spinner size="sm" />
@@ -458,7 +458,7 @@ export function CommentList({
   if (loading) {
     return (
       <Center py={8}>
-        <Spinner size="lg" color="accent.500" />
+        <Spinner size="lg" color="accent.default" />
       </Center>
     );
   }
@@ -466,7 +466,7 @@ export function CommentList({
   if (error) {
     return (
       <Box py={4}>
-        <Text color="red.500">{error}</Text>
+        <Text color="fg.error">{error}</Text>
       </Box>
     );
   }

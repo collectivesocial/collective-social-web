@@ -89,7 +89,7 @@ export function FollowButton({ apiUrl, userDid, initialFollowing, onFollowChange
           onClick={handleFollow}
           loading={loading}
           colorPalette="accent"
-          bg="accent.500"
+          bg="accent.default"
           size={{ base: 'sm', md: 'md' }}
         >
           Follow

@@ -252,13 +252,13 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   key={index}
                   gap={4}
                   p={4}
-                  bg="bg.muted"
+                  bg="bg.subtle"
                   borderWidth="1px"
-                  borderColor="border"
+                  borderColor="border.card"
                   borderRadius="md"
                   cursor="pointer"
                   transition="border-color 0.2s"
-                  _hover={{ borderColor: 'accent.500' }}
+                  _hover={{ borderColor: 'accent.default' }}
                   onClick={() => handleSelectResult(result)}
                 >
                   {result.coverImage && (
@@ -273,7 +273,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                     />
                   )}
                   <VStack align="stretch" flex={1} gap={2}>
-                    <Heading size="sm">{result.title}</Heading>
+                    <Heading size="sm" fontFamily="heading">{result.title}</Heading>
                     {result.author && (
                       <Text color="fg.muted" fontSize="sm">
                         by {result.author}
@@ -307,7 +307,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
           </Box>
           
           {/* Add Media Button after results */}
-          <Box textAlign="center" pt={4} borderTopWidth="1px" borderColor="border">
+          <Box textAlign="center" pt={4} borderTopWidth="1px" borderColor="border.subtle">
             <Button
               onClick={() => setShowAddModal(true)}
               variant="outline"
@@ -321,14 +321,14 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
       )}
 
       {hasSearched && !searching && results.length === 0 && searchQuery && !error && (
-        <Box p={8} textAlign="center" color="fg.muted" bg="bg.muted" borderRadius="md">
+        <Box p={8} textAlign="center" color="fg.muted" bg="bg.subtle" borderRadius="md">
           No results found. Try a different search.
         </Box>
       )}
 
       {/* Add Media Button */}
       {hasSearched && !searching && searchQuery && (
-        <Box textAlign="center" pt={4} borderTopWidth="1px" borderColor="border">
+        <Box textAlign="center" pt={4} borderTopWidth="1px" borderColor="border.subtle">
           <Button
             onClick={() => setShowAddModal(true)}
             variant="outline"

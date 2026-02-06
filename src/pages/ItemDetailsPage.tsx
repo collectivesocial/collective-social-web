@@ -741,7 +741,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
 
           {tagsLoading ? (
             <Center py={4}>
-              <Spinner size="sm" color="accent.500" />
+              <Spinner size="sm" color="accent.default" />
             </Center>
           ) : tags.length > 0 ? (
             <Flex gap={2} flexWrap="wrap">

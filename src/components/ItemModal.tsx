@@ -220,8 +220,8 @@ export function ItemModal({
         <Box
           bg="bg"
           borderWidth="1px"
-          borderColor="border"
-          borderRadius="lg"
+          borderColor="border.card"
+          borderRadius="xl"
           p={6}
           maxW="600px"
           w="full"
@@ -231,7 +231,7 @@ export function ItemModal({
           onClick={(e) => e.stopPropagation()}
         >
           <VStack gap={4} align="stretch">
-            <Heading size="lg">
+            <Heading size="lg" fontFamily="heading">
               {mode === 'add' ? 'Add Item to Collection' : 'Edit Item'}
             </Heading>
 
@@ -263,7 +263,7 @@ export function ItemModal({
                     <Flex
                       gap={4}
                       p={4}
-                      bg="bg.muted"
+                      bg="bg.subtle"
                       borderRadius="md"
                     >
                       {displayMedia?.coverImage && (
@@ -297,7 +297,7 @@ export function ItemModal({
                                 py={1}
                                 borderRadius="full"
                                 cursor="pointer"
-                                _hover={{ bg: 'accent.100' }}
+                                _hover={{ bg: 'accent.muted' }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onClose();
@@ -574,7 +574,7 @@ export function ItemModal({
                         size="md"
                         variant={reviewData.status === 'want' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'want' ? 'accent' : 'gray'}
-                        bg={reviewData.status === 'want' ? 'accent.500' : 'transparent'}
+                        bg={reviewData.status === 'want' ? 'accent.default' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
                       >
                         {mediaTypeText.wantText}
@@ -584,7 +584,7 @@ export function ItemModal({
                         size="md"
                         variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'in-progress' ? 'accent' : 'gray'}
-                        bg={reviewData.status === 'in-progress' ? 'accent.500' : 'transparent'}
+                        bg={reviewData.status === 'in-progress' ? 'accent.default' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
                       >
                         {mediaTypeText.inProgressText}
@@ -594,7 +594,7 @@ export function ItemModal({
                         size="md"
                         variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'completed' ? 'accent' : 'gray'}
-                        bg={reviewData.status === 'completed' ? 'accent.500' : 'transparent'}
+                        bg={reviewData.status === 'completed' ? 'accent.default' : 'transparent'}
                         onClick={() => {
                           const today = new Date();
                           const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -613,7 +613,7 @@ export function ItemModal({
                         size="md"
                         variant={reviewData.status === 'want' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'want' ? 'accent' : 'gray'}
-                        bg={reviewData.status === 'want' ? 'accent.500' : 'transparent'}
+                        bg={reviewData.status === 'want' ? 'accent.default' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
                       >
                         {mediaTypeText.wantText}
@@ -623,7 +623,7 @@ export function ItemModal({
                         size="md"
                         variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'in-progress' ? 'accent' : 'gray'}
-                        bg={reviewData.status === 'in-progress' ? 'accent.500' : 'transparent'}
+                        bg={reviewData.status === 'in-progress' ? 'accent.default' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
                       >
                         {mediaTypeText.inProgressText}
@@ -633,7 +633,7 @@ export function ItemModal({
                         size="md"
                         variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'completed' ? 'accent' : 'gray'}
-                        bg={reviewData.status === 'completed' ? 'accent.500' : 'transparent'}
+                        bg={reviewData.status === 'completed' ? 'accent.default' : 'transparent'}
                         onClick={() => {
                           const today = new Date();
                           const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -652,10 +652,10 @@ export function ItemModal({
                   {mode === 'edit' && reviewData.status === 'in-progress' && listItemUri && (
                     <Box
                       borderWidth="1px"
-                      borderColor="border"
+                      borderColor="border.card"
                       borderRadius="md"
                       p={4}
-                      bg="bg.muted"
+                      bg="bg.subtle"
                     >
                       <ReviewSegments
                         listItemUri={listItemUri}

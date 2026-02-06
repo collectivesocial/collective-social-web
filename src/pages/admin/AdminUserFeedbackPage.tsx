@@ -124,7 +124,7 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="accent.500" />
+            <Spinner size="xl" color="accent.default" />
             <Text color="fg.muted">Loading feedback...</Text>
           </VStack>
         </Center>
@@ -142,7 +142,7 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
           direction={{ base: 'column', sm: 'row' }}
           gap={{ base: 3, sm: 0 }}
         >
-          <Heading size={{ base: 'xl', md: '2xl' }}>User Feedback</Heading>
+          <Heading size={{ base: 'xl', md: '2xl' }} fontFamily="heading">User Feedback</Heading>
           <Badge colorPalette="gray" size="lg" px={4} py={2}>
             Total: {feedback.length}
           </Badge>
@@ -154,8 +154,8 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
               key={item.id}
               bg="bg.subtle"
               borderWidth="1px"
-              borderColor="border"
-              borderRadius="lg"
+              borderColor="border.card"
+              borderRadius="xl"
               p={{ base: 4, md: 6 }}
             >
               <Flex
@@ -183,7 +183,7 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
                       {item.userHandle ? (
                         <ChakraLink
                           href={`/profile/${item.userHandle}`}
-                          color="accent.500"
+                          color="accent.default"
                           _hover={{ textDecoration: 'underline' }}
                         >
                           @{item.userHandle}
@@ -230,8 +230,8 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
                       style={{
                         width: '100%',
                         padding: '0.5rem 0.75rem',
-                        backgroundColor: 'var(--chakra-colors-bg-muted)',
-                        border: '1px solid var(--chakra-colors-border)',
+                        backgroundColor: 'var(--chakra-colors-bg-subtle)',
+                        border: '1px solid var(--chakra-colors-border-card)',
                         borderRadius: '0.375rem',
                         fontSize: '0.875rem',
                         color: 'inherit',
