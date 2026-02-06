@@ -433,7 +433,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
     return (
       <Center py={8}>
         <VStack gap={4}>
-          <Spinner size="xl" color="teal.500" />
+          <Spinner size="xl" color="accent.500" />
           <Text color="fg.muted">Loading item details...</Text>
         </VStack>
       </Center>
@@ -446,7 +446,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
         <VStack gap={4}>
           <Text color="red.500">Error: {error || 'Item not found'}</Text>
           <Button
-            colorPalette="teal"
+            colorPalette="accent"
             bg="transparent"
             onClick={() => navigate(-1)}
           >
@@ -515,7 +515,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                       <>
                         <Button
                           onClick={handleSaveEdit}
-                          colorPalette="teal"
+                          colorPalette="accent"
                           size="md"
                           title="Save Changes"
                         >
@@ -534,7 +534,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                     ) : (
                       <Button
                         onClick={handleEditClick}
-                        colorPalette="teal"
+                        colorPalette="accent"
                         variant="outline"
                         bg="transparent"
                         size="md"
@@ -548,7 +548,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                 {currentUserDid && !isEditing && (
                   <Button
                     onClick={handleAddToCollection}
-                    colorPalette="teal"
+                    colorPalette="accent"
                     size="md"
                     variant="outline"
                     title="Add to Collection"
@@ -716,7 +716,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
             {currentUserDid && !showTagInput && (
               <Button
                 size="sm"
-                colorPalette="teal"
+                colorPalette="accent"
                 variant="outline"
                 bg="transparent"
                 onClick={() => setShowTagInput(true)}
@@ -742,14 +742,14 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
 
           {tagsLoading ? (
             <Center py={4}>
-              <Spinner size="sm" color="teal.500" />
+              <Spinner size="sm" color="accent.500" />
             </Center>
           ) : tags.length > 0 ? (
             <Flex gap={2} flexWrap="wrap">
               {tags.map((tag) => (
                 <Badge
                   key={tag.id}
-                  colorPalette="teal"
+                  colorPalette="accent"
                   variant="subtle"
                   fontSize="sm"
                   px={3}
@@ -759,7 +759,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
                   alignItems="center"
                   gap={2}
                   cursor="pointer"
-                  _hover={{ bg: 'teal.100' }}
+                  _hover={{ bg: 'accent.100' }}
                   onClick={() => navigate(`/tags/${tag.slug}`)}
                 >
                   {tag.name}
@@ -838,7 +838,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
             {hasMoreReviews && (
               <Center mt={6}>
                 <Button
-                  colorPalette="teal"
+                  colorPalette="accent"
                   onClick={loadMoreReviews}
                   disabled={reviewsLoading}
                   bg="transparent"

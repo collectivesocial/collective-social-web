@@ -12,30 +12,39 @@ export function WelcomeCard({ isAuthenticated, userName, apiUrl }: WelcomeCardPr
     return (
       <Box
         p={6}
-        bg="bg.subtle"
-        borderRadius="lg"
+        bg="bg.card"
+        borderRadius="xl"
         borderWidth="1px"
-        borderColor="border"
+        borderColor="border.card"
       >
-        <Heading size="lg">Welcome back, {userName}!</Heading>
+        <Heading size="lg" fontFamily="heading">
+          Welcome back, <Text as="span" color="accent.default">{userName}</Text>
+        </Heading>
       </Box>
     );
   }
 
   return (
     <Box
-      p={8}
-      bg="bg.subtle"
-      borderRadius="lg"
+      py={{ base: 12, md: 16 }}
+      px={8}
+      bg="bg.card"
+      borderRadius="xl"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.card"
+      textAlign="center"
     >
-      <VStack gap={4} align="center">
-        <Heading size="xl">Welcome to Collective</Heading>
-        <Text color="fg.muted" fontSize="lg">
-          Please log in to continue
+      <VStack gap={5} align="center">
+        <Heading size="2xl" fontFamily="heading" letterSpacing="-0.02em">
+          Welcome to{' '}
+          <Text as="span" color="accent.default">Collective</Text>
+        </Heading>
+        <Text color="fg.muted" fontSize="lg" maxW="md" lineHeight="1.7">
+          Track what you read, watch, and listen to — share reviews and discover new favorites together.
         </Text>
-        <LoginButton apiUrl={apiUrl} />
+        <Box pt={2}>
+          <LoginButton apiUrl={apiUrl} />
+        </Box>
       </VStack>
     </Box>
   );

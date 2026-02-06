@@ -100,41 +100,43 @@ export function CollectionModal({
 
                 <Field label="Visibility">
                   <VStack align="stretch" gap={2}>
-                    <HStack gap={4}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="visibility"
-                          value="public"
-                          checked={formData.visibility === 'public'}
-                          onChange={(e) =>
-                            onChange({
-                              ...formData,
-                              visibility: e.target.value as 'public' | 'private',
-                            })
-                          }
-                          style={{ cursor: 'pointer' }}
-                        />
-                        <Text>Public - Visible on your profile</Text>
-                      </label>
+                    <HStack
+                      as="label"
+                      gap={2}
+                      cursor="pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="visibility"
+                        value="public"
+                        checked={formData.visibility === 'public'}
+                        onChange={(e) =>
+                          onChange({
+                            ...formData,
+                            visibility: e.target.value as 'public' | 'private',
+                          })
+                        }
+                      />
+                      <Text>Public - Visible on your profile</Text>
                     </HStack>
-                    <HStack gap={4}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="visibility"
-                          value="private"
-                          checked={formData.visibility === 'private'}
-                          onChange={(e) =>
-                            onChange({
-                              ...formData,
-                              visibility: e.target.value as 'public' | 'private',
-                            })
-                          }
-                          style={{ cursor: 'pointer' }}
-                        />
-                        <Text>Private - Only visible to you</Text>
-                      </label>
+                    <HStack
+                      as="label"
+                      gap={2}
+                      cursor="pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="visibility"
+                        value="private"
+                        checked={formData.visibility === 'private'}
+                        onChange={(e) =>
+                          onChange({
+                            ...formData,
+                            visibility: e.target.value as 'public' | 'private',
+                          })
+                        }
+                      />
+                      <Text>Private - Only visible to you</Text>
                     </HStack>
                   </VStack>
                 </Field>
@@ -143,7 +145,7 @@ export function CollectionModal({
                   <Button type="button" variant="outline" bg="transparent" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button type="submit" colorPalette="teal" bg="teal">
+                  <Button type="submit" colorPalette="accent" bg="accent.solid">
                     {submitLabel}
                   </Button>
                 </Flex>

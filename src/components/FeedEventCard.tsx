@@ -43,24 +43,25 @@ export function FeedEventCard({ event, userProfile }: FeedEventCardProps) {
       <Text as="span">
         <Link
           asChild
-          color="teal.500"
+          color="accent.default"
           fontWeight="semibold"
-          _hover={{ textDecoration: 'underline' }}
+          _hover={{ color: 'accent.hover', textDecoration: 'underline' }}
         >
           <RouterLink to={`/profile/${handle}`}>{handle}</RouterLink>
         </Link>{' '}
         {action}{' '}
         {title && title !== 'Collective!' && mediaLink ? (
           <>
-            "
+            “
             <Link
               asChild
-              color="teal.500"
-              _hover={{ textDecoration: 'underline' }}
+              color="accent.default"
+              fontWeight="500"
+              _hover={{ color: 'accent.hover', textDecoration: 'underline' }}
             >
               <RouterLink to={mediaLink}>{title}</RouterLink>
             </Link>
-            "
+            ”
           </>
         ) : title ? (
           `"${title}"`
@@ -72,10 +73,17 @@ export function FeedEventCard({ event, userProfile }: FeedEventCardProps) {
   return (
     <Box
       p={4}
-      bg="bg.subtle"
-      borderRadius="lg"
+      bg="bg.card"
+      borderRadius="xl"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.card"
+      borderLeftWidth="3px"
+      borderLeftColor="accent.default"
+      transition="all 0.2s ease"
+      _hover={{
+        shadow: 'sm',
+        borderColor: 'border.focus',
+      }}
     >
       <Flex gap={3} align="flex-start">
         <Link asChild flexShrink={0}>
@@ -85,7 +93,7 @@ export function FeedEventCard({ event, userProfile }: FeedEventCardProps) {
               name={userProfile?.displayName || userHandle}
               src={userProfile?.avatar}
               outline="2px solid"
-              outlineColor="teal.500"
+              outlineColor="accent.default"
               bg="transparent"
             />
           </RouterLink>

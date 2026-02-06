@@ -245,7 +245,7 @@ export function ReviewSegments({
             bg="transparent"
             size="sm"
             variant="outline"
-            colorPalette="teal"
+            colorPalette="accent"
             onClick={() => setIsAdding(true)}
           >
             <LuPlus />
@@ -259,11 +259,11 @@ export function ReviewSegments({
           <Text fontSize="sm" fontWeight="medium">
             Overall Progress
           </Text>
-          <Text fontSize="sm" color="teal.500" fontWeight="bold">
+          <Text fontSize="sm" color="accent.500" fontWeight="bold">
             {highestPercentage}%
           </Text>
         </Flex>
-        <Progress.Root value={highestPercentage} max={100} colorPalette="teal">
+        <Progress.Root value={highestPercentage} max={100} colorPalette="accent">
           <Progress.Track>
             <Progress.Range />
           </Progress.Track>
@@ -283,7 +283,7 @@ export function ReviewSegments({
           p={4}
           mb={4}
           borderWidth="1px"
-          borderColor="teal.500"
+          borderColor="accent.500"
         >
           <VStack gap={3} align="stretch">
             <Field label="Title (optional)">
@@ -312,7 +312,7 @@ export function ReviewSegments({
                     <Button
                       size="xs"
                       variant={useLength ? 'solid' : 'outline'}
-                      colorPalette="teal"
+                      colorPalette="accent"
                       bg="transparent"
                       onClick={() => setUseLength(true)}
                     >
@@ -321,7 +321,7 @@ export function ReviewSegments({
                     <Button
                       size="xs"
                       variant={!useLength ? 'solid' : 'outline'}
-                      colorPalette="teal"
+                      colorPalette="accent"
                       bg="transparent"
                       onClick={() => setUseLength(false)}
                     >
@@ -394,7 +394,7 @@ export function ReviewSegments({
               </Button>
               <Button
                 size="sm"
-                colorPalette="teal"
+                colorPalette="accent"
                 variant="outline"
                 bg="transparent"
                 onClick={handleAddSegment}
@@ -445,7 +445,7 @@ export function ReviewSegments({
                           <Button
                             size="xs"
                             variant={useLength ? 'solid' : 'outline'}
-                            colorPalette="teal"
+                            colorPalette="accent"
                             bg="transparent"
                             onClick={() => setUseLength(true)}
                           >
@@ -454,7 +454,7 @@ export function ReviewSegments({
                           <Button
                             size="xs"
                             variant={!useLength ? 'solid' : 'outline'}
-                            colorPalette="teal"
+                            colorPalette="accent"
                             bg="transparent"
                             onClick={() => setUseLength(false)}
                           >
@@ -516,7 +516,7 @@ export function ReviewSegments({
                     </Button>
                     <Button
                       size="sm"
-                      colorPalette="teal"
+                      colorPalette="accent"
                       variant="outline"
                       bg="transparent"
                       onClick={() => handleUpdateSegment(segment)}
@@ -534,7 +534,7 @@ export function ReviewSegments({
                           {segment.value.title}
                         </Text>
                       )}
-                      <Text fontSize="xs" color="teal.500" fontWeight="bold">
+                      <Text fontSize="xs" color="accent.500" fontWeight="bold">
                         At {segment.value.percentage}%
                         {itemLength && (
                           <> (~{Math.round((segment.value.percentage / 100) * itemLength)} {getLengthUnit()})</>

@@ -171,9 +171,10 @@ export function AddMediaModal({
               )}
 
               <Field label="Media Type" required>
-                <select
+                <Box
+                  as="select"
                   value={mediaType}
-                  onChange={(e) =>
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                     setMediaType(
                       e.target.value as
                         | 'book'
@@ -186,15 +187,14 @@ export function AddMediaModal({
                         | 'course'
                     )
                   }
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem 0.75rem',
-                    backgroundColor: 'var(--chakra-colors-bg-muted)',
-                    border: '1px solid var(--chakra-colors-border)',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    color: 'inherit',
-                  }}
+                  w="100%"
+                  p="0.5rem 0.75rem"
+                  bg="bg.subtle"
+                  borderWidth="1px"
+                  borderColor="border.card"
+                  borderRadius="md"
+                  fontSize="sm"
+                  color="fg.default"
                 >
                   <option value="book">Book</option>
                   <option value="movie">Movie</option>
@@ -204,7 +204,7 @@ export function AddMediaModal({
                   <option value="article">Article</option>
                   <option value="video">Video</option>
                   <option value="course">Course</option>
-                </select>
+                </Box>
               </Field>
 
               <Field label="Title" required>
@@ -333,7 +333,7 @@ export function AddMediaModal({
               </Button>
               <Button
                 onClick={handleSubmit}
-                colorPalette="teal"
+                colorPalette="accent"
                 disabled={submitting || !title.trim()}
               >
                 {submitting ? 'Adding...' : 'Add Media Item'}

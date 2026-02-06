@@ -86,7 +86,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Loading users...</Text>
           </VStack>
         </Center>
@@ -158,7 +158,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
                     {user.handle ? (
                       <ChakraLink
                         href={`/profile/${user.handle}`}
-                        color="teal.500"
+                        color="accent.500"
                         _hover={{ textDecoration: 'underline' }}
                       >
                         @{user.handle}
@@ -168,7 +168,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
                         href={`https://pdsls.dev/at://${user.did}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        color="teal.500"
+                        color="accent.500"
                         fontFamily="mono"
                         fontSize="xs"
                         _hover={{ textDecoration: 'underline' }}
@@ -188,7 +188,7 @@ export function AdminUsersPage({ apiUrl }: AdminUsersPageProps) {
                   </Table.Cell>
                   <Table.Cell textAlign="center">
                     {user.isAdmin ? (
-                      <Badge colorPalette="teal" size="sm">
+                      <Badge colorPalette="accent" size="sm">
                         YES
                       </Badge>
                     ) : (

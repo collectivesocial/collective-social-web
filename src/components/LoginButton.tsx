@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Box, Button, Heading, Input, Text, VStack } from '@chakra-ui/react';
+import { Field } from './ui/field';
 
 interface LoginButtonProps {
   apiUrl?: string;
@@ -35,43 +37,34 @@ export function LoginButton({ apiUrl = 'http://127.0.0.1:3000' }: LoginButtonPro
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <h2>Login with Bluesky</h2>
-        <input
-          type="text"
-          value={handle}
-          onChange={(e) => setHandle(e.target.value)}
-          placeholder="Enter your handle or DID"
-          disabled={isLoading}
-          style={{
-            padding: '0.5rem',
-            fontSize: '1rem',
-            borderRadius: '4px',
-            border: '1px solid #ccc',
-          }}
-          required
-        />
-        <button
-          type="submit"
-          disabled={isLoading || !handle}
-          style={{
-            padding: '0.75rem',
-            fontSize: '1rem',
-            backgroundColor: '#1185fe',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: isLoading ? 'wait' : 'pointer',
-            opacity: isLoading || !handle ? 0.6 : 1,
-          }}
-        >
-          {isLoading ? 'Redirecting...' : 'Login with Bluesky'}
-        </button>
-        {error && (
-          <p style={{ color: 'red', margin: 0 }}>{error}</p>
-        )}
+    <Box maxW="400px" mx="auto">
+      <form onSubmit={handleLogin}>
+        <VStack gap={4} align="stretch">
+          <Heading size="lg">Login with Bluesky</Heading>
+          <Field label="Handle or DID">
+            <Input
+              type="text"
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+              placeholder="Enter your handle or DID"
+              disabled={isLoading}
+              required
+            />
+          </Field>
+          <Button
+            type="submit"
+            colorPalette="accent"
+            disabled={isLoading || !handle}
+            size="lg"
+            cursor={isLoading ? 'wait' : 'pointer'}
+          >
+            {isLoading ? 'Redirecting...' : 'Login with Bluesky'}
+          </Button>
+          {error && (
+            <Text color="fg.error" fontSize="sm">{error}</Text>
+          )}
+        </VStack>
       </form>
-    </div>
+    </Box>
   );
 }

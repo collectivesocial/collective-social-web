@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Box,
   Text,
+  Textarea,
   VStack,
   HStack,
   Spinner,
@@ -245,19 +246,15 @@ function CommentItem({
 
           {isEditing ? (
             <Box mt={2}>
-              <textarea
+              <Textarea
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                style={{
-                  width: '100%',
-                  minHeight: '80px',
-                  padding: '8px',
-                  borderRadius: '4px',
-                  border: '1px solid var(--chakra-colors-border)',
-                }}
+                minH="80px"
+                borderRadius="md"
+                borderColor="border.card"
               />
               <HStack mt={2} gap={2}>
-                <Button size="sm" colorPalette="teal" bg="transparent" variant="outline" onClick={handleEdit}>
+                <Button size="sm" colorPalette="accent" bg="transparent" variant="outline" onClick={handleEdit}>
                   Save
                 </Button>
                 <Button
@@ -461,7 +458,7 @@ export function CommentList({
   if (loading) {
     return (
       <Center py={8}>
-        <Spinner size="lg" color="teal.500" />
+        <Spinner size="lg" color="accent.500" />
       </Center>
     );
   }

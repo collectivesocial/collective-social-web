@@ -7,7 +7,7 @@ interface StarRatingProps {
   color?: string;
 }
 
-export function StarRating({ rating, size = '1em', color = 'teal.500' }: StarRatingProps) {
+export function StarRating({ rating, size = '1em', color = 'accent.500' }: StarRatingProps) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);

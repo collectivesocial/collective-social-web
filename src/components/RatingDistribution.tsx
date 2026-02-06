@@ -81,7 +81,7 @@ export function RatingDistributionDisplay({ distribution, totalRatings }: Rating
                     top={0}
                     bottom={0}
                     width={`${barWidth}%`}
-                    bg="teal.500"
+                    bg="accent.500"
                     borderRadius="sm"
                     transition="width 0.3s"
                   />

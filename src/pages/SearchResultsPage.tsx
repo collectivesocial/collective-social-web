@@ -138,7 +138,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
       <Container maxW="container.xl" py={8}>
         <Center py={12}>
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Searching...</Text>
           </VStack>
         </Center>
@@ -206,7 +206,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                   cursor="pointer"
                   transition="all 0.2s"
                   _hover={{
-                    borderColor: 'teal.500',
+                    borderColor: 'accent.500',
                     transform: 'translateY(-2px)',
                     shadow: 'md',
                   }}
@@ -269,7 +269,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                       </HStack>
                     )}
                     {!result.inDatabase && (
-                      <Text fontSize="xs" color="teal.500" fontWeight="medium">
+                      <Text fontSize="xs" color="accent.500" fontWeight="medium">
                         New to Collective
                       </Text>
                     )}
@@ -315,7 +315,7 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
               <Button
                 onClick={() => setShowAddModal(true)}
                 variant="outline"
-                colorPalette="teal"
+                colorPalette="accent"
                 bg="transparent"
                 size="lg"
               >

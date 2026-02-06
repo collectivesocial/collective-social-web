@@ -118,11 +118,11 @@ export function ReportTagModal({
                         borderWidth="1px"
                         borderRadius="md"
                         cursor="pointer"
-                        bg={selectedReason === reason ? 'teal.50' : 'transparent'}
+                        bg={selectedReason === reason ? 'accent.50' : 'transparent'}
                         borderColor={
-                          selectedReason === reason ? 'teal.500' : 'border'
+                          selectedReason === reason ? 'accent.500' : 'border'
                         }
-                        _hover={{ borderColor: 'teal.500' }}
+                        _hover={{ borderColor: 'accent.500' }}
                         onClick={() => setSelectedReason(reason)}
                       >
                         <Text fontSize="sm">{reason}</Text>

@@ -170,7 +170,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Loading tag reports...</Text>
           </VStack>
         </Center>
@@ -197,7 +197,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
         <Flex mb={4} gap={2} wrap="wrap">
           <Button
             onClick={() => setStatusFilter('pending')}
-            colorPalette={statusFilter === 'pending' ? 'teal' : 'gray'}
+            colorPalette={statusFilter === 'pending' ? 'accent' : 'gray'}
             variant="outline"
             bg="transparent"
             size="sm"
@@ -206,7 +206,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
           </Button>
           <Button
             onClick={() => setStatusFilter('resolved')}
-            colorPalette={statusFilter === 'resolved' ? 'teal' : 'gray'}
+            colorPalette={statusFilter === 'resolved' ? 'accent' : 'gray'}
             variant="outline"
             bg="transparent"
             size="sm"
@@ -215,7 +215,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
           </Button>
           <Button
             onClick={() => setStatusFilter('dismissed')}
-            colorPalette={statusFilter === 'dismissed' ? 'teal' : 'gray'}
+            colorPalette={statusFilter === 'dismissed' ? 'accent' : 'gray'}
             variant="outline"
             bg="transparent"
             size="sm"
@@ -224,7 +224,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
           </Button>
           <Button
             onClick={() => setStatusFilter('all')}
-            colorPalette={statusFilter === 'all' ? 'teal' : 'gray'}
+            colorPalette={statusFilter === 'all' ? 'accent' : 'gray'}
             variant="outline"
             bg="transparent"
             size="sm"
@@ -264,7 +264,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
                         {reportCount} {reportCount === 1 ? 'Report' : 'Reports'}
                       </Badge>
                       <Badge
-                        colorPalette="teal"
+                        colorPalette="accent"
                         textTransform="capitalize"
                       >
                         {group.itemMediaType}

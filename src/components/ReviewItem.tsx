@@ -48,11 +48,13 @@ export function ReviewItem({
 
   return (
     <Box
-      bg="bg.muted"
+      bg="bg.card"
       borderWidth="1px"
-      borderColor="border"
-      borderRadius="lg"
+      borderColor="border.card"
+      borderRadius="xl"
       p={{ base: 4, md: 6 }}
+      transition="all 0.2s ease"
+      _hover={{ shadow: 'sm' }}
     >
       <Flex gap={4} mb={4} direction={{ base: 'column', sm: 'row' }}>
         <Avatar
@@ -77,10 +79,10 @@ export function ReviewItem({
               cursor="pointer"
               onClick={() => navigate(`/profile/${review.authorHandle}`)}
             >
-              <Text fontWeight="bold" _hover={{ color: 'teal.500' }}>
+              <Text fontWeight="bold" fontFamily="heading" _hover={{ color: 'accent.default' }}>
                 {review.authorDisplayName}
               </Text>
-              <Text color="fg.muted" fontSize="sm" _hover={{ color: 'teal.500' }}>
+              <Text color="fg.muted" fontSize="sm" _hover={{ color: 'accent.default' }}>
                 @{review.authorHandle}
               </Text>
               <Text color="fg.muted" fontSize="sm">
@@ -97,7 +99,7 @@ export function ReviewItem({
               </Text>
             </HStack>
           </Flex>
-          <Text lineHeight="1.6" fontSize="sm" whiteSpace="pre-wrap" textAlign="left">
+          <Text lineHeight="1.7" fontSize="sm" whiteSpace="pre-wrap" textAlign="left" color="fg.default">
             {review.review}
           </Text>
         </Box>
@@ -110,7 +112,7 @@ export function ReviewItem({
               size="xs"
               variant="ghost"
               bg="transparent"
-              colorPalette="teal"
+              colorPalette="accent"
               onClick={() => setShowComments(!showComments)}
               title={showComments ? 'Hide Comments' : 'View Comments'}
             >
@@ -120,7 +122,7 @@ export function ReviewItem({
             {currentUserDid && (
               <Button
                 size="xs"
-                colorPalette="teal"
+                colorPalette="accent"
                 bg="transparent"
                 variant="outline"
                 onClick={handleAddComment}
@@ -146,7 +148,7 @@ export function ReviewItem({
           </HStack>
 
           {showComments && (
-            <Box mt={6} pt={6} borderTop="1px solid" borderColor="border">
+            <Box mt={6} pt={6} borderTop="1px solid" borderColor="border.subtle">
               <CommentList
                 reviewUri={review.reviewUri}
                 apiUrl={apiUrl}

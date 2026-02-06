@@ -33,19 +33,20 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
     <Box
       as="article"
       p={6}
-      bg="bg.subtle"
+      bg="bg.card"
       borderWidth="1px"
-      borderColor="border"
-      borderRadius="lg"
+      borderColor="border.card"
+      borderRadius="xl"
       cursor="pointer"
-      transition="all 0.2s"
+      transition="all 0.25s ease"
       _hover={{
-        borderColor: 'teal.500',
+        borderColor: 'border.focus',
         shadow: 'md',
+        transform: 'translateY(-2px)',
       }}
       _focusVisible={{
         outline: '2px solid',
-        outlineColor: 'teal.500',
+        outlineColor: 'border.focus',
         outlineOffset: '2px',
       }}
       onClick={() => navigate(`/collections/${encodeURIComponent(collection.uri)}`)}
@@ -57,11 +58,11 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
       <Flex direction="column" gap={3}>
         <Flex justify="space-between" align="flex-start" gap={2}>
           <Flex align="center" gap={2} flex={1} minW={0}>
-            <Heading size="md" lineClamp={1}>
+            <Heading size="md" fontFamily="heading" lineClamp={1}>
               {collection.name}
             </Heading>
             {collection.isDefault && (
-              <Badge colorPalette="teal" variant="subtle" fontSize="xs">
+              <Badge colorPalette="accent" variant="subtle" fontSize="xs">
                 Default
               </Badge>
             )}
@@ -76,7 +77,7 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
               size="xs"
               variant="outline"
               bg="transparent"
-              colorPalette="teal"
+              colorPalette="accent"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(collection);

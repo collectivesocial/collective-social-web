@@ -85,7 +85,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
       <Container maxW="6xl" py={8}>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Loading items...</Text>
           </VStack>
         </Center>
@@ -110,7 +110,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
           <Flex align="center" gap={3} mb={2}>
             <LuTag size={32} />
             <Heading size={{ base: 'xl', md: '2xl' }}>
-              Tag: <Badge colorPalette="teal" fontSize="inherit">{tagName}</Badge>
+              Tag: <Badge colorPalette="accent" fontSize="inherit">{tagName}</Badge>
             </Heading>
           </Flex>
           <Text color="fg.muted">
@@ -121,7 +121,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
         <Flex gap={2} wrap="wrap">
           <Button
             size="sm"
-            colorPalette={sortBy === 'relevant' ? 'teal' : 'gray'}
+            colorPalette={sortBy === 'relevant' ? 'accent' : 'gray'}
             variant={sortBy === 'relevant' ? 'solid' : 'outline'}
             onClick={() => handleSortChange('relevant')}
           >
@@ -129,7 +129,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
           </Button>
           <Button
             size="sm"
-            colorPalette={sortBy === 'rating' ? 'teal' : 'gray'}
+            colorPalette={sortBy === 'rating' ? 'accent' : 'gray'}
             variant={sortBy === 'rating' ? 'solid' : 'outline'}
             onClick={() => handleSortChange('rating')}
           >
@@ -181,7 +181,7 @@ export function TagSearchPage({ apiUrl }: TagSearchPageProps) {
                       )}
                     </Box>
                     <Flex gap={3} align="center" wrap="wrap">
-                      <Badge colorPalette="teal" textTransform="capitalize">
+                      <Badge colorPalette="accent" textTransform="capitalize">
                         {item.mediaType}
                       </Badge>
                       {item.averageRating !== null && (

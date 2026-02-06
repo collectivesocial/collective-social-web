@@ -119,10 +119,10 @@ export function UserProfileView({
             <Avatar.Root
               size="2xl"
               borderWidth="3px"
-              borderColor="teal.500"
+              borderColor="accent.500"
             >
               <Avatar.Image src={user.avatar} />
-              <Avatar.Fallback bg="teal.500" color="white" fontSize="3xl" fontWeight="bold">
+              <Avatar.Fallback bg="accent.500" color="white" fontSize="3xl" fontWeight="bold">
                 {(user.displayName || user.handle).charAt(0).toUpperCase()}
               </Avatar.Fallback>
             </Avatar.Root>
@@ -151,7 +151,7 @@ export function UserProfileView({
                     rel="noopener noreferrer"
                     color="fg.muted"
                     fontSize={{ base: 'md', md: 'lg' }}
-                    _hover={{ color: 'teal.500', textDecoration: 'underline' }}
+                    _hover={{ color: 'accent.500', textDecoration: 'underline' }}
                   >
                     @{user.handle}
                   </ChakraLink>
@@ -251,12 +251,12 @@ export function UserProfileView({
                     cursor="pointer"
                     transition="all 0.2s"
                     _hover={{
-                      borderColor: 'teal.500',
+                      borderColor: 'accent.500',
                       shadow: 'md',
                     }}
                     _focusVisible={{
                       outline: '2px solid',
-                      outlineColor: 'teal.500',
+                      outlineColor: 'accent.500',
                       outlineOffset: '2px',
                     }}
                     onClick={() => {
@@ -362,12 +362,12 @@ export function UserProfileView({
                   cursor="pointer"
                   transition="all 0.2s"
                   _hover={{
-                    borderColor: 'teal.500',
+                    borderColor: 'accent.500',
                     shadow: 'md',
                   }}
                   _focusVisible={{
                     outline: '2px solid',
-                    outlineColor: 'teal.500',
+                    outlineColor: 'accent.500',
                     outlineOffset: '2px',
                   }}
                   onClick={() => navigate(`/collections/${encodeURIComponent(collection.uri)}`)}

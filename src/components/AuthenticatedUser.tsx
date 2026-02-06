@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Box, Button, Flex, Text, Spinner } from '@chakra-ui/react';
+import { Avatar } from './ui/avatar';
 
 interface UserProfile {
   did: string;
@@ -50,7 +52,7 @@ export function AuthenticatedUser({ apiUrl = 'http://127.0.0.1:3000' }: Authenti
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner size="sm" />;
   }
 
   if (!user) {
@@ -58,49 +60,37 @@ export function AuthenticatedUser({ apiUrl = 'http://127.0.0.1:3000' }: Authenti
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: '1rem',
-      padding: '1rem',
-      border: '1px solid #ccc',
-      borderRadius: '8px',
-      maxWidth: '400px',
-      margin: '0 auto'
-    }}>
-      {user.avatar && (
-        <img 
-          src={user.avatar} 
-          alt={user.displayName || user.handle}
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            objectFit: 'cover'
-          }}
-        />
-      )}
-      <div style={{ flex: 1, textAlign: 'left' }}>
-        <div style={{ fontWeight: 'bold' }}>
+    <Flex
+      align="center"
+      gap={4}
+      p={4}
+      borderWidth="1px"
+      borderColor="border.card"
+      borderRadius="xl"
+      maxW="400px"
+      mx="auto"
+      bg="bg.card"
+    >
+      <Avatar
+        src={user.avatar}
+        name={user.displayName || user.handle}
+        size="md"
+      />
+      <Box flex={1} textAlign="left">
+        <Text fontWeight="bold">
           {user.displayName || user.handle}
-        </div>
-        <div style={{ color: '#666', fontSize: '0.9rem' }}>
+        </Text>
+        <Text color="fg.muted" fontSize="sm">
           @{user.handle}
-        </div>
-      </div>
-      <button
+        </Text>
+      </Box>
+      <Button
         onClick={handleLogout}
-        style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: '#dc3545',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
+        colorPalette="red"
+        size="sm"
       >
         Logout
-      </button>
-    </div>
+      </Button>
+    </Flex>
   );
 }

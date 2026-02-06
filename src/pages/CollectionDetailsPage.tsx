@@ -649,7 +649,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     return (
       <Center py={8}>
         <VStack gap={4}>
-          <Spinner size="xl" color="teal.500" />
+          <Spinner size="xl" color="accent.500" />
           <Text color="fg.muted">Loading collection...</Text>
         </VStack>
       </Center>
@@ -680,7 +680,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
             Copied from{' '}
             <Text
               as="span"
-              color="teal.500"
+              color="accent.500"
               cursor="pointer"
               textDecoration="underline"
               onClick={() => navigate(`/collections/${encodeURIComponent(collection.parentListUri!)}`)}
@@ -728,7 +728,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   top="0"
                   h="100%"
                   w={`${getProgressStats().completedPercent}%`}
-                  bg="teal.500"
+                  bg="accent.500"
                   transition="width 0.3s ease"
                 />
                 
@@ -739,7 +739,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   top="0"
                   h="100%"
                   w={`${getProgressStats().inProgressPercent}%`}
-                  bg="teal.300"
+                  bg="accent.300"
                   backgroundImage="repeating-linear-gradient(
                     45deg,
                     transparent,
@@ -789,8 +789,8 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                   <LuArrowDownUp />
                 </IconButton>
                 <Button
-                  colorPalette="teal"
-                  bg="teal"
+                  colorPalette="accent"
+                  bg="accent.solid"
                   onClick={() => setShowAddItemModal(true)}
                 >
                   + Add Item
@@ -800,9 +800,9 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
               <>
                 <Button
                   onClick={handleSaveOrder}
-                  colorPalette="teal"
+                  colorPalette="accent"
                   variant="solid"
-                  bg="teal"
+                  bg="accent.solid"
                 >
                   Save Order
                 </Button>

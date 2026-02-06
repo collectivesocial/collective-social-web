@@ -212,7 +212,7 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
   if (loading) {
     return (
       <Center py={20}>
-        <Spinner size="xl" color="teal.500" />
+        <Spinner size="xl" color="accent.500" />
       </Center>
     );
   }
@@ -247,8 +247,8 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
           </Text>
         </Box>
         <Button
-          colorPalette="teal"
-          bg="teal"
+          colorPalette="accent"
+          bg="accent.solid"
           onClick={() => setShowCreateModal(true)}
           flexShrink={0}
           w={{ base: 'full', md: 'auto' }}

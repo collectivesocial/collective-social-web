@@ -126,7 +126,7 @@ export function ShareButton({
                         <Button
                           onClick={handleCopyLink}
                           size="sm"
-                          colorPalette="teal"
+                          colorPalette="accent"
                           variant="outline"
                           bg="transparent"
                           flexShrink={0}

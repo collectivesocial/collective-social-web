@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Heading,
+  Image,
   SimpleGrid,
   VStack,
   Flex,
@@ -51,19 +52,19 @@ export function RecentlyAdded({ apiUrl, limit = 6 }: RecentlyAddedProps) {
   return (
     <Box
       p={6}
-      bg="bg.subtle"
-      borderRadius="lg"
+      bg="bg.card"
+      borderRadius="xl"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.card"
       position={{ base: 'relative', lg: 'sticky' }}
       top={{ lg: '80px' }}
     >
-      <Heading size="md" mb={4}>
+      <Heading size="md" fontFamily="heading" mb={4}>
         Recently Added
       </Heading>
       {loading ? (
         <Center py={8}>
-          <Spinner size="lg" color="teal.500" />
+          <Spinner size="lg" color="accent.500" />
         </Center>
       ) : (
         <SimpleGrid columns={2} gap={3}>
@@ -72,30 +73,30 @@ export function RecentlyAdded({ apiUrl, limit = 6 }: RecentlyAddedProps) {
               key={item.id}
               cursor="pointer"
               onClick={() => navigate(`/items/${item.id}`)}
-              transition="transform 0.2s"
-              _hover={{ transform: 'scale(1.05)' }}
+              transition="all 0.2s ease"
+              _hover={{ transform: 'translateY(-2px)' }}
             >
               <VStack gap={2} align="stretch">
                 {item.coverImage ? (
-                  <img
+                  <Image
                     src={item.coverImage}
                     alt={item.title}
-                    style={{
-                      width: '100%',
-                      aspectRatio: '2/3',
-                      objectFit: 'cover',
-                      borderRadius: '0.5rem',
-                      border: '1px solid var(--chakra-colors-border)',
-                    }}
+                    w="100%"
+                    aspectRatio="2/3"
+                    objectFit="cover"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="border.subtle"
+                    transition="transform 0.2s ease"
                   />
                 ) : (
                   <Flex
                     w="100%"
                     aspectRatio="2/3"
-                    bg="bg.muted"
-                    borderRadius="md"
+                    bg="bg.subtle"
+                    borderRadius="lg"
                     borderWidth="1px"
-                    borderColor="border"
+                    borderColor="border.subtle"
                     align="center"
                     justify="center"
                   >

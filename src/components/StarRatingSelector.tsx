@@ -64,7 +64,7 @@ export function StarRatingSelector({ rating, onChange, size = '24px' }: StarRati
       tabIndex={0}
       outline="none"
       _focusVisible={{
-        boxShadow: '0 0 0 3px var(--chakra-colors-teal-500)',
+        boxShadow: '0 0 0 3px var(--chakra-colors-accent-500)',
         borderRadius: 'md',
       }}
     >
@@ -107,16 +107,16 @@ export function StarRatingSelector({ rating, onChange, size = '24px' }: StarRati
                     >
                       <LuStar
                         size={size}
-                        color="var(--chakra-colors-teal-500)"
-                        fill="var(--chakra-colors-teal-500)"
+                        color="var(--chakra-colors-accent-500)"
+                        fill="var(--chakra-colors-accent-500)"
                       />
                     </Box>
                   </>
                 ) : (
                   <LuStar
                     size={size}
-                    color={fill === 'full' ? 'var(--chakra-colors-teal-500)' : 'var(--chakra-colors-gray-300)'}
-                    fill={fill === 'full' ? 'var(--chakra-colors-teal-500)' : 'none'}
+                    color={fill === 'full' ? 'var(--chakra-colors-accent-500)' : 'var(--chakra-colors-gray-300)'}
+                    fill={fill === 'full' ? 'var(--chakra-colors-accent-500)' : 'none'}
                   />
                 )}
               </Box>

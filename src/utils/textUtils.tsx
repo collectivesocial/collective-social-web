@@ -23,7 +23,7 @@ export const renderTextWithLinks = (text: string) => {
           href={`https://bsky.app/profile/${match[1]}`}
           target="_blank"
           rel="noopener noreferrer"
-          color="teal.500"
+          color="accent.500"
           _hover={{ textDecoration: 'underline' }}
         >
           {match[0]}
@@ -51,7 +51,7 @@ export const renderTextWithLinks = (text: string) => {
             href={`https://bsky.app/search?q=${encodeURIComponent(match[0])}`}
             target="_blank"
             rel="noopener noreferrer"
-            color="teal.500"
+            color="accent.500"
             _hover={{ textDecoration: 'underline' }}
           >
             {match[0]}
@@ -81,7 +81,7 @@ export const renderTextWithLinks = (text: string) => {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            color="teal.500"
+            color="accent.500"
             _hover={{ textDecoration: 'underline' }}
           >
             {url}

@@ -91,7 +91,7 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Loading share links...</Text>
           </VStack>
         </Center>
@@ -122,9 +122,9 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
               setShareLinksOrder('desc');
               setShareLinksPage(1);
             }}
-            colorPalette="teal"
+            colorPalette="accent"
             variant="outline"
-            color={shareLinksSortBy === 'timesClicked' ? 'teal' : 'gray'}
+            color={shareLinksSortBy === 'timesClicked' ? 'accent.500' : 'gray'}
             bg="transparent"
             size="sm"
           >
@@ -136,9 +136,9 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
               setShareLinksOrder('desc');
               setShareLinksPage(1);
             }}
-            colorPalette="teal"
+            colorPalette="accent"
             variant="outline"
-            color={shareLinksSortBy === 'createdAt' ? 'teal' : 'gray'}
+            color={shareLinksSortBy === 'createdAt' ? 'accent.500' : 'gray'}
             bg="transparent"
             size="sm"
           >
@@ -223,7 +223,7 @@ export function AdminShareLinksPage({ apiUrl }: AdminShareLinksPageProps) {
                     {link.userHandle ? (
                       <ChakraLink
                         onClick={() => navigate(`/profile/${link.userDid}`)}
-                        color="teal.500"
+                        color="accent.500"
                         fontSize="sm"
                         cursor="pointer"
                         _hover={{ textDecoration: 'underline' }}

@@ -228,7 +228,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
     return (
       <Center minH="50vh">
         <VStack gap={4}>
-          <Spinner size="xl" color="teal.500" />
+          <Spinner size="xl" color="accent.500" />
           <Text color="fg.muted">Loading admin dashboard...</Text>
         </VStack>
       </Center>
@@ -244,7 +244,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
           </Text>
           <Button
             onClick={() => navigate('/')}
-            colorPalette="teal"
+            colorPalette="accent"
             variant="outline"
           >
             Go Home
@@ -334,7 +334,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                     {user.handle ? (
                       <ChakraLink
                         href={`/profile/${user.handle}`}
-                        color="teal.500"
+                        color="accent.500"
                         _hover={{ textDecoration: 'underline' }}
                       >
                         @{user.handle}
@@ -344,7 +344,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                         href={`https://pdsls.dev/at://${user.did}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        color="teal.500"
+                        color="accent.500"
                         fontFamily="mono"
                         fontSize="xs"
                         _hover={{ textDecoration: 'underline' }}
@@ -361,7 +361,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                   </Table.Cell>
                   <Table.Cell textAlign="center">
                     {user.isAdmin ? (
-                      <Badge colorPalette="teal" size="sm">
+                      <Badge colorPalette="accent" size="sm">
                         YES
                       </Badge>
                     ) : (
@@ -439,7 +439,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                       {item.userHandle ? (
                         <ChakraLink
                           href={`/profile/${item.userHandle}`}
-                          color="teal.500"
+                          color="accent.500"
                           _hover={{ textDecoration: 'underline' }}
                         >
                           @{item.userHandle}
@@ -556,7 +556,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                   </Box>
                   <Button
                     onClick={() => handleEditFeedback(item)}
-                    colorPalette="teal"
+                    colorPalette="accent"
                     variant="outline"
                     bg="transparent"
                     size="sm"

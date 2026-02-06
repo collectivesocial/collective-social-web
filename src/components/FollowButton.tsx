@@ -77,7 +77,7 @@ export function FollowButton({ apiUrl, userDid, initialFollowing, onFollowChange
         <Button
           onClick={handleUnfollow}
           loading={loading}
-          colorPalette="teal"
+          colorPalette="accent"
           variant="outline"
           bg="transparent"
           size={{ base: 'sm', md: 'md' }}
@@ -88,8 +88,8 @@ export function FollowButton({ apiUrl, userDid, initialFollowing, onFollowChange
         <Button
           onClick={handleFollow}
           loading={loading}
-          colorPalette="teal"
-          bg="teal"
+          colorPalette="accent"
+          bg="accent.500"
           size={{ base: 'sm', md: 'md' }}
         >
           Follow

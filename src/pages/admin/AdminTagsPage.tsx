@@ -224,7 +224,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Loading tags...</Text>
           </VStack>
         </Center>
@@ -364,7 +364,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                           <IconButton
                             size="sm"
                             variant="outline"
-                            colorPalette="teal"
+                            colorPalette="accent"
                             bg="transparent"
                             onClick={() => openMergeModal(tag)}
                             aria-label="Merge tag"
@@ -605,7 +605,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                 Cancel
               </Button>
               <Button
-                colorPalette="teal"
+                colorPalette="accent"
                 onClick={handleMerge}
                 bg="transparent"
                 disabled={!targetTag || merging || loadingPreview}
@@ -669,7 +669,7 @@ export function AdminTagsPage({ apiUrl }: AdminTagsPageProps) {
                 Cancel
               </Button>
               <Button
-                colorPalette="teal"
+                colorPalette="accent"
                 variant="solid"
                 onClick={handleEdit}
                 disabled={!editedName.trim() || saving || editedName.trim().toLowerCase() === editingTag?.name}

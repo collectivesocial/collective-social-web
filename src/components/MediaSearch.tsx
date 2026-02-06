@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Flex,
+  Image,
   Input,
   Text,
   VStack,
@@ -164,9 +165,10 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
         <Flex gap={4} direction={{ base: 'column', sm: 'row' }} mb={4}>
           <Box flex={{ base: 'none', sm: '0 0 150px' }}>
             <Field label="Media Type">
-              <select
+              <Box
+                as="select"
                 value={mediaType}
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                   setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                   setSearchQuery('');
                   setModuleCount('');
@@ -176,15 +178,14 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   setError(null);
                   setHasSearched(false);
                 }}
-                style={{
-                  width: '100%',
-                  padding: '0.5rem 0.75rem',
-                  backgroundColor: 'var(--chakra-colors-bg-muted)',
-                  border: '1px solid var(--chakra-colors-border)',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                  color: 'inherit',
-                }}
+                w="100%"
+                p="0.5rem 0.75rem"
+                bg="bg.subtle"
+                borderWidth="1px"
+                borderColor="border.card"
+                borderRadius="md"
+                fontSize="sm"
+                color="fg.default"
               >
                 <option value="book">Book</option>
                 <option value="movie">Movie</option>
@@ -192,7 +193,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                 <option value="article">Article</option>
                 <option value="video">Video</option>
                 <option value="course">Course</option>
-              </select>
+              </Box>
             </Field>
           </Box>
 
@@ -211,7 +212,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                 />
                 <Button
                   type="submit"
-                  colorPalette="teal"
+                  colorPalette="accent"
                   disabled={searching || !searchQuery.trim()}
                   flexShrink={0}
                 >
@@ -257,20 +258,18 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                   borderRadius="md"
                   cursor="pointer"
                   transition="border-color 0.2s"
-                  _hover={{ borderColor: 'teal.500' }}
+                  _hover={{ borderColor: 'accent.500' }}
                   onClick={() => handleSelectResult(result)}
                 >
                   {result.coverImage && (
-                    <img
+                    <Image
                       src={result.coverImage}
                       alt={result.title}
-                      style={{
-                        width: '60px',
-                        height: '90px',
-                        objectFit: 'cover',
-                        borderRadius: '0.375rem',
-                        flexShrink: 0,
-                      }}
+                      w="60px"
+                      h="90px"
+                      objectFit="cover"
+                      borderRadius="md"
+                      flexShrink={0}
                     />
                   )}
                   <VStack align="stretch" flex={1} gap={2}>
@@ -312,7 +311,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
             <Button
               onClick={() => setShowAddModal(true)}
               variant="outline"
-              colorPalette="teal"
+              colorPalette="accent"
               size="lg"
             >
               Not finding what you're looking for? Add it!
@@ -333,7 +332,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
           <Button
             onClick={() => setShowAddModal(true)}
             variant="outline"
-            colorPalette="teal"
+            colorPalette="accent"
             bg="transparent"
             size="lg"
           >
@@ -442,7 +441,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                       alert('Failed to add course. Please try again.');
                     }
                   }}
-                  colorPalette="teal"
+                  colorPalette="accent"
                   variant="outline"
                   bg="transparent"
                   disabled={!moduleCount || parseInt(moduleCount) < 1}

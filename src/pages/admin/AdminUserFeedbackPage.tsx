@@ -124,7 +124,7 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Loading feedback...</Text>
           </VStack>
         </Center>
@@ -183,7 +183,7 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
                       {item.userHandle ? (
                         <ChakraLink
                           href={`/profile/${item.userHandle}`}
-                          color="teal.500"
+                          color="accent.500"
                           _hover={{ textDecoration: 'underline' }}
                         >
                           @{item.userHandle}
@@ -315,7 +315,7 @@ export function AdminUserFeedbackPage({ apiUrl }: AdminUserFeedbackPageProps) {
                   </Box>
                   <Button
                     onClick={() => handleEditFeedback(item)}
-                    colorPalette="teal"
+                    colorPalette="accent"
                     variant="outline"
                     bg="transparent"
                     size="sm"

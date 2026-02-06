@@ -88,11 +88,11 @@ export function ProgressBarDisplay({
           <Text fontSize="xs" fontWeight="medium" color="fg.muted">
             Progress
           </Text>
-          <Text fontSize="xs" color="teal.500" fontWeight="bold">
+          <Text fontSize="xs" color="accent.500" fontWeight="bold">
             {highestPercentage}%
           </Text>
         </Flex>
-        <Progress.Root value={highestPercentage} max={100} colorPalette="teal" size="sm">
+        <Progress.Root value={highestPercentage} max={100} colorPalette="accent" size="sm">
           <Progress.Track>
             <Progress.Range />
           </Progress.Track>

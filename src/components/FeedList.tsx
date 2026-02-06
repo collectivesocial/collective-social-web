@@ -70,7 +70,7 @@ export function FeedList({ apiUrl, limit = 20 }: FeedListProps) {
   if (loading) {
     return (
       <Center py={8}>
-        <Spinner size="lg" color="teal.500" />
+        <Spinner size="lg" color="accent.default" />
       </Center>
     );
   }

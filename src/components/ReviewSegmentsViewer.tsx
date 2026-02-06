@@ -109,11 +109,11 @@ export function ReviewSegmentsViewer({
           <Text fontSize="sm" fontWeight="medium">
             Progress
           </Text>
-          <Text fontSize="sm" color="teal.500" fontWeight="bold">
+          <Text fontSize="sm" color="accent.500" fontWeight="bold">
             {highestPercentage}%
           </Text>
         </Flex>
-        <Progress.Root value={highestPercentage} max={100} colorPalette="teal">
+        <Progress.Root value={highestPercentage} max={100} colorPalette="accent">
           <Progress.Track>
             <Progress.Range />
           </Progress.Track>
@@ -143,7 +143,7 @@ export function ReviewSegmentsViewer({
                     {segment.value.title}
                   </Text>
                 )}
-                <Text fontSize="xs" color="teal.500" fontWeight="bold">
+                <Text fontSize="xs" color="accent.500" fontWeight="bold">
                   At {segment.value.percentage}%
                   {itemLength && (
                     <> (~{Math.round((segment.value.percentage / 100) * itemLength)} {getLengthUnit()})</>

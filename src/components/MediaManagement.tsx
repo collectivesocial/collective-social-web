@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   Heading,
+  Image,
   Text,
   VStack,
   HStack,
@@ -379,7 +380,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                     {item.id}
                   </Table.Cell>
                   <Table.Cell fontSize="sm">
-                    <Link href={`/items/${item.id}`} color="teal.500" _hover={{ textDecoration: 'underline' }}>
+                    <Link href={`/items/${item.id}`} color="accent.500" _hover={{ textDecoration: 'underline' }}>
                       {item.title}
                     </Link>
                   </Table.Cell>
@@ -505,7 +506,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
               {loadingMediaDetails ? (
                 <Center py={8}>
                   <VStack gap={4}>
-                    <Spinner size="lg" color="teal.500" />
+                    <Spinner size="lg" color="accent.500" />
                     <Text color="fg.muted">Loading media details...</Text>
                   </VStack>
                 </Center>
@@ -541,16 +542,15 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                       <Text fontSize="sm" color="fg.muted" mb={2}>
                         Preview:
                       </Text>
-                      <img
+                      <Image
                         src={editMediaCoverImage}
                         alt="Cover preview"
-                        style={{
-                          width: '120px',
-                          height: '180px',
-                          objectFit: 'cover',
-                          borderRadius: '0.5rem',
-                          border: '1px solid var(--chakra-colors-border)',
-                        }}
+                        w="120px"
+                        h="180px"
+                        objectFit="cover"
+                        borderRadius="lg"
+                        borderWidth="1px"
+                        borderColor="border.card"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
                         }}
@@ -624,14 +624,14 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                     </Text>
                     {loadingTags ? (
                       <Center py={4}>
-                        <Spinner size="sm" color="teal.500" />
+                        <Spinner size="sm" color="accent.500" />
                       </Center>
                     ) : mediaTags.length > 0 ? (
                       <Flex gap={2} flexWrap="wrap">
                         {mediaTags.map((tag) => (
                           <Badge
                             key={tag.id}
-                            colorPalette="teal"
+                            colorPalette="accent"
                             variant="subtle"
                             fontSize="sm"
                             px={3}
@@ -683,7 +683,7 @@ export function MediaManagement({ apiUrl }: MediaManagementProps) {
                 </Button>
                 <Button
                   onClick={handleSaveMedia}
-                  colorPalette="teal"
+                  colorPalette="accent"
                   variant="outline"
                   bg="transparent"
                   disabled={!editMediaTitle || savingMedia}

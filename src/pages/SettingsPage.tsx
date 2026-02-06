@@ -198,7 +198,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
 
             {loadingLinks ? (
               <Flex justify="center" py={8}>
-                <Spinner size="lg" color="teal.500" />
+                <Spinner size="lg" color="accent.500" />
               </Flex>
             ) : shareLinks.length === 0 ? (
               <Box
@@ -230,7 +230,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             // Collection link
                             <Link
                               onClick={() => navigate(`/collections/${encodeURIComponent(link.collectionUri!)}`)}
-                              color="teal.500"
+                              color="accent.500"
                               fontWeight="medium"
                               cursor="pointer"
                               _hover={{ textDecoration: 'underline' }}
@@ -244,7 +244,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             // Review link
                             <Link
                               onClick={() => navigate(`/items/${link.mediaItemId}?reviewId=${link.reviewId}`)}
-                              color="teal.500"
+                              color="accent.500"
                               fontWeight="medium"
                               cursor="pointer"
                               _hover={{ textDecoration: 'underline' }}
@@ -259,7 +259,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             <>
                               <Link
                                 onClick={() => navigate(`/items/${link.mediaItemId}`)}
-                                color="teal.500"
+                                color="accent.500"
                                 fontWeight="medium"
                                 cursor="pointer"
                                 _hover={{ textDecoration: 'underline' }}
@@ -293,7 +293,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
                             <IconButton
                               aria-label="Copy link"
                               onClick={() => handleCopyLink(link.url)}
-                              colorPalette="teal"
+                              colorPalette="accent"
                               variant="ghost"
                               background="transparent"
                               size="xs"

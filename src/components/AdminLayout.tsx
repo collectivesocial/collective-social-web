@@ -69,10 +69,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   py={2}
                   borderRadius="md"
                   cursor="pointer"
-                  bg={isActive ? 'teal.500' : 'transparent'}
+                  bg={isActive ? 'accent.500' : 'transparent'}
                   color={isActive ? 'white' : 'fg'}
                   _hover={{
-                    bg: isActive ? 'teal.600' : 'bg.muted',
+                    bg: isActive ? 'accent.600' : 'bg.muted',
                   }}
                   onClick={() => {
                     navigate(item.path);

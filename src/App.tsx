@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Box } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { Provider } from './components/ui/provider'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
@@ -68,13 +68,14 @@ function App() {
   return (
     <Provider>
       <BrowserRouter>
-        <Box minH="100vh" bg="bg">
+        <Flex direction="column" minH="100vh" bg="bg.page">
           <Header user={user} isAuthenticated={!!isAuthenticated} apiUrl={apiUrl} />
           <Box
             as="main"
-            mt={isAuthenticated ? '80px' : '20px'}
-            minH="calc(100vh - 80px)"
-            transition="margin-top 0.3s ease"
+            flex="1"
+            pt={isAuthenticated ? '80px' : '24px'}
+            pb={8}
+            transition="padding-top 0.3s ease"
           >
             {isAuthenticated === null ? (
               <div className="card">Loading...</div>
@@ -170,7 +171,7 @@ function App() {
             )}
           </Box>
           <Footer />
-        </Box>
+        </Flex>
       </BrowserRouter>
     </Provider>
   )

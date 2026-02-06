@@ -193,7 +193,7 @@ export function TagInput({ apiUrl, itemId, onTagAdded, onCancel }: TagInputProps
             >
               {loading ? (
                 <Box p={3} textAlign="center">
-                  <Spinner size="sm" color="teal.500" />
+                  <Spinner size="sm" color="accent.500" />
                 </Box>
               ) : (
                 <VStack gap={0} align="stretch">
@@ -211,7 +211,7 @@ export function TagInput({ apiUrl, itemId, onTagAdded, onCancel }: TagInputProps
                       <Text fontSize="sm" fontWeight="medium">
                         {tag.name}
                       </Text>
-                      <Badge colorPalette="teal" variant="subtle" fontSize="xs">
+                      <Badge colorPalette="accent" variant="subtle" fontSize="xs">
                         {tag.usageCount} {tag.usageCount === 1 ? 'use' : 'uses'}
                       </Badge>
                     </HStack>
@@ -224,7 +224,7 @@ export function TagInput({ apiUrl, itemId, onTagAdded, onCancel }: TagInputProps
 
         <Button
           size="sm"
-          colorPalette="teal"
+          colorPalette="accent"
           onClick={() => handleSubmit()}
           disabled={!inputValue.trim() || submitting}
         >

@@ -52,7 +52,7 @@ export function AdminMediaItemsPage({ apiUrl }: AdminMediaItemsPageProps) {
       <AdminLayout>
         <Center minH="50vh">
           <VStack gap={4}>
-            <Spinner size="xl" color="teal.500" />
+            <Spinner size="xl" color="accent.500" />
             <Text color="fg.muted">Loading media items...</Text>
           </VStack>
         </Center>

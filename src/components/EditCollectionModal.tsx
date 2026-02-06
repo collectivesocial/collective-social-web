@@ -103,7 +103,7 @@ export function EditCollectionModal({
                 </Button>
                 <Button
                   type="submit"
-                  colorPalette="teal"
+                  colorPalette="accent"
                   variant="outline"
                   bg="transparent"
                 >

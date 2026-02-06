@@ -135,7 +135,7 @@ export function Reactions({
             size="xs"
             bg="transparent"
             variant={hasReacted ? 'ghost' : 'outline'}
-            colorPalette={hasReacted ? 'teal' : 'gray'}
+            colorPalette={hasReacted ? 'accent' : 'gray'}
             onClick={() => handleReaction(emoji)}
             disabled={!currentUserDid || loading}
             title={

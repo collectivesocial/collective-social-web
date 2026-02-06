@@ -1,4 +1,4 @@
-import { Box, Flex, Text, Badge, HStack, Heading, VStack, IconButton } from '@chakra-ui/react';
+import { Box, Flex, Text, Badge, HStack, Heading, VStack, IconButton, Image, Link } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { LuArrowUp, LuArrowDown, LuPencil, LuTrash2, LuExternalLink } from 'react-icons/lu';
 import { ShareButton } from './ShareButton';
@@ -89,16 +89,23 @@ export function MediaItemCard({
 
   return (
     <Box
-      bg="bg.subtle"
+      bg="bg.card"
       borderWidth="1px"
-      borderColor="border"
-      borderRadius="lg"
-      p={4}
+      borderColor="border.card"
+      borderRadius="xl"
+      overflow="hidden"
       h="full"
       display="flex"
       flexDirection="column"
+      pb={3}
+      transition="all 0.25s ease"
+      _hover={{
+        shadow: 'md',
+        borderColor: 'border.focus',
+        transform: 'translateY(-2px)',
+      }}
     >
-      <Flex gap={3} direction="column" flex={1}>
+      <Flex gap={0} direction="column" flex={1}>
         {isReorderMode && (
           <VStack gap={1} flexShrink={0}>
             <IconButton
@@ -124,35 +131,34 @@ export function MediaItemCard({
           </VStack>
         )}
         {item.mediaItem?.coverImage && (
-          <img
+          <Image
             src={item.mediaItem.coverImage}
             alt={item.title}
-            style={{
-              width: '100%',
-              height: '200px',
-              objectFit: 'cover',
-              borderRadius: '0.375rem',
-              cursor: item.mediaItemId ? 'pointer' : 'default',
-            }}
+            w="100%"
+            h="220px"
+            objectFit="cover"
+            cursor={item.mediaItemId ? 'pointer' : 'default'}
             onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
           />
         )}
 
-        <Box>
+        <Box px={4} pt={3}>
           <Heading
             size="sm"
+            fontFamily="heading"
             cursor={item.mediaItemId ? 'pointer' : 'default'}
-            color={item.mediaItemId ? 'teal.500' : 'inherit'}
-            _hover={item.mediaItemId ? { color: 'teal.600' } : {}}
+            color={item.mediaItemId ? 'accent.default' : 'fg.default'}
+            _hover={item.mediaItemId ? { color: 'accent.hover' } : {}}
             onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
             mb={1}
             textAlign="left"
             lineClamp={2}
+            lineHeight="1.3"
           >
             {item.title}
           </Heading>
           {item.creator && (
-            <Text color="fg.muted" fontSize="sm" mb={2} textAlign="left" lineClamp={1}>
+            <Text color="fg.muted" fontSize="sm" mb={2} textAlign="left" lineClamp={1} fontStyle="italic">
               by {item.creator}
             </Text>
           )}
@@ -184,19 +190,21 @@ export function MediaItemCard({
         flexWrap="wrap"
         justify={{ base: 'flex-start', md: 'flex-end' }}
         mt="auto"
+        px={4}
         pt={3}
+        pb={1}
       >
               {item.mediaType && (
-                <Badge colorPalette="teal" variant="subtle" fontSize="xs" textTransform="capitalize">
+                <Badge colorPalette="accent" variant="subtle" fontSize="xs" textTransform="capitalize">
                   {item.mediaType}
                 </Badge>
               )}
               {item.mediaItem?.url && (
-                <a
+                <Link
                   href={item.mediaItem.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ display: 'inline-flex' }}
+                  display="inline-flex"
                 >
                   <IconButton
                     size="xs"
@@ -207,7 +215,7 @@ export function MediaItemCard({
                   >
                     <LuExternalLink />
                   </IconButton>
-                </a>
+                </Link>
               )}
               {item.mediaItemId && (
                 <ShareButton
@@ -246,42 +254,45 @@ export function MediaItemCard({
       </HStack>
 
       {item.review && (
-        <Box mt={3}>
-          <Text color="fg.muted" fontSize="xs" mb={1}>
-            📝 Public Review:
+        <Box mx={4} mt={3} p={3} bg="bg.subtle" borderRadius="lg">
+          <Text color="fg.muted" fontSize="xs" mb={1} fontWeight="600">
+            📝 Public Review
           </Text>
-          <Text fontSize="sm" lineHeight="1.6">
+          <Text fontSize="sm" lineHeight="1.7" fontStyle="italic">
             {item.review}
           </Text>
         </Box>
       )}
 
       {item.notes && (
-        <Box mt={3}>
-          <Text color="fg.muted" fontSize="xs" mb={1}>
-            🔒 Private Notes:
+        <Box mx={4} mt={3} p={3} bg="bg.subtle" borderRadius="lg">
+          <Text color="fg.muted" fontSize="xs" mb={1} fontWeight="600">
+            🔒 Private Notes
           </Text>
-          <Text fontSize="sm" lineHeight="1.6" fontStyle="italic">
+          <Text fontSize="sm" lineHeight="1.7" fontStyle="italic">
             {item.notes}
           </Text>
         </Box>
       )}
 
       {item.status === 'in-progress' && isOwner && (
-        <ProgressBarDisplay
-          listItemUri={item.uri}
-          itemLength={item.mediaItem?.length || null}
-          mediaType={item.mediaType}
-          apiUrl={apiUrl}
-        />
+        <Box px={4}>
+          <ProgressBarDisplay
+            listItemUri={item.uri}
+            itemLength={item.mediaItem?.length || null}
+            mediaType={item.mediaType}
+            apiUrl={apiUrl}
+          />
+        </Box>
       )}
 
       {item.mediaItem && item.mediaItem.totalRatings > 0 && (
         <Box
+          mx={4}
           mt={3}
           pt={3}
           borderTopWidth="1px"
-          borderTopColor="border"
+          borderTopColor="border.subtle"
           cursor="pointer"
           onClick={() => item.mediaItemId && navigate(`/items/${item.mediaItemId}`)}
         >
@@ -314,32 +325,22 @@ export function MediaItemCard({
       )}
 
       {item.recommendations && item.recommendations.length > 0 && (
-        <Box mt={3} pt={3} borderTopWidth="1px" borderTopColor="border">
+        <Box mx={4} mt={3} mb={2} pt={3} borderTopWidth="1px" borderTopColor="border.subtle">
           <Text color="fg.muted" fontSize="xs" mb={2}>
             💡 Recommended by:
           </Text>
           {item.recommendations.map((rec, idx) => (
             <Flex key={idx} ml={4} mt={1} gap={2} align="center" flexWrap="wrap">
-              <a
+              <Link
                 href={`https://bsky.app/profile/${rec.did}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  color: 'var(--chakra-colors-teal-500)',
-                  fontSize: '0.75rem',
-                  textDecoration: 'none',
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.color = 'var(--chakra-colors-teal-600)';
-                  e.currentTarget.style.textDecoration = 'underline';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.color = 'var(--chakra-colors-teal-500)';
-                  e.currentTarget.style.textDecoration = 'none';
-                }}
+                color="accent.default"
+                fontSize="xs"
+                _hover={{ color: 'accent.hover', textDecoration: 'underline' }}
               >
                 @{recommenderHandles[rec.did] || rec.did.substring(0, 24) + '...'}
-              </a>
+              </Link>
               <Text color="fg.muted" fontSize="xs">
                 ({new Date(rec.suggestedAt).toLocaleDateString()})
               </Text>

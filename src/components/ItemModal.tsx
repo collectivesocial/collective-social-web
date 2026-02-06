@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   Heading,
+  Image,
   Input,
   Text,
   Textarea,
@@ -266,15 +267,13 @@ export function ItemModal({
                       borderRadius="md"
                     >
                       {displayMedia?.coverImage && (
-                        <img
+                        <Image
                           src={displayMedia.coverImage}
                           alt={displayMedia.title || ''}
-                          style={{
-                            width: '60px',
-                            height: '90px',
-                            objectFit: 'cover',
-                            borderRadius: '0.375rem',
-                          }}
+                          w="60px"
+                          h="90px"
+                          objectFit="cover"
+                          borderRadius="md"
                         />
                       )}
                       <Box flex={1}>
@@ -291,14 +290,14 @@ export function ItemModal({
                             {tags.map((tag) => (
                               <Badge
                                 key={tag.id}
-                                colorPalette="teal"
+                                colorPalette="accent"
                                 variant="subtle"
                                 fontSize="xs"
                                 px={2}
                                 py={1}
                                 borderRadius="full"
                                 cursor="pointer"
-                                _hover={{ bg: 'teal.100' }}
+                                _hover={{ bg: 'accent.100' }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onClose();
@@ -339,9 +338,10 @@ export function ItemModal({
                     <Field label="Add to Collection" required>
                       {!isCreatingNewList ? (
                         <VStack gap={2} align="stretch">
-                          <select
+                          <Box
+                            as="select"
                             value={selectedListUri}
-                            onChange={(e) => {
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                               const value = e.target.value;
                               if (value === '__create_new__') {
                                 setIsCreatingNewList(true);
@@ -352,15 +352,14 @@ export function ItemModal({
                                 }
                               }
                             }}
-                            style={{
-                              width: '100%',
-                              padding: '0.5rem 0.75rem',
-                              backgroundColor: 'var(--chakra-colors-bg-muted)',
-                              border: '1px solid var(--chakra-colors-border)',
-                              borderRadius: '0.375rem',
-                              fontSize: '1rem',
-                              color: 'inherit',
-                            }}
+                            w="100%"
+                            p="0.5rem 0.75rem"
+                            bg="bg.subtle"
+                            borderWidth="1px"
+                            borderColor="border.card"
+                            borderRadius="md"
+                            fontSize="md"
+                            color="fg.default"
                           >
                             {[...collections]
                               .sort((a, b) => a.name.localeCompare(b.name))
@@ -370,7 +369,7 @@ export function ItemModal({
                                 </option>
                               ))}
                             <option value="__create_new__">+ Create New List</option>
-                          </select>
+                          </Box>
                         </VStack>
                       ) : (
                         <VStack gap={2} align="stretch">
@@ -383,7 +382,7 @@ export function ItemModal({
                           <HStack gap={2}>
                             <Button
                               size="sm"
-                              colorPalette="teal"
+                              colorPalette="accent"
                               bg="transparent"
                               onClick={async () => {
                                 if (!newListName.trim()) {
@@ -456,9 +455,10 @@ export function ItemModal({
                         <Field label="Move to Collection">
                           {!isCreatingNewList ? (
                             <>
-                              <select
+                              <Box
+                                as="select"
                                 value={selectedListUri}
-                                onChange={(e) => {
+                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                                   const value = e.target.value;
                                   if (value === '__create_new__') {
                                     setIsCreatingNewList(true);
@@ -469,15 +469,14 @@ export function ItemModal({
                                     }
                                   }
                                 }}
-                                style={{
-                                  width: '100%',
-                                  padding: '0.5rem 0.75rem',
-                                  backgroundColor: 'var(--chakra-colors-bg-muted)',
-                                  border: '1px solid var(--chakra-colors-border)',
-                                  borderRadius: '0.375rem',
-                                  fontSize: '1rem',
-                                  color: 'inherit',
-                                }}
+                                w="100%"
+                                p="0.5rem 0.75rem"
+                                bg="bg.subtle"
+                                borderWidth="1px"
+                                borderColor="border.card"
+                                borderRadius="md"
+                                fontSize="md"
+                                color="fg.default"
                               >
                                 {[...collections]
                                   .sort((a, b) => a.name.localeCompare(b.name))
@@ -487,7 +486,7 @@ export function ItemModal({
                                     </option>
                                   ))}
                                 <option value="__create_new__">+ Create New List</option>
-                              </select>
+                              </Box>
                               {selectedListUri !== currentListUri && (
                                 <Text color="orange.500" fontSize="sm" mt={1}>
                                   ⚠️ Saving will move this item to the selected collection
@@ -505,7 +504,7 @@ export function ItemModal({
                               <HStack gap={2}>
                                 <Button
                                   size="sm"
-                                  colorPalette="teal"
+                                  colorPalette="accent"
                                   bg="transparent"
                                   onClick={async () => {
                                     if (!newListName.trim()) {
@@ -574,8 +573,8 @@ export function ItemModal({
                         width="100%"
                         size="md"
                         variant={reviewData.status === 'want' ? 'solid' : 'outline'}
-                        colorPalette={reviewData.status === 'want' ? 'teal' : 'gray'}
-                        bg={reviewData.status === 'want' ? 'teal.500' : 'transparent'}
+                        colorPalette={reviewData.status === 'want' ? 'accent' : 'gray'}
+                        bg={reviewData.status === 'want' ? 'accent.500' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
                       >
                         {mediaTypeText.wantText}
@@ -584,8 +583,8 @@ export function ItemModal({
                         width="100%"
                         size="md"
                         variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
-                        colorPalette={reviewData.status === 'in-progress' ? 'teal' : 'gray'}
-                        bg={reviewData.status === 'in-progress' ? 'teal.500' : 'transparent'}
+                        colorPalette={reviewData.status === 'in-progress' ? 'accent' : 'gray'}
+                        bg={reviewData.status === 'in-progress' ? 'accent.500' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
                       >
                         {mediaTypeText.inProgressText}
@@ -594,8 +593,8 @@ export function ItemModal({
                         width="100%"
                         size="md"
                         variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
-                        colorPalette={reviewData.status === 'completed' ? 'teal' : 'gray'}
-                        bg={reviewData.status === 'completed' ? 'teal.500' : 'transparent'}
+                        colorPalette={reviewData.status === 'completed' ? 'accent' : 'gray'}
+                        bg={reviewData.status === 'completed' ? 'accent.500' : 'transparent'}
                         onClick={() => {
                           const today = new Date();
                           const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -613,8 +612,8 @@ export function ItemModal({
                         flex={1}
                         size="md"
                         variant={reviewData.status === 'want' ? 'solid' : 'outline'}
-                        colorPalette={reviewData.status === 'want' ? 'teal' : 'gray'}
-                        bg={reviewData.status === 'want' ? 'teal.500' : 'transparent'}
+                        colorPalette={reviewData.status === 'want' ? 'accent' : 'gray'}
+                        bg={reviewData.status === 'want' ? 'accent.500' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
                       >
                         {mediaTypeText.wantText}
@@ -623,8 +622,8 @@ export function ItemModal({
                         flex={1}
                         size="md"
                         variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
-                        colorPalette={reviewData.status === 'in-progress' ? 'teal' : 'gray'}
-                        bg={reviewData.status === 'in-progress' ? 'teal.500' : 'transparent'}
+                        colorPalette={reviewData.status === 'in-progress' ? 'accent' : 'gray'}
+                        bg={reviewData.status === 'in-progress' ? 'accent.500' : 'transparent'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
                       >
                         {mediaTypeText.inProgressText}
@@ -633,8 +632,8 @@ export function ItemModal({
                         flex={1}
                         size="md"
                         variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
-                        colorPalette={reviewData.status === 'completed' ? 'teal' : 'gray'}
-                        bg={reviewData.status === 'completed' ? 'teal.500' : 'transparent'}
+                        colorPalette={reviewData.status === 'completed' ? 'accent' : 'gray'}
+                        bg={reviewData.status === 'completed' ? 'accent.500' : 'transparent'}
                         onClick={() => {
                           const today = new Date();
                           const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -756,7 +755,7 @@ export function ItemModal({
                     <Button type="button" variant="outline" bg="transparent" onClick={onClose}>
                       Cancel
                     </Button>
-                    <Button type="submit" colorPalette="teal" bg="teal">
+                    <Button type="submit" colorPalette="accent" bg="accent.solid">
                       {mode === 'add' ? 'Add Item' : 'Save Changes'}
                     </Button>
                   </Flex>

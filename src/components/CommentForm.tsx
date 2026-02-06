@@ -68,7 +68,7 @@ export function CommentForm({
         <Button
           onClick={handleSubmit}
           disabled={submitting || !text.trim()}
-          colorPalette="teal"
+          colorPalette="accent"
           variant="outline"
           bg="transparent"
           size="sm"

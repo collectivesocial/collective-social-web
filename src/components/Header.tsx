@@ -52,9 +52,6 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
 
-  // Chakra UI color mode values
-  const headerBg = useColorModeValue('white', 'gray.900');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
   const logoFilter = useColorModeValue('none', 'invert(1)');
 
   useEffect(() => {
@@ -173,10 +170,13 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
       top={0}
       left={0}
       right={0}
-      h={isAuthenticated ? '60px' : 'auto'}
-      bg={headerBg}
-      borderBottom="1px"
-      borderColor={borderColor}
+      h={isAuthenticated ? '64px' : 'auto'}
+      bg="bg.nav"
+      backdropFilter="blur(12px)"
+      WebkitBackdropFilter="blur(12px)"
+      borderBottom="1px solid"
+      borderColor="border.subtle"
+      boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.04)"
       zIndex={1000}
       transition="all 0.3s ease"
     >
@@ -201,7 +201,10 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                   <Heading
                     size={isAuthenticated ? 'lg' : 'xl'}
                     transition="all 0.3s ease"
-                    color="teal.500"
+                    color="accent.default"
+                    fontFamily="heading"
+                    fontWeight="700"
+                    letterSpacing="-0.02em"
                   >
                     Collective
                   </Heading>
@@ -211,10 +214,32 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
 
             {isAuthenticated && (
               <HStack as="nav" gap={6} display={{ base: 'none', md: 'flex' }}>
-                <Link asChild fontSize="md" color="fg.muted" _hover={{ color: 'teal.500' }}>
+                <Link
+                  asChild
+                  fontSize="sm"
+                  fontWeight="500"
+                  color="fg.muted"
+                  textTransform="uppercase"
+                  letterSpacing="0.05em"
+                  _hover={{
+                    color: 'accent.default',
+                    textDecoration: 'none',
+                  }}
+                >
                   <RouterLink to="/collections">Collections</RouterLink>
                 </Link>
-                <Link asChild fontSize="md" color="fg.muted" _hover={{ color: 'teal.500' }}>
+                <Link
+                  asChild
+                  fontSize="sm"
+                  fontWeight="500"
+                  color="fg.muted"
+                  textTransform="uppercase"
+                  letterSpacing="0.05em"
+                  _hover={{
+                    color: 'accent.default',
+                    textDecoration: 'none',
+                  }}
+                >
                   <RouterLink to="/groups">Groups</RouterLink>
                 </Link>
               </HStack>
@@ -233,21 +258,21 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                     display={{ base: 'none', md: 'flex' }}
                   >
                     <Box minW="120px">
-                      <select
+                      <Box
+                        as="select"
                         value={mediaType}
-                        onChange={(e) => {
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                           setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                           setSearchQuery('');
                         }}
-                        style={{
-                          width: '100%',
-                          padding: '0.5rem',
-                          backgroundColor: 'var(--chakra-colors-bg-muted)',
-                          border: '1px solid var(--chakra-colors-border)',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.875rem',
-                          color: 'inherit',
-                        }}
+                        w="100%"
+                        p="0.5rem"
+                        bg="bg.elevated"
+                        borderWidth="1px"
+                        borderColor="border.subtle"
+                        borderRadius="lg"
+                        fontSize="sm"
+                        color="fg.default"
                       >
                         <option value="book">Book</option>
                         <option value="movie">Movie</option>
@@ -255,7 +280,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         <option value="article">Article</option>
                         <option value="video">Video</option>
                         <option value="course">Course</option>
-                      </select>
+                      </Box>
                     </Box>
                     <Input
                       value={searchQuery}
@@ -310,7 +335,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                     name={user.displayName || user.handle}
                     src={user.avatar}
                     outline="2px solid"
-                    outlineColor="teal.500"
+                    outlineColor="accent.default"
                   />
                 </Menu.Trigger>
                 <Portal>

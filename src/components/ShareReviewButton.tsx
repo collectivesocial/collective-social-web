@@ -95,7 +95,7 @@ export function ShareReviewButton({
         onClick={handleOpenDialog}
         size={size}
         variant={variant}
-        colorPalette="teal"
+        colorPalette="accent"
         bg="transparent"
       >
         <LuShare2 />
@@ -129,7 +129,7 @@ export function ShareReviewButton({
                     <IconButton
                       aria-label="Copy link"
                       onClick={handleCopyLink}
-                      colorPalette="teal"
+                      colorPalette="accent"
                       variant="outline"
                       bg="transparent"
                     >
