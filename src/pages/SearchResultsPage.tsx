@@ -84,11 +84,15 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
         setResults(data.results);
         setTotalResults(data.total || data.results.length);
 
-        // Auto-add items to database
-        for (const result of data.results) {
-          if (!result.inDatabasen) {
+        // Auto-add items to database and update results with mediaItemIds
+        const updatedResults = [...data.results];
+        let hasUpdates = false;
+
+        for (let i = 0; i < updatedResults.length; i++) {
+          const result = updatedResults[i];
+          if (!result.inDatabase) {
             try {
-              await fetch(`${apiUrl}/media/add`, {
+              const addResponse = await fetch(`${apiUrl}/media/add`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -103,10 +107,24 @@ export function SearchResultsPage({ apiUrl }: SearchResultsPageProps) {
                   publishYear: result.publishYear,
                 }),
               });
+
+              if (addResponse.ok) {
+                const addData = await addResponse.json();
+                updatedResults[i] = {
+                  ...result,
+                  inDatabase: true,
+                  mediaItemId: addData.mediaItemId,
+                };
+                hasUpdates = true;
+              }
             } catch (err) {
               console.error('Failed to add item to database:', err);
             }
           }
+        }
+
+        if (hasUpdates) {
+          setResults(updatedResults);
         }
       } catch (err) {
         setError('Failed to search. Please try again.');

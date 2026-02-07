@@ -55,6 +55,7 @@ export interface ListItem {
   recommendations: Recommendation[];
   createdAt: string;
   completedAt?: string | null;
+  userItemUri?: string | null;
   mediaItem?: MediaItem;
 }
 

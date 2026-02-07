@@ -21,6 +21,7 @@ import { ItemModal, type Collection } from '../components/ItemModal';
 import { EmptyState } from '../components/EmptyState';
 import { EditCollectionModal } from '../components/EditCollectionModal';
 import { ShareCollectionButton } from '../components/ShareCollectionButton';
+import { toaster } from '../components/ui/toaster';
 
 interface MediaSearchResult {
   title: string;
@@ -491,7 +492,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
     try {
       // If list is changing, we need to delete from old list and add to new list
       if (newListUri && newListUri !== collectionUri) {
-        // First, add to new list
+        // First, add to new list (this will reuse existing useritem)
         const addResponse = await fetch(
           `${apiUrl}/collections/${encodeURIComponent(newListUri)}/items`,
           {
@@ -505,10 +506,6 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
               creator: editingItem.creator,
               mediaType: editingItem.mediaType || 'book',
               mediaItemId: editingItem.mediaItemId,
-              status: editData.status,
-              rating: editData.rating,
-              review: editData.review,
-              notes: editData.notes,
             }),
           }
         );
@@ -517,7 +514,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
           throw new Error('Failed to add item to new list');
         }
 
-        // Then delete from old list
+        // Then delete from old list (only removes list membership)
         const deleteResponse = await fetch(
           `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items/${encodeURIComponent(editingItem.uri)}`,
           {
@@ -529,10 +526,12 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         if (!deleteResponse.ok) {
           throw new Error('Failed to remove item from old list');
         }
-      } else {
-        // Just update in current list
+      }
+
+      // Update status/rating/review/notes via the useritem endpoint
+      if (editingItem.userItemUri) {
         const response = await fetch(
-          `${apiUrl}/collections/${encodeURIComponent(collectionUri!)}/items/${encodeURIComponent(editingItem.uri)}`,
+          `${apiUrl}/useritems/${encodeURIComponent(editingItem.userItemUri)}`,
           {
             method: 'PUT',
             credentials: 'include',
@@ -544,6 +543,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
               rating: editData.rating,
               review: editData.review,
               notes: editData.notes,
+              completedAt: editData.completedAt ? new Date(editData.completedAt).toISOString() : undefined,
             }),
           }
         );
@@ -577,7 +577,9 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
       }
     } catch (err) {
       console.error('Failed to update item:', err);
-      alert('Failed to update item');
+      toaster.error({
+        title: 'Failed to update item',
+      });
     }
   };
 
@@ -627,6 +629,10 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         recommendedBy: '',
         completedAt: '',
       });
+
+      toaster.success({
+        title: 'Successfully added to collection!',
+      });
       
       // Refresh items list
       const itemsRes = await fetch(
@@ -641,7 +647,9 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
       }
     } catch (err) {
       console.error('Failed to add item:', err);
-      alert('Failed to add item to collection');
+      toaster.error({
+        title: 'Failed to add item to collection',
+      });
     }
   };
 

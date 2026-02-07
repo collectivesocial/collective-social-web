@@ -18,6 +18,7 @@ import {
   Textarea,
 } from '@chakra-ui/react';
 import { LuPlus, LuX, LuPencil, LuCheck, LuExternalLink } from 'react-icons/lu';
+import { toaster } from '../components/ui/toaster';
 import { EmptyState } from '../components/EmptyState';
 import { ShareButton } from '../components/ShareButton';
 import { StarRating } from '../components/StarRating';
@@ -381,16 +382,23 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
           recommendedBy: '',
           completedAt: '',
         });
-        // Optionally show success message
-        alert('Successfully added to collection!');
+        toaster.success({
+          title: 'Successfully added to collection!',
+        });
       } else {
         const data = await response.json().catch(() => ({ error: 'Unknown error' }));
         console.error('Server error response:', data);
-        alert(data.error || 'Failed to add to collection');
+        toaster.error({
+          title: 'Failed to add to collection',
+          description: data.error || 'An unknown error occurred.',
+        });
       }
     } catch (err) {
       console.error('Failed to add to collection:', err);
-      alert('Failed to add to collection: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      toaster.error({
+        title: 'Failed to add to collection',
+        description: err instanceof Error ? err.message : 'Unknown error',
+      });
     }
   };  const handleRemoveTag = async (tagId: number) => {
     if (!itemId) return;

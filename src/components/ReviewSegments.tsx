@@ -65,15 +65,23 @@ export function ReviewSegments({
 
   useEffect(() => {
     fetchSegments();
-  }, [listItemUri]);
+  }, [mediaItemId, listItemUri]);
 
   const fetchSegments = async () => {
     try {
       setLoading(true);
-      const encodedUri = encodeURIComponent(listItemUri);
-      const response = await fetch(`${apiUrl}/reviewsegments/list/${encodedUri}`, {
-        credentials: 'include',
-      });
+      // Prefer fetching by mediaItemId so segments are shared across lists
+      let response;
+      if (mediaItemId) {
+        response = await fetch(`${apiUrl}/reviewsegments/media/${mediaItemId}`, {
+          credentials: 'include',
+        });
+      } else {
+        const encodedUri = encodeURIComponent(listItemUri);
+        response = await fetch(`${apiUrl}/reviewsegments/list/${encodedUri}`, {
+          credentials: 'include',
+        });
+      }
 
       if (response.ok) {
         const data = await response.json();
