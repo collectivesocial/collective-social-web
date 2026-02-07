@@ -9,6 +9,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { GroupsPage } from './pages/GroupsPage'
+import { GroupDetailPage } from './pages/GroupDetailPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { SearchResultsPage } from './pages/SearchResultsPage'
 import { TagSearchPage } from './pages/TagSearchPage'
@@ -110,6 +111,10 @@ function App() {
               <Route 
                 path="/groups" 
                 element={<GroupsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/groups/:groupDid" 
+                element={<GroupDetailPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/search" 

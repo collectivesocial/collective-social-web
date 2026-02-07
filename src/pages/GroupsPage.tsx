@@ -13,6 +13,7 @@ import {
   Center,
   Link,
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '../components/EmptyState';
 
 interface Community {
@@ -24,22 +25,28 @@ interface Community {
   is_member: boolean;
   display_name: string | null;
   description: string | null;
+  type?: string;
 }
 
 function GroupCard({
   community,
   onJoined,
+  apiUrl,
 }: {
   community: Community;
   onJoined: () => void;
+  apiUrl: string;
 }) {
   const [joining, setJoining] = useState(false);
+  const navigate = useNavigate();
 
-  const handleJoin = async () => {
+  const handleJoin = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     setJoining(true);
     try {
       const response = await fetch(
-        `/groups/${encodeURIComponent(community.did)}/join`,
+        `${apiUrl}/groups/${encodeURIComponent(community.did)}/join`,
         {
           method: 'POST',
           credentials: 'include',
@@ -55,6 +62,10 @@ function GroupCard({
     }
   };
 
+  const handleCardClick = () => {
+    navigate(`/groups/${encodeURIComponent(community.did)}`);
+  };
+
   const displayName = community.display_name || community.handle;
   const description = community.description;
 
@@ -65,8 +76,10 @@ function GroupCard({
       borderWidth="1px"
       borderColor="border.card"
       p={5}
+      cursor="pointer"
       transition="all 0.2s"
       _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
+      onClick={handleCardClick}
     >
       <Flex justify="space-between" align="start" mb={2}>
         <Box>
@@ -102,16 +115,10 @@ function GroupCard({
       </Text>
 
       {community.is_member ? (
-        <Button
-          size="sm"
-          colorPalette="green"
-          variant="outline"
-          width="full"
-          disabled
-        >
-          ✓ Joined
-        </Button>
-      ) : (
+        <Badge colorPalette="green" size="sm" width="full" textAlign="center" py={1}>
+          ✓ Member
+        </Badge>
+      ) : (community.type === 'open' || !community.type) ? (
         <Button
           size="sm"
           colorPalette="accent"
@@ -122,6 +129,10 @@ function GroupCard({
         >
           {joining ? 'Joining...' : 'Join Group'}
         </Button>
+      ) : (
+        <Badge colorPalette="gray" size="sm" width="full" textAlign="center" py={1}>
+          {community.type === 'private' ? 'Invite Only' : 'Approval Required'}
+        </Badge>
       )}
     </Box>
   );
@@ -138,7 +149,7 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
   const fetchCommunities = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch('/groups', {
+      const response = await fetch(`${apiUrl}/groups`, {
         credentials: 'include',
       });
       if (response.ok) {
@@ -150,7 +161,7 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     fetchCommunities();
@@ -202,6 +213,7 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
                 key={community.did}
                 community={community}
                 onJoined={fetchCommunities}
+                apiUrl={apiUrl}
               />
             ))}
           </Grid>
