@@ -10,6 +10,7 @@ import { CollectionsPage } from './pages/CollectionsPage'
 import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
+import { GroupListDetailPage } from './pages/GroupListDetailPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { SearchResultsPage } from './pages/SearchResultsPage'
 import { TagSearchPage } from './pages/TagSearchPage'
@@ -36,6 +37,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [user, setUser] = useState<UserProfile | null>(null)
   const apiUrl = 'http://127.0.0.1:3000'
+  const openSocialWebUrl = 'http://127.0.0.1:5174'
 
   useEffect(() => {
     // Check if user is authenticated
@@ -110,11 +112,15 @@ function App() {
               />
               <Route 
                 path="/groups" 
-                element={<GroupsPage apiUrl={apiUrl} />} 
+                element={<GroupsPage apiUrl={apiUrl} openSocialWebUrl={openSocialWebUrl} />} 
               />
               <Route 
                 path="/groups/:groupDid" 
-                element={<GroupDetailPage apiUrl={apiUrl} />} 
+                element={<GroupDetailPage apiUrl={apiUrl} openSocialWebUrl={openSocialWebUrl} />} 
+              />
+              <Route 
+                path="/groups/:groupDid/lists/:listRkey" 
+                element={<GroupListDetailPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/search" 

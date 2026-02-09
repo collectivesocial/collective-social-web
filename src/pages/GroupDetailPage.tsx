@@ -56,6 +56,13 @@ interface GroupListItem {
   updatedAt: string;
 }
 
+interface CollectionPermission {
+  canCreate: boolean;
+  canRead: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+}
+
 interface GroupDetail {
   community: {
     did: string;
@@ -71,12 +78,14 @@ interface GroupDetail {
   is_member: boolean;
   is_admin: boolean;
   member_count: number;
+  permissions: Record<string, CollectionPermission>;
   lists: GroupList[];
   in_progress_items: GroupListItem[];
 }
 
 interface GroupDetailPageProps {
   apiUrl: string;
+  openSocialWebUrl: string;
 }
 
 const purposeLabels: Record<string, string> = {
@@ -98,13 +107,12 @@ const mediaTypeEmoji: Record<string, string> = {
   course: '🎓',
 };
 
-export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
+export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPageProps) {
   const { groupDid } = useParams<{ groupDid: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [group, setGroup] = useState<GroupDetail | null>(null);
-  const [joining, setJoining] = useState(false);
   const [showCreateList, setShowCreateList] = useState(false);
 
   const refreshGroup = async () => {
@@ -151,24 +159,10 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
     }
   }, [apiUrl, groupDid]);
 
-  const handleJoin = async () => {
-    setJoining(true);
-    try {
-      const response = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/join`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        }
-      );
-      if (response.ok) {
-        await refreshGroup();
-      }
-    } catch (err) {
-      console.error('Failed to join group:', err);
-    } finally {
-      setJoining(false);
-    }
+  const handleJoin = () => {
+    const returnTo = encodeURIComponent(window.location.href);
+    const joinUrl = `${openSocialWebUrl}/communities/${encodeURIComponent(groupDid!)}?action=join&return_to=${returnTo}`;
+    window.location.href = joinUrl;
   };
 
   if (loading) {
@@ -286,7 +280,7 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
 
             {/* Join / Membership actions */}
             <VStack gap={2} align="stretch">
-              {group.is_member ? (
+              {group.permissions?.['app.collectivesocial.group.list']?.canCreate ? (
                 <Button
                   colorPalette="accent"
                   variant="solid"
@@ -295,15 +289,14 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                 >
                   + Create a List
                 </Button>
-              ) : community.type === 'open' || !community.type ? (
+              ) : !group.is_member && (community.type === 'open' || !community.type) ? (
                 <Button
                   colorPalette="accent"
                   variant="solid"
                   size="md"
                   onClick={handleJoin}
-                  disabled={joining}
                 >
-                  {joining ? 'Joining...' : 'Join Group'}
+                  Join Group
                 </Button>
               ) : null}
             </VStack>
@@ -384,7 +377,7 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
             <Heading size="md" fontFamily="heading">
               📋 Group Lists
             </Heading>
-            {group.is_member && (
+            {group.permissions?.['app.collectivesocial.group.list']?.canCreate && (
               <Button
                 size="sm"
                 colorPalette="accent"
@@ -405,8 +398,10 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                   borderWidth="1px"
                   borderColor="border.card"
                   p={4}
+                  cursor="pointer"
                   transition="all 0.2s"
                   _hover={{ shadow: 'sm', transform: 'translateY(-1px)' }}
+                  onClick={() => navigate(`/groups/${encodeURIComponent(community.did)}/lists/${encodeURIComponent(list.rkey)}`)}
                 >
                   <Flex justify="space-between" align="start">
                     <Box flex="1">
@@ -445,7 +440,7 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
               icon="📋"
               title="No lists yet"
               description={
-                group.is_member
+                group.permissions?.['app.collectivesocial.group.list']?.canCreate
                   ? "This group doesn't have any lists yet. Be the first to create one!"
                   : "This group doesn't have any lists yet."
               }
@@ -454,7 +449,7 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
         </Box>
       </VStack>
 
-      {group.is_member && (
+      {group.permissions?.['app.collectivesocial.group.list']?.canCreate && (
         <CreateGroupListModal
           isOpen={showCreateList}
           onClose={() => setShowCreateList(false)}

@@ -12,6 +12,7 @@ import {
   Spinner,
   Center,
   Link,
+  Input,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '../components/EmptyState';
@@ -32,34 +33,21 @@ function GroupCard({
   community,
   onJoined,
   apiUrl,
+  openSocialWebUrl,
 }: {
   community: Community;
   onJoined: () => void;
   apiUrl: string;
+  openSocialWebUrl: string;
 }) {
-  const [joining, setJoining] = useState(false);
   const navigate = useNavigate();
 
-  const handleJoin = async (e: React.MouseEvent) => {
+  const handleJoin = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    setJoining(true);
-    try {
-      const response = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(community.did)}/join`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        }
-      );
-      if (response.ok) {
-        onJoined();
-      }
-    } catch (err) {
-      console.error('Failed to join:', err);
-    } finally {
-      setJoining(false);
-    }
+    const returnTo = encodeURIComponent(window.location.href);
+    const joinUrl = `${openSocialWebUrl}/communities/${encodeURIComponent(community.did)}?action=join&return_to=${returnTo}`;
+    window.location.href = joinUrl;
   };
 
   const handleCardClick = () => {
@@ -125,9 +113,8 @@ function GroupCard({
           variant="outline"
           width="full"
           onClick={handleJoin}
-          disabled={joining}
         >
-          {joining ? 'Joining...' : 'Join Group'}
+          Join Group
         </Button>
       ) : (
         <Badge colorPalette="gray" size="sm" width="full" textAlign="center" py={1}>
@@ -140,16 +127,21 @@ function GroupCard({
 
 interface GroupsPageProps {
   apiUrl: string;
+  openSocialWebUrl: string;
 }
 
-export function GroupsPage({ apiUrl }: GroupsPageProps) {
+export function GroupsPage({ apiUrl, openSocialWebUrl }: GroupsPageProps) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchCommunities = useCallback(async () => {
+  const fetchCommunities = useCallback(async (query?: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/groups`, {
+      const params = new URLSearchParams();
+      if (query && query.length >= 3) params.set('query', query);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+      const response = await fetch(`${apiUrl}/groups${qs}`, {
         credentials: 'include',
       });
       if (response.ok) {
@@ -163,9 +155,23 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
     }
   }, [apiUrl]);
 
+  // Initial load
   useEffect(() => {
     fetchCommunities();
   }, [fetchCommunities]);
+
+  // Debounced search (min 3 characters)
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    // If 1-2 chars, do nothing — wait for more input
+    if (trimmed.length > 0 && trimmed.length < 3) return;
+
+    const timeout = setTimeout(() => {
+      fetchCommunities(trimmed || undefined);
+    }, trimmed.length >= 3 ? 400 : 0);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery, fetchCommunities]);
 
   return (
     <Container maxW="container.xl" py={8}>
@@ -189,6 +195,21 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
           </Box>
         </Flex>
 
+        {/* Search */}
+        <Box>
+          <Input
+            placeholder="Search communities by name or handle..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="lg"
+          />
+          {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
+            <Text color="fg.muted" fontSize="sm" mt={1}>
+              Type at least 3 characters to search
+            </Text>
+          )}
+        </Box>
+
         {loading ? (
           <Center py={12}>
             <Spinner size="xl" />
@@ -196,8 +217,11 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
         ) : communities.length === 0 ? (
           <EmptyState
             icon="🏘️"
-            title="No groups yet"
-            description="There are no communities available right now. Check back later!"
+            title={searchQuery.trim().length >= 3 ? 'No groups found' : 'No groups yet'}
+            description={searchQuery.trim().length >= 3
+              ? `No communities found matching "${searchQuery}". Try a different search.`
+              : 'There are no communities available right now. Check back later!'
+            }
           />
         ) : (
           <Grid
@@ -212,8 +236,9 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
               <GroupCard
                 key={community.did}
                 community={community}
-                onJoined={fetchCommunities}
+                onJoined={() => fetchCommunities(searchQuery.trim() || undefined)}
                 apiUrl={apiUrl}
+                openSocialWebUrl={openSocialWebUrl}
               />
             ))}
           </Grid>
