@@ -83,12 +83,21 @@ interface Post {
   uri: string;
   rkey: string;
   text: string;
+  groupDid?: string;
   segmentUri?: string;
   listItemUri?: string;
   parentPostUri?: string;
   authorDid: string;
+  author?: {
+    did: string;
+    handle: string;
+    displayName?: string;
+    avatar?: string;
+  };
+  mentionedDids?: string[];
   createdAt: string;
   replies: Post[];
+  isLegacy?: boolean;
 }
 
 interface MediaItem {
@@ -573,9 +582,23 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
         mb={3}
       >
         <Box bg={depth > 0 ? 'transparent' : 'bg.subtle'} p={3} borderRadius="md">
-          <Text fontSize="xs" color="fg.muted" mb={1}>
-            {(post.authorDid ?? 'Unknown').slice(0, 20)}… · {formatDate(post.createdAt)}
-          </Text>
+          <HStack gap={2} mb={1} alignItems="center">
+            {post.author?.avatar && (
+              <Image
+                src={post.author.avatar}
+                width="20px"
+                height="20px"
+                borderRadius="full"
+                alt={post.author.handle}
+              />
+            )}
+            <Text fontSize="xs" fontWeight="medium">
+              {post.author?.displayName || (post.author?.handle ? `@${post.author.handle}` : null) || (post.authorDid ?? 'Unknown').slice(0, 20) + '…'}
+            </Text>
+            <Text fontSize="xs" color="fg.muted">
+              · {formatDate(post.createdAt)}
+            </Text>
+          </HStack>
           <Text fontSize="sm" whiteSpace="pre-wrap">{post.text}</Text>
           {postPerm?.canCreate && (
             <Button
