@@ -334,16 +334,17 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
                   borderWidth="1px"
                   borderColor="border.card"
                   p={4}
-                  cursor={item.mediaItemId ? 'pointer' : 'default'}
+                  cursor={(item.rkey && item.listUri) ? 'pointer' : 'default'}
                   transition="all 0.2s"
                   _hover={
-                    item.mediaItemId
+                    (item.rkey && item.listUri)
                       ? { shadow: 'sm', transform: 'translateY(-1px)' }
                       : {}
                   }
                   onClick={() => {
-                    if (item.mediaItemId) {
-                      navigate(`/items/${item.mediaItemId}`);
+                    if (item.rkey && item.listUri) {
+                      const lRkey = item.listUri.split('/').pop() || '';
+                      navigate(`/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(lRkey)}/items/${encodeURIComponent(item.rkey)}`);
                     }
                   }}
                 >

@@ -479,16 +479,16 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   borderWidth="1px"
                   borderColor="border.card"
                   p={4}
-                  cursor={item.mediaItemId ? 'pointer' : 'default'}
+                  cursor={item.rkey ? 'pointer' : 'default'}
                   transition="all 0.2s"
                   _hover={
-                    item.mediaItemId
+                    item.rkey
                       ? { shadow: 'sm', transform: 'translateY(-1px)' }
                       : {}
                   }
                   onClick={() => {
-                    if (item.mediaItemId) {
-                      navigate(`/items/${item.mediaItemId}`);
+                    if (item.rkey) {
+                      navigate(`/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(listRkey!)}/items/${encodeURIComponent(item.rkey)}`);
                     }
                   }}
                 >

@@ -11,6 +11,7 @@ import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
 import { GroupListDetailPage } from './pages/GroupListDetailPage'
+import { GroupItemDetailPage } from './pages/GroupItemDetailPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { SearchResultsPage } from './pages/SearchResultsPage'
 import { TagSearchPage } from './pages/TagSearchPage'
@@ -121,6 +122,10 @@ function App() {
               <Route 
                 path="/groups/:groupDid/lists/:listRkey" 
                 element={<GroupListDetailPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/groups/:groupDid/lists/:listRkey/items/:itemRkey" 
+                element={<GroupItemDetailPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/search" 
