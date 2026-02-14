@@ -145,7 +145,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
           setCurrentUserDid(data.did);
           setIsAdmin(data.isAdmin || false);
         }
-      } catch (err) {
+      } catch {
         // User not logged in
       }
     };
@@ -173,8 +173,8 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
 
         // Fetch tags
         fetchTags();
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
         setLoading(false);
       }
     };
@@ -206,7 +206,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
       if (highlightReviewId && offset === 0) {
         // Find the highlighted review and move it to the top
         const highlightedIndex = reviewsList.findIndex(
-          (r: any) => r.id === parseInt(highlightReviewId)
+          (r: { id: number }) => r.id === parseInt(highlightReviewId)
         );
         
         if (highlightedIndex > 0) {
@@ -229,7 +229,7 @@ export function ItemDetailsPage({ apiUrl }: ItemDetailsPageProps) {
       setHasMoreReviews(data.hasMore);
       setReviewsOffset(offset);
       setReviewsLoading(false);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to fetch reviews:', err);
       setReviewsLoading(false);
     }

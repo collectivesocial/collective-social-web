@@ -147,8 +147,8 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
 
         const data = await res.json();
         setGroup(data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }

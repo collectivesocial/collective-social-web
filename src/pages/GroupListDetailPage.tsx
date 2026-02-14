@@ -329,7 +329,8 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
   const listPerm = permissions['app.collectivesocial.group.list'];
   const itemPerm = permissions['app.collectivesocial.group.listitem'];
   const statusPerm = permissions['app.collectivesocial.group.listitem.status'];
-  const segmentPerm = permissions['app.collectivesocial.group.segment'];
+  // segmentPerm is defined but not currently used
+  // const segmentPerm = permissions['app.collectivesocial.group.segment'];
 
   const completedCount = items.filter((i) => i.status === 'completed').length;
   const inProgressCount = items.filter(

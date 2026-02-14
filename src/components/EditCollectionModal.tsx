@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Button,
   Input,
@@ -34,15 +34,9 @@ export function EditCollectionModal({
   collectionDescription,
   onSave,
 }: EditCollectionModalProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-
-  useEffect(() => {
-    if (isOpen) {
-      setName(collectionName);
-      setDescription(collectionDescription || '');
-    }
-  }, [isOpen, collectionName, collectionDescription]);
+  // Use a key on the DialogRoot to reset state when opening with new values
+  const [name, setName] = useState(collectionName);
+  const [description, setDescription] = useState(collectionDescription || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +56,7 @@ export function EditCollectionModal({
   };
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
+    <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} key={`${collectionName}-${collectionDescription}`}>
       <DialogBackdrop />
       <DialogPositioner>
         <DialogContent maxW="600px">

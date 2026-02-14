@@ -55,11 +55,11 @@ export function ShareReviewButton({
       const data = await response.json();
       setShareUrl(data.url);
       setItemTitle(data.title || null);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to create share link:', err);
       toaster.create({
         title: 'Failed to create share link',
-        description: err.message,
+        description: err instanceof Error ? err.message : 'Unknown error',
         type: 'error',
       });
     } finally {

@@ -48,11 +48,11 @@ export function ShareButton({
       const data = await response.json();
       setShareUrl(data.url);
       setItemTitle(data.title || null);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Share error:', err);
       toaster.create({
         title: 'Failed to create share link',
-        description: err.message || 'Please try again later.',
+        description: err instanceof Error ? err.message : 'Please try again later.',
         type: 'error',
         duration: 3000,
       });
@@ -73,7 +73,7 @@ export function ShareButton({
         type: 'success',
         duration: 2000,
       });
-    } catch (err) {
+    } catch {
       toaster.create({
         title: 'Failed to copy',
         description: 'Could not copy link to clipboard.',

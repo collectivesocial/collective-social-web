@@ -120,7 +120,7 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
                   const profileData = await profileRes.json();
                   return { ...item, userHandle: profileData.handle };
                 }
-              } catch (err) {
+              } catch {
                 console.error('Failed to fetch handle for', item.userDid);
               }
             }
@@ -149,8 +149,8 @@ export function AdminPage({ apiUrl }: AdminPageProps) {
         setFeedback(sortedFeedback);
 
         setLoading(false);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
         setLoading(false);
       }
     };

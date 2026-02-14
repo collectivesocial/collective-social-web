@@ -13,7 +13,6 @@ import {
   IconButton,
   SimpleGrid,
   Flex,
-  Progress,
 } from '@chakra-ui/react';
 import { LuPencil, LuArrowDownUp, LuCopy } from 'react-icons/lu';
 import { MediaItemCard, type ListItem } from '../components/MediaItemCard';
@@ -254,7 +253,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
                 const profileData = await profileRes.json();
                 handleMap[did] = profileData.handle;
               }
-            } catch (err) {
+            } catch {
               console.warn(`Failed to resolve handle for ${did}`);
             }
           })
@@ -262,10 +261,10 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
         setRecommenderHandles(handleMap);
 
         setLoading(false);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
         setLoading(false);
-        if (err.message === 'Not authenticated') {
+        if (err instanceof Error && err.message === 'Not authenticated') {
           navigate('/');
         }
       }
@@ -277,7 +276,7 @@ export function CollectionDetailsPage({ apiUrl }: CollectionDetailsPageProps) {
   const isOwner = (): boolean => {
     if (!currentUserDid || !collectionUri) return false;
     const decodedUri = decodeURIComponent(collectionUri);
-    const didMatch = decodedUri.match(/^at:\/\/([^\/]+)/);
+    const didMatch = decodedUri.match(/^at:\/\/([^/]+)/);
     return !!(didMatch && didMatch[1] === currentUserDid);
   };
 
