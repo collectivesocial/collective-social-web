@@ -2,6 +2,38 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+The development server will start at http://127.0.0.1:5173 with API proxy configured.
+
+## Production Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions on deploying to production, including:
+- Environment variable configuration
+- CORS vs reverse proxy considerations
+- Recommended deployment architecture
+- Security best practices
+
+## Building
+
+```bash
+npm run build
+```
+
+## Environment Configuration
+
+This project uses Vite environment variables:
+- `.env.development` - Local development configuration
+- `.env.production` - Production build configuration
+- `.env.example` - Template for environment variables
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for more details.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh

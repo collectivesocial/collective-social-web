@@ -6,7 +6,7 @@ interface LoginButtonProps {
   apiUrl?: string;
 }
 
-export function LoginButton({ apiUrl = 'http://127.0.0.1:3000' }: LoginButtonProps) {
+export function LoginButton({ apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3000' }: LoginButtonProps) {
   const [handle, setHandle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

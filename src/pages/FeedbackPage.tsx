@@ -12,13 +12,16 @@ import {
 } from '@chakra-ui/react';
 import { Field } from '../components/ui/field';
 
-export function FeedbackPage() {
+interface FeedbackPageProps {
+  apiUrl: string;
+}
+
+export function FeedbackPage({ apiUrl }: FeedbackPageProps) {
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const apiUrl = 'http://127.0.0.1:3000';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
