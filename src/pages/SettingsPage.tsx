@@ -97,7 +97,7 @@ export function SettingsPage({ apiUrl, user }: SettingsPageProps) {
         title: 'Link copied!',
         description: 'Share link has been copied to clipboard.',
       });
-    } catch (error) {
+    } catch {
       toaster.error({
         title: 'Copy failed',
         description: 'Unable to copy link to clipboard.',

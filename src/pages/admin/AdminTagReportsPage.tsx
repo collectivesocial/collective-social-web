@@ -163,7 +163,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
     }
     acc[key].reports.push(report);
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as Record<string, { itemId: number; tagId: number; tagText: string; itemTitle: string; reports: TagReport[] }>);
 
   if (loading) {
     return (
@@ -234,7 +234,7 @@ export function AdminTagReportsPage({ apiUrl }: AdminTagReportsPageProps) {
         </Flex>
 
         <VStack gap={4} align="stretch">
-          {Object.values(groupedReports).map((group: any) => {
+          {Object.values(groupedReports).map((group: { itemId: number; tagId: number; tagText: string; itemTitle: string; reports: TagReport[] }) => {
             const reportCount = getReportCount(group.itemId, group.tagId);
             const firstReport = group.reports[0];
 

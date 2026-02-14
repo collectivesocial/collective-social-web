@@ -162,9 +162,9 @@ export function CollectionsPage({ apiUrl }: CollectionsPageProps) {
       }
 
       setCollections(collections.filter((c) => c.uri !== collection.uri));
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to delete collection:', err);
-      alert(err.message || 'Failed to delete collection');
+      alert(err instanceof Error ? err.message : 'Failed to delete collection');
     }
   };
 

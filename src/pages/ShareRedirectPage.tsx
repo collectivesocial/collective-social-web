@@ -195,9 +195,9 @@ export function ShareRedirectPage({ apiUrl }: ShareRedirectPageProps) {
           
           navigate(`/collections/${encodeURIComponent(defaultCollection.uri)}?${params.toString()}`);
         }, 2000);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Share link resolution error:', err);
-        setError(err.message || 'Failed to resolve share link');
+        setError(err instanceof Error ? err.message : 'Failed to resolve share link');
         setLoading(false);
       }
     };

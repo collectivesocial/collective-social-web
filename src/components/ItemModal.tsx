@@ -83,7 +83,15 @@ interface ItemModalProps {
   mediaType?: string;
 }
 
-const mediaTypeToText: (arg0: string | undefined) => any = (mediaType: string | undefined) => {
+interface MediaTypeText {
+  searchText: string;
+  displayText: string;
+  wantText: string;
+  inProgressText: string;
+  completedText: string;
+}
+
+const mediaTypeToText = (mediaType: string | undefined): MediaTypeText => {
   switch (mediaType) {
     case 'book':
       return {
@@ -327,7 +335,7 @@ export function ItemModal({
                           variant="ghost"
                           background="transparent"
                           size="sm"
-                          onClick={() => onMediaSelect(null as any)}
+                          onClick={() => onMediaSelect(null as unknown as MediaItem)}
                         >
                           ×
                         </Button>

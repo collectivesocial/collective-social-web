@@ -92,7 +92,7 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
             setCurrentUser(userData);
             return userData;
           }
-        } catch (err) {
+        } catch {
           console.log('User not logged in');
         }
         return null;
@@ -106,8 +106,8 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
             throw new Error('Profile not found');
           }
           return await res.json();
-        } catch (err: any) {
-          setError(err.message);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Unknown error');
           setLoading(false);
           throw err;
         }
@@ -170,7 +170,7 @@ export function ProfilePage({ apiUrl }: ProfilePageProps) {
           }
 
           setLoading(false);
-        } catch (err) {
+        } catch {
           // Error already handled in fetchProfile
         }
       };

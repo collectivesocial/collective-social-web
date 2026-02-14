@@ -16,6 +16,7 @@ export const ProgressRoot = React.forwardRef<HTMLDivElement, ProgressRootProps>(
   }
 );
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ProgressBarProps extends ChakraProgress.TrackProps {}
 
 export const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
