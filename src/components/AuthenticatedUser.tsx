@@ -14,7 +14,7 @@ interface AuthenticatedUserProps {
   apiUrl?: string;
 }
 
-export function AuthenticatedUser({ apiUrl = 'http://127.0.0.1:3000' }: AuthenticatedUserProps) {
+export function AuthenticatedUser({ apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3000' }: AuthenticatedUserProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
