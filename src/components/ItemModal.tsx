@@ -343,8 +343,8 @@ export function ItemModal({
                           <Box
                             as="select"
                             value={selectedListUri}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                              const value = e.target.value;
+                            onChange={(e: React.FormEvent<HTMLDivElement>) => {
+                              const value = (e.target as HTMLSelectElement).value;
                               if (value === '__create_new__') {
                                 setIsCreatingNewList(true);
                               } else {
@@ -460,8 +460,8 @@ export function ItemModal({
                               <Box
                                 as="select"
                                 value={selectedListUri}
-                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                                  const value = e.target.value;
+                                onChange={(e: React.FormEvent<HTMLDivElement>) => {
+                                  const value = (e.target as HTMLSelectElement).value;
                                   if (value === '__create_new__') {
                                     setIsCreatingNewList(true);
                                   } else {

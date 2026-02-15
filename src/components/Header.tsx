@@ -173,7 +173,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
       h={isAuthenticated ? '64px' : 'auto'}
       bg="bg.nav"
       backdropFilter="blur(12px)"
-      WebkitBackdropFilter="blur(12px)"
+      css={{ WebkitBackdropFilter: "blur(12px)" }}
       borderBottom="1px solid"
       borderColor="border.subtle"
       boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.04)"
@@ -261,8 +261,8 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                       <Box
                         as="select"
                         value={mediaType}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                          setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
+                        onChange={(e: React.FormEvent<HTMLDivElement>) => {
+                          setMediaType((e.target as HTMLSelectElement).value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                           setSearchQuery('');
                         }}
                         w="100%"

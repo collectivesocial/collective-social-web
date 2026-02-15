@@ -31,8 +31,8 @@ interface Community {
 
 function GroupCard({
   community,
-  onJoined,
-  apiUrl,
+  onJoined: _onJoined,
+  apiUrl: _apiUrl,
   openSocialWebUrl,
 }: {
   community: Community;

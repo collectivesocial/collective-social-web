@@ -13,7 +13,6 @@ import {
   IconButton,
   SimpleGrid,
   Flex,
-  Progress,
 } from '@chakra-ui/react';
 import { LuPencil, LuArrowDownUp, LuCopy } from 'react-icons/lu';
 import { MediaItemCard, type ListItem } from '../components/MediaItemCard';

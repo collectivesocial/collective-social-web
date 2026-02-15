@@ -174,9 +174,9 @@ export function AddMediaModal({
                 <Box
                   as="select"
                   value={mediaType}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  onChange={(e: React.FormEvent<HTMLDivElement>) =>
                     setMediaType(
-                      e.target.value as
+                      (e.target as HTMLSelectElement).value as
                         | 'book'
                         | 'movie'
                         | 'tv'

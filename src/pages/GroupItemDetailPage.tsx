@@ -1054,8 +1054,8 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                       <Box
                         as="select"
                         value={segType}
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                          setSegType(e.target.value);
+                        onChange={(e: React.FormEvent<HTMLDivElement>) => {
+                          setSegType((e.target as HTMLSelectElement).value);
                           setSegStart('');
                           setSegEnd('');
                         }}

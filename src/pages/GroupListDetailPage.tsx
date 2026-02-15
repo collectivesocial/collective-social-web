@@ -329,7 +329,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
   const listPerm = permissions['app.collectivesocial.group.list'];
   const itemPerm = permissions['app.collectivesocial.group.listitem'];
   const statusPerm = permissions['app.collectivesocial.group.listitem.status'];
-  const segmentPerm = permissions['app.collectivesocial.group.segment'];
+  const _segmentPerm = permissions['app.collectivesocial.group.segment'];
 
   const completedCount = items.filter((i) => i.status === 'completed').length;
   const inProgressCount = items.filter(
@@ -600,7 +600,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   <Box
                     as="select"
                     value={editPurpose}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditPurpose(e.target.value)}
+                    onChange={(e: React.FormEvent<HTMLDivElement>) => setEditPurpose((e.target as HTMLSelectElement).value)}
                     w="100%"
                     p="0.5rem 0.75rem"
                     bg="bg.subtle"
@@ -719,7 +719,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                 <Box
                   as="select"
                   value={statusValue}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatusValue(e.target.value)}
+                  onChange={(e: React.FormEvent<HTMLDivElement>) => setStatusValue((e.target as HTMLSelectElement).value)}
                   w="100%"
                   p="0.5rem 0.75rem"
                   bg="bg.subtle"

@@ -168,8 +168,8 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
               <Box
                 as="select"
                 value={mediaType}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
+                onChange={(e: React.FormEvent<HTMLDivElement>) => {
+                  setMediaType((e.target as HTMLSelectElement).value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                   setSearchQuery('');
                   setModuleCount('');
                   setShowModulePrompt(false);
