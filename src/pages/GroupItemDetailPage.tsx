@@ -15,6 +15,7 @@ import {
   Input,
   Textarea,
   Image,
+  chakra,
 } from '@chakra-ui/react';
 import {
   DialogRoot,
@@ -1051,11 +1052,10 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                 {!segIsWhole && (
                   <>
                     <Field label="Segment Type">
-                      <Box
-                        as="select"
+                      <chakra.select
                         value={segType}
-                        onChange={(e: React.FormEvent<HTMLDivElement>) => {
-                          setSegType((e.target as HTMLSelectElement).value);
+                        onChange={(e) => {
+                          setSegType(e.target.value);
                           setSegStart('');
                           setSegEnd('');
                         }}
@@ -1071,7 +1071,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                         <option value="chapters">Chapters</option>
                         <option value="pages">Pages</option>
                         <option value="percent">Percent</option>
-                      </Box>
+                      </chakra.select>
                     </Field>
 
                     <HStack gap={4}>

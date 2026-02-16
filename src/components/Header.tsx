@@ -13,6 +13,7 @@ import {
   Portal,
   Input,
   IconButton,
+  chakra,
 } from '@chakra-ui/react';
 import { LuSearch, LuX } from 'react-icons/lu';
 import { ColorModeButton, useColorModeValue, useColorMode, ColorModeIcon } from './ui/color-mode';
@@ -258,11 +259,10 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                     display={{ base: 'none', md: 'flex' }}
                   >
                     <Box minW="120px">
-                      <Box
-                        as="select"
+                      <chakra.select
                         value={mediaType}
-                        onChange={(e: React.FormEvent<HTMLDivElement>) => {
-                          setMediaType((e.target as HTMLSelectElement).value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
+                        onChange={(e) => {
+                          setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                           setSearchQuery('');
                         }}
                         w="100%"
@@ -280,7 +280,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         <option value="article">Article</option>
                         <option value="video">Video</option>
                         <option value="course">Course</option>
-                      </Box>
+                      </chakra.select>
                     </Box>
                     <Input
                       value={searchQuery}

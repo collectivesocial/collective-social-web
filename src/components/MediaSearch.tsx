@@ -9,6 +9,7 @@ import {
   VStack,
   HStack,
   Heading,
+  chakra,
 } from '@chakra-ui/react';
 import { DialogRoot, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogBackdrop, DialogPositioner } from './ui/dialog';
 import { Field } from './ui/field';
@@ -165,11 +166,10 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
         <Flex gap={4} direction={{ base: 'column', sm: 'row' }} mb={4}>
           <Box flex={{ base: 'none', sm: '0 0 150px' }}>
             <Field label="Media Type">
-              <Box
-                as="select"
+              <chakra.select
                 value={mediaType}
-                onChange={(e: React.FormEvent<HTMLDivElement>) => {
-                  setMediaType((e.target as HTMLSelectElement).value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
+                onChange={(e) => {
+                  setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
                   setSearchQuery('');
                   setModuleCount('');
                   setShowModulePrompt(false);
@@ -193,7 +193,7 @@ export function MediaSearch({ apiUrl, onSelect }: MediaSearchProps) {
                 <option value="article">Article</option>
                 <option value="video">Video</option>
                 <option value="course">Course</option>
-              </Box>
+              </chakra.select>
             </Field>
           </Box>
 

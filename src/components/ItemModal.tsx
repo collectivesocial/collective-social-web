@@ -13,6 +13,7 @@ import {
   Portal,
   IconButton,
   Badge,
+  chakra,
 } from '@chakra-ui/react';
 import { LuList } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
@@ -340,11 +341,10 @@ export function ItemModal({
                     <Field label="Add to Collection" required>
                       {!isCreatingNewList ? (
                         <VStack gap={2} align="stretch">
-                          <Box
-                            as="select"
+                          <chakra.select
                             value={selectedListUri}
-                            onChange={(e: React.FormEvent<HTMLDivElement>) => {
-                              const value = (e.target as HTMLSelectElement).value;
+                            onChange={(e) => {
+                              const value = e.target.value;
                               if (value === '__create_new__') {
                                 setIsCreatingNewList(true);
                               } else {
@@ -371,7 +371,7 @@ export function ItemModal({
                                 </option>
                               ))}
                             <option value="__create_new__">+ Create New List</option>
-                          </Box>
+                          </chakra.select>
                         </VStack>
                       ) : (
                         <VStack gap={2} align="stretch">
@@ -457,11 +457,10 @@ export function ItemModal({
                         <Field label="Move to Collection">
                           {!isCreatingNewList ? (
                             <>
-                              <Box
-                                as="select"
+                              <chakra.select
                                 value={selectedListUri}
-                                onChange={(e: React.FormEvent<HTMLDivElement>) => {
-                                  const value = (e.target as HTMLSelectElement).value;
+                                onChange={(e) => {
+                                  const value = e.target.value;
                                   if (value === '__create_new__') {
                                     setIsCreatingNewList(true);
                                   } else {
@@ -488,7 +487,7 @@ export function ItemModal({
                                     </option>
                                   ))}
                                 <option value="__create_new__">+ Create New List</option>
-                              </Box>
+                              </chakra.select>
                               {selectedListUri !== currentListUri && (
                                 <Text color="orange.500" fontSize="sm" mt={1}>
                                   ⚠️ Saving will move this item to the selected collection

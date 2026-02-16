@@ -7,6 +7,7 @@ import {
   Text,
   Textarea,
   VStack,
+  chakra,
 } from '@chakra-ui/react';
 import {
   DialogRoot,
@@ -171,12 +172,11 @@ export function AddMediaModal({
               )}
 
               <Field label="Media Type" required>
-                <Box
-                  as="select"
+                <chakra.select
                   value={mediaType}
-                  onChange={(e: React.FormEvent<HTMLDivElement>) =>
+                  onChange={(e) =>
                     setMediaType(
-                      (e.target as HTMLSelectElement).value as
+                      e.target.value as
                         | 'book'
                         | 'movie'
                         | 'tv'
@@ -204,7 +204,7 @@ export function AddMediaModal({
                   <option value="article">Article</option>
                   <option value="video">Video</option>
                   <option value="course">Course</option>
-                </Box>
+                </chakra.select>
               </Field>
 
               <Field label="Title" required>

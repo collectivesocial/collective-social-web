@@ -14,6 +14,7 @@ import {
   Center,
   Input,
   Textarea,
+  chakra,
 } from '@chakra-ui/react';
 import {
   DialogRoot,
@@ -329,7 +330,6 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
   const listPerm = permissions['app.collectivesocial.group.list'];
   const itemPerm = permissions['app.collectivesocial.group.listitem'];
   const statusPerm = permissions['app.collectivesocial.group.listitem.status'];
-  const _segmentPerm = permissions['app.collectivesocial.group.segment'];
 
   const completedCount = items.filter((i) => i.status === 'completed').length;
   const inProgressCount = items.filter(
@@ -597,10 +597,9 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   />
                 </Field>
                 <Field label="Purpose">
-                  <Box
-                    as="select"
+                  <chakra.select
                     value={editPurpose}
-                    onChange={(e: React.FormEvent<HTMLDivElement>) => setEditPurpose((e.target as HTMLSelectElement).value)}
+                    onChange={(e) => setEditPurpose(e.target.value)}
                     w="100%"
                     p="0.5rem 0.75rem"
                     bg="bg.subtle"
@@ -615,7 +614,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                     <option value="watchlist">🎬 Watchlist</option>
                     <option value="playlist">🎵 Playlist</option>
                     <option value="general">📋 General</option>
-                  </Box>
+                  </chakra.select>
                 </Field>
                 <Field label="Segment Type">
                   <Input
@@ -716,10 +715,9 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
             </DialogHeader>
             <DialogBody>
               <Field label="Status">
-                <Box
-                  as="select"
+                <chakra.select
                   value={statusValue}
-                  onChange={(e: React.FormEvent<HTMLDivElement>) => setStatusValue((e.target as HTMLSelectElement).value)}
+                  onChange={(e) => setStatusValue(e.target.value)}
                   w="100%"
                   p="0.5rem 0.75rem"
                   bg="bg.subtle"
@@ -733,7 +731,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   <option value="in-progress">In Progress</option>
                   <option value="completed">Completed</option>
                   <option value="dropped">Dropped</option>
-                </Box>
+                </chakra.select>
               </Field>
             </DialogBody>
             <DialogFooter>
