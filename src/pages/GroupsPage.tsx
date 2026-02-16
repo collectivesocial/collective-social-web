@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { safeFormatDate } from '../utils/time';
 import {
   Box,
   Container,
@@ -99,7 +100,7 @@ function GroupCard({
       )}
 
       <Text fontSize="xs" color="fg.subtle" mb={3}>
-        Created {new Date(community.created_at).toLocaleDateString()}
+        Created {safeFormatDate(community.created_at) || 'recently'}
       </Text>
 
       {community.is_member ? (

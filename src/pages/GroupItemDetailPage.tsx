@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { safeFormatDateLong } from '../utils/time';
 import {
   Box,
   Container,
@@ -143,11 +144,7 @@ const mediaTypeEmoji: Record<string, string> = {
 };
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  return safeFormatDateLong(dateStr) || 'Unknown date';
 }
 
 function segmentRangeLabel(seg: Segment): string {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { safeFormatDate } from '../utils/time';
 import {
   Box,
   Container,
@@ -273,7 +274,7 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
                 </HStack>
                 <Text fontSize="xs" color="fg.subtle">
                   Created{' '}
-                  {new Date(community.created_at).toLocaleDateString()}
+                  {safeFormatDate(community.created_at) || 'recently'}
                 </Text>
               </HStack>
             </Box>
@@ -430,7 +431,7 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
                       )}
                     </Box>
                     <Text fontSize="xs" color="fg.subtle" flexShrink={0}>
-                      {new Date(list.createdAt).toLocaleDateString()}
+                      {safeFormatDate(list.createdAt)}
                     </Text>
                   </Flex>
                 </Box>

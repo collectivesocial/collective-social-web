@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { safeFormatDate } from '../utils/time';
 import {
   Box,
   Container,
@@ -415,7 +416,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   </HStack>
                 )}
                 <Text fontSize="xs" color="fg.subtle">
-                  Created {new Date(list.createdAt).toLocaleDateString()}
+                  Created {safeFormatDate(list.createdAt) || 'recently'}
                 </Text>
               </HStack>
             </Box>

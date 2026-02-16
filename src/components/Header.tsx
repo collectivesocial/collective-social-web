@@ -185,6 +185,7 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
       <Container maxW="container.xl" h="full">
         <Flex
           py={isAuthenticated ? 0 : 4}
+          pt={isAuthenticated ? { base: '12px', md: 0 } : undefined}
           h="full"
           justify="space-between"
           align="center"
