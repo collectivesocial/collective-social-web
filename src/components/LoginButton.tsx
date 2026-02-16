@@ -40,7 +40,7 @@ export function LoginButton({ apiUrl }: LoginButtonProps) {
     <Box maxW="400px" mx="auto">
       <form onSubmit={handleLogin}>
         <VStack gap={4} align="stretch">
-          <Heading size="lg" fontFamily="heading">Login with Bluesky</Heading>
+          <Heading size="lg" fontFamily="heading">Login with ATProto</Heading>
           <Field label="Handle or DID">
             <Input
               type="text"
@@ -58,7 +58,7 @@ export function LoginButton({ apiUrl }: LoginButtonProps) {
             size="lg"
             cursor={isLoading ? 'wait' : 'pointer'}
           >
-            {isLoading ? 'Redirecting...' : 'Login with Bluesky'}
+            {isLoading ? 'Redirecting...' : 'Login with ATProto'}
           </Button>
           {error && (
             <Text color="fg.error" fontSize="sm">{error}</Text>
