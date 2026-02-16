@@ -3,10 +3,10 @@ import { Box, Button, Heading, Input, Text, VStack } from '@chakra-ui/react';
 import { Field } from './ui/field';
 
 interface LoginButtonProps {
-  apiUrl?: string;
+  apiUrl: string;
 }
 
-export function LoginButton({ apiUrl = 'http://127.0.0.1:3000' }: LoginButtonProps) {
+export function LoginButton({ apiUrl }: LoginButtonProps) {
   const [handle, setHandle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

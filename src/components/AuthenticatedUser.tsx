@@ -11,10 +11,10 @@ interface UserProfile {
 }
 
 interface AuthenticatedUserProps {
-  apiUrl?: string;
+  apiUrl: string;
 }
 
-export function AuthenticatedUser({ apiUrl = 'http://127.0.0.1:3000' }: AuthenticatedUserProps) {
+export function AuthenticatedUser({ apiUrl }: AuthenticatedUserProps) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
