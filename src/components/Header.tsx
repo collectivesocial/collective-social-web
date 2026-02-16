@@ -171,7 +171,8 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
       top={0}
       left={0}
       right={0}
-      h={isAuthenticated ? '64px' : 'auto'}
+      h={isAuthenticated ? { base: 'auto', md: '64px' } : 'auto'}
+      minH={isAuthenticated ? '64px' : undefined}
       bg="bg.nav"
       backdropFilter="blur(12px)"
       css={{ WebkitBackdropFilter: "blur(12px)" }}
@@ -251,58 +252,72 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
             {isAuthenticated && (
               <>
                 {searchExpanded ? (
-                  <Flex
-                    as="form"
-                    onSubmit={handleSearchSubmit}
-                    gap={2}
-                    align="center"
-                    display={{ base: 'none', md: 'flex' }}
-                  >
-                    <Box minW="120px">
-                      <chakra.select
-                        value={mediaType}
-                        onChange={(e) => {
-                          setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
-                          setSearchQuery('');
-                        }}
-                        w="100%"
-                        p="0.5rem"
-                        bg="bg.elevated"
-                        borderWidth="1px"
-                        borderColor="border.subtle"
-                        borderRadius="lg"
-                        fontSize="sm"
-                        color="fg.default"
+                  <>
+                    {/* Desktop: inline search form */}
+                    <Flex
+                      as="form"
+                      onSubmit={handleSearchSubmit}
+                      gap={2}
+                      align="center"
+                      display={{ base: 'none', md: 'flex' }}
+                    >
+                      <Box minW="120px">
+                        <chakra.select
+                          value={mediaType}
+                          onChange={(e) => {
+                            setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
+                            setSearchQuery('');
+                          }}
+                          w="100%"
+                          p="0.5rem"
+                          bg="bg.elevated"
+                          borderWidth="1px"
+                          borderColor="border.subtle"
+                          borderRadius="lg"
+                          fontSize="sm"
+                          color="fg.default"
+                        >
+                          <option value="book">Book</option>
+                          <option value="movie">Movie</option>
+                          <option value="tv">TV Show</option>
+                          <option value="article">Article</option>
+                          <option value="video">Video</option>
+                          <option value="course">Course</option>
+                        </chakra.select>
+                      </Box>
+                      <Input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={
+                          (mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv') ? 'Search...' : 'Paste URL...'
+                        }
+                        size="sm"
+                        w="200px"
+                        autoFocus
+                        disabled={isProcessing}
+                      />
+                      <IconButton
+                        aria-label="Close search"
+                        size="sm"
+                        variant="ghost"
+                        bg="transparent"
+                        onClick={handleSearchToggle}
                       >
-                        <option value="book">Book</option>
-                        <option value="movie">Movie</option>
-                        <option value="tv">TV Show</option>
-                        <option value="article">Article</option>
-                        <option value="video">Video</option>
-                        <option value="course">Course</option>
-                      </chakra.select>
-                    </Box>
-                    <Input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={
-                        (mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv') ? 'Search...' : 'Paste URL...'
-                      }
-                      size="sm"
-                      w="200px"
-                      autoFocus
-                      disabled={isProcessing}
-                    />
+                        <LuX />
+                      </IconButton>
+                    </Flex>
+                    {/* Mobile: close button inline, form drops below header */}
                     <IconButton
                       aria-label="Close search"
                       size="sm"
                       variant="ghost"
                       bg="transparent"
                       onClick={handleSearchToggle}
+                      display={{ base: 'flex', md: 'none' }}
                     >
                       <LuX />
                     </IconButton>
-                  </Flex>
+                  </>
                 ) : (
                   <IconButton
                     aria-label="Search"
@@ -310,7 +325,6 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                     variant="ghost"
                     onClick={handleSearchToggle}
                     bg="transparent"
-                    display={{ base: 'none', md: 'flex' }}
                   >
                     <LuSearch />
                   </IconButton>
@@ -392,6 +406,61 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
           </HStack>
         </Flex>
       </Container>
+
+      {/* Mobile search bar — drops below header when expanded */}
+      {isAuthenticated && searchExpanded && (
+        <Box
+          display={{ base: 'block', md: 'none' }}
+          borderTop="1px solid"
+          borderColor="border.subtle"
+          bg="bg.nav"
+          px={4}
+          py={3}
+        >
+          <Flex
+            as="form"
+            onSubmit={handleSearchSubmit}
+            gap={2}
+            align="center"
+          >
+            <Box minW="100px" flex="0 0 auto">
+              <chakra.select
+                value={mediaType}
+                onChange={(e) => {
+                  setMediaType(e.target.value as 'book' | 'article' | 'video' | 'movie' | 'tv' | 'course');
+                  setSearchQuery('');
+                }}
+                w="100%"
+                p="0.5rem"
+                bg="bg.elevated"
+                borderWidth="1px"
+                borderColor="border.subtle"
+                borderRadius="lg"
+                fontSize="sm"
+                color="fg.default"
+              >
+                <option value="book">Book</option>
+                <option value="movie">Movie</option>
+                <option value="tv">TV Show</option>
+                <option value="article">Article</option>
+                <option value="video">Video</option>
+                <option value="course">Course</option>
+              </chakra.select>
+            </Box>
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                (mediaType === 'book' || mediaType === 'movie' || mediaType === 'tv') ? 'Search...' : 'Paste URL...'
+              }
+              size="sm"
+              flex="1"
+              autoFocus
+              disabled={isProcessing}
+            />
+          </Flex>
+        </Box>
+      )}
     </Box>
   );
 }
