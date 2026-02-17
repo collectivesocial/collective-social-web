@@ -148,7 +148,7 @@ export function GoalModal({
                       padding: '0.5rem',
                       backgroundColor: 'var(--chakra-colors-bg-elevated)',
                       border: '1px solid var(--chakra-colors-border-subtle)',
-                      borderRadius: '0.5rem',
+                      borderRadius: 'var(--chakra-radii-lg)',
                       fontSize: '0.875rem',
                       color: 'var(--chakra-colors-fg-default)',
                     }}
