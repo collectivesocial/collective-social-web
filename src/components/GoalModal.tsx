@@ -138,27 +138,27 @@ export function GoalModal({
                 </Field>
 
                 <Field label="Media Type">
-                  <Box
-                    as="select"
+                  <select
                     value={formData.mediaType}
-                    onChange={(e: any) =>
+                    onChange={(e) =>
                       onChange({ ...formData, mediaType: e.target.value })
                     }
-                    w="100%"
-                    p="0.5rem"
-                    bg="bg.elevated"
-                    borderWidth="1px"
-                    borderColor="border.subtle"
-                    borderRadius="lg"
-                    fontSize="sm"
-                    color="fg.default"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem',
+                      backgroundColor: 'var(--chakra-colors-bg-elevated)',
+                      border: '1px solid var(--chakra-colors-border-subtle)',
+                      borderRadius: 'var(--chakra-radii-lg)',
+                      fontSize: 'var(--chakra-fontSizes-sm)',
+                      color: 'var(--chakra-colors-fg-default)',
+                    }}
                   >
                     {MEDIA_TYPES.map((mt) => (
                       <option key={mt.value} value={mt.value}>
                         {mt.label}
                       </option>
                     ))}
-                  </Box>
+                  </select>
                 </Field>
 
                 <Field label="Target Count" required>
