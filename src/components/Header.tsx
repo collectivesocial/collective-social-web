@@ -245,6 +245,20 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                 >
                   <RouterLink to="/groups">Groups</RouterLink>
                 </Link>
+                <Link
+                  asChild
+                  fontSize="sm"
+                  fontWeight="500"
+                  color="fg.muted"
+                  textTransform="uppercase"
+                  letterSpacing="0.05em"
+                  _hover={{
+                    color: 'accent.default',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <RouterLink to="/goals">Goals</RouterLink>
+                </Link>
               </HStack>
             )}
           </HStack>
@@ -371,6 +385,9 @@ export function Header({ user, isAuthenticated, apiUrl }: HeaderProps) {
                         </Menu.Item>
                         <Menu.Item value="groups" asChild>
                           <RouterLink to="/groups">Groups</RouterLink>
+                        </Menu.Item>
+                        <Menu.Item value="goals" asChild>
+                          <RouterLink to="/goals">Goals</RouterLink>
                         </Menu.Item>
                         <Menu.Separator />
                       </Box>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Flex, VStack, Text, IconButton, Drawer } from '@chakra-ui/react';
-import { LuUsers, LuMessageSquare, LuFilm, LuShare2, LuMenu, LuTags, LuFlag } from 'react-icons/lu';
+import { LuUsers, LuMessageSquare, LuFilm, LuShare2, LuMenu, LuTags, LuFlag, LuChartBar } from 'react-icons/lu';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -25,6 +25,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navSections: NavSection[] = [
+    {
+      title: 'Analytics',
+      items: [
+        { label: 'Dashboard', path: '/admin/analytics', icon: <LuChartBar size={18} /> },
+      ],
+    },
     {
       title: 'Users',
       items: [

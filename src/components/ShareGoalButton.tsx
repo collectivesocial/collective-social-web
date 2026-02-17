@@ -4,39 +4,48 @@ import { toaster } from './ui/toaster';
 import { LuShare2, LuCopy } from 'react-icons/lu';
 import { SiBluesky } from 'react-icons/si';
 
-interface ShareCollectionButtonProps {
+interface ShareGoalButtonProps {
   apiUrl: string;
-  collectionUri: string;
-  collectionName: string;
+  goalUri: string;
+  goalTitle: string;
+  completedCount: number;
+  targetCount: number;
+  mediaType: string | null;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   variant?: 'solid' | 'outline' | 'ghost';
 }
 
-export function ShareCollectionButton({ 
-  apiUrl, 
-  collectionUri,
-  collectionName,
+export function ShareGoalButton({
+  apiUrl,
+  goalUri,
+  goalTitle,
+  completedCount,
+  targetCount,
+  mediaType,
   size = 'md',
-  variant = 'ghost' 
-}: ShareCollectionButtonProps) {
+  variant = 'ghost',
+}: ShareGoalButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
 
+  const mediaLabel = mediaType || 'items';
+  const emoji =
+    mediaType === 'book' ? '📚' :
+    mediaType === 'movie' ? '🎬' :
+    mediaType === 'tv' ? '📺' : '🎯';
+  const percentage = Math.min(100, Math.round((completedCount / targetCount) * 100));
+
   const handleOpenDialog = async () => {
     setIsOpen(true);
     setIsLoading(true);
-    
+
     try {
       const response = await fetch(`${apiUrl}/share`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          collectionUri,
-        }),
+        body: JSON.stringify({ goalUri }),
       });
 
       if (!response.ok) {
@@ -61,7 +70,7 @@ export function ShareCollectionButton({
 
   const handleCopyLink = async () => {
     if (!shareUrl) return;
-    
+
     try {
       await navigator.clipboard.writeText(shareUrl);
       toaster.create({
@@ -80,10 +89,12 @@ export function ShareCollectionButton({
     }
   };
 
+  const blueskyText = `${emoji} ${goalTitle}: ${completedCount} of ${targetCount} ${mediaLabel} completed (${percentage}%)! Track your goals on @collectivesocial.app: ${shareUrl || ''}`;
+
   return (
     <>
       <IconButton
-        aria-label="Share this collection"
+        aria-label="Share this goal"
         onClick={handleOpenDialog}
         variant={variant}
         size={size}
@@ -99,21 +110,37 @@ export function ShareCollectionButton({
           <Dialog.Positioner>
             <Dialog.Content>
               <Dialog.Header>
-                <Dialog.Title>Share this collection</Dialog.Title>
+                <Dialog.Title>Share your goal progress</Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
                 {isLoading ? (
                   <Text color="fg.muted">Generating share link...</Text>
                 ) : shareUrl ? (
                   <VStack gap={4} align="stretch">
+                    {/* Preview */}
+                    <Box
+                      p={4}
+                      bg="bg.subtle"
+                      borderRadius="lg"
+                      borderWidth="1px"
+                      borderColor="border.subtle"
+                    >
+                      <Text fontWeight="bold" mb={1}>
+                        {emoji} {goalTitle}
+                      </Text>
+                      <Text fontSize="sm" color="fg.muted">
+                        {completedCount} of {targetCount} {mediaLabel} completed ({percentage}%)
+                      </Text>
+                    </Box>
+
                     <Box>
                       <Text fontSize="sm" fontWeight="medium" mb={2}>
                         Share Link
                       </Text>
                       <HStack>
-                        <Input 
-                          value={shareUrl} 
-                          readOnly 
+                        <Input
+                          value={shareUrl}
+                          readOnly
                           size="sm"
                           fontFamily="mono"
                           fontSize="xs"
@@ -130,7 +157,7 @@ export function ShareCollectionButton({
                         </Button>
                       </HStack>
                     </Box>
-                    
+
                     <Box>
                       <Text fontSize="sm" fontWeight="medium" mb={2}>
                         Share to Bluesky
@@ -143,9 +170,7 @@ export function ShareCollectionButton({
                         color="white"
                       >
                         <a
-                          href={`https://bsky.app/intent/compose?text=${encodeURIComponent(
-                            `Check out my collection "${collectionName}" on @collectivesocial.app: ${shareUrl}`
-                          )}`}
+                          href={`https://bsky.app/intent/compose?text=${encodeURIComponent(blueskyText)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => {
@@ -153,7 +178,7 @@ export function ShareCollectionButton({
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               credentials: 'include',
-                              body: JSON.stringify({ shareType: 'collection', shareTargetId: collectionUri }),
+                              body: JSON.stringify({ shareType: 'goal', shareTargetId: goalUri }),
                             }).catch(() => {});
                           }}
                         >
@@ -161,7 +186,7 @@ export function ShareCollectionButton({
                         </a>
                       </Button>
                     </Box>
-                    
+
                     <Box>
                       <Text fontSize="sm" fontWeight="medium" mb={2}>
                         QR Code

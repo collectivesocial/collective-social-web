@@ -80,6 +80,12 @@ export function ShareReviewButton({
 
   const handleShareToBluesky = () => {
     if (shareUrl) {
+      fetch(`${apiUrl}/share/bluesky-click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ shareType: 'review', shareTargetId: String(reviewId) }),
+      }).catch(() => {});
       const text = itemTitle 
         ? `Check out my review: ${itemTitle}` 
         : 'Check out my review on Collective!';

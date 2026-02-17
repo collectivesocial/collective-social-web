@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -11,7 +12,9 @@ import {
   SimpleGrid,
   Badge,
   Image,
+  HStack,
 } from '@chakra-ui/react';
+import { ProgressBar, ProgressRoot } from './ui/progress';
 import { EmptyState } from './EmptyState';
 import { FollowButton } from './FollowButton';
 import { ProgressBarDisplay } from './ProgressBarDisplay';
@@ -71,6 +74,17 @@ interface InProgressItem {
   mediaItem?: MediaItem;
 }
 
+interface PublicGoal {
+  uri: string;
+  title: string;
+  mediaType: string | null;
+  targetCount: number;
+  startDate: string;
+  endDate: string;
+  completedCount: number;
+  percentage: number;
+}
+
 interface UserProfileViewProps {
   apiUrl: string;
   user: UserProfile;
@@ -93,6 +107,15 @@ export function UserProfileView({
   onFollowChange,
 }: UserProfileViewProps) {
   const navigate = useNavigate();
+  const [publicGoals, setPublicGoals] = useState<PublicGoal[]>([]);
+
+  useEffect(() => {
+    // Fetch public goals for this user
+    fetch(`${apiUrl}/goals/user/${user.did}`, { credentials: 'include' })
+      .then((res) => (res.ok ? res.json() : { goals: [] }))
+      .then((data) => setPublicGoals(data.goals || []))
+      .catch(() => setPublicGoals([]));
+  }, [apiUrl, user.did]);
 
   // Check if user is in the database (has used Collective)
   const isInDatabase = (user.collectionCount !== undefined && user.collectionCount > 0) || 
@@ -327,6 +350,63 @@ export function UserProfileView({
                 );
               })}
             </SimpleGrid>
+          </Box>
+        )}
+
+        {/* Public Goals */}
+        {publicGoals.length > 0 && (
+          <Box
+            bg="bg.card"
+            borderWidth="1px"
+            borderColor="border.card"
+            borderRadius="xl"
+            p={{ base: 4, md: 8 }}
+          >
+            <Heading size={{ base: 'lg', md: 'xl' }} mb={{ base: 4, md: 6 }} fontFamily="heading">
+              Goals
+            </Heading>
+            <VStack gap={4} align="stretch">
+              {publicGoals.map((goal) => {
+                const emoji =
+                  goal.mediaType === 'book' ? '📚' :
+                  goal.mediaType === 'movie' ? '🎬' :
+                  goal.mediaType === 'tv' ? '📺' : '🎯';
+                const active = new Date(goal.endDate).getTime() >= Date.now();
+
+                return (
+                  <Box
+                    key={goal.uri}
+                    p={4}
+                    bg="bg.subtle"
+                    borderRadius="lg"
+                    borderWidth="1px"
+                    borderColor="border.subtle"
+                    opacity={active ? 1 : 0.7}
+                  >
+                    <Flex justify="space-between" align="center" mb={2}>
+                      <HStack gap={2}>
+                        <Text fontSize="lg">{emoji}</Text>
+                        <Text fontWeight="bold" fontSize="sm">{goal.title}</Text>
+                        {!active && (
+                          <Badge colorPalette="gray" variant="subtle" fontSize="xs">Ended</Badge>
+                        )}
+                      </HStack>
+                      <Text fontSize="sm" fontWeight="medium" color={goal.percentage >= 100 ? 'green.600' : 'fg.muted'}>
+                        {goal.completedCount} / {goal.targetCount} ({goal.percentage}%)
+                      </Text>
+                    </Flex>
+                    <ProgressRoot
+                      value={goal.percentage}
+                      size="sm"
+                      colorPalette={goal.percentage >= 100 ? 'green' : 'accent'}
+                      borderRadius="full"
+                    >
+                      <ProgressBar />
+                    </ProgressRoot>
+                  </Box>
+                );
+              })}
+            </VStack>
           </Box>
         )}
 

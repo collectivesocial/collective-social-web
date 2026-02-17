@@ -12,6 +12,7 @@ import { GroupsPage } from './pages/GroupsPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
 import { GroupListDetailPage } from './pages/GroupListDetailPage'
 import { GroupItemDetailPage } from './pages/GroupItemDetailPage'
+import { GoalsPage } from './pages/GoalsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { SearchResultsPage } from './pages/SearchResultsPage'
 import { TagSearchPage } from './pages/TagSearchPage'
@@ -21,6 +22,7 @@ import { AdminMediaItemsPage } from './pages/admin/AdminMediaItemsPage'
 import { AdminShareLinksPage } from './pages/admin/AdminShareLinksPage'
 import { AdminTagsPage } from './pages/admin/AdminTagsPage'
 import { AdminTagReportsPage } from './pages/admin/AdminTagReportsPage'
+import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage'
 import { FeedbackPage } from './pages/FeedbackPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { ShareRedirectPage } from './pages/ShareRedirectPage'
@@ -112,6 +114,10 @@ function App() {
                 element={<CollectionDetailsPage apiUrl={apiUrl} />} 
               />
               <Route 
+                path="/goals" 
+                element={<GoalsPage apiUrl={apiUrl} />} 
+              />
+              <Route 
                 path="/groups" 
                 element={<GroupsPage apiUrl={apiUrl} openSocialWebUrl={openSocialWebUrl} />} 
               />
@@ -142,6 +148,10 @@ function App() {
               <Route 
                 path="/admin" 
                 element={<AdminUsersPage apiUrl={apiUrl} />} 
+              />
+              <Route 
+                path="/admin/analytics" 
+                element={<AdminAnalyticsPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/admin/users" 

@@ -153,6 +153,14 @@ export function ShareButton({
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => {
+                            fetch(`${apiUrl}/share/bluesky-click`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              credentials: 'include',
+                              body: JSON.stringify({ shareType: 'item', shareTargetId: String(mediaItemId) }),
+                            }).catch(() => {});
+                          }}
                         >
                           <SiBluesky /> Share on Bluesky
                         </a>
