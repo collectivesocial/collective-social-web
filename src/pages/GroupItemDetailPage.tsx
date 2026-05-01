@@ -147,6 +147,58 @@ function formatDate(dateStr: string): string {
   return safeFormatDateLong(dateStr) || 'Unknown date';
 }
 
+function formatICSDate(dateStr: string): string {
+  // Returns a DATE value (all-day) in YYYYMMDD format
+  const d = new Date(dateStr);
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}${m}${day}`;
+}
+
+function buildICS(segments: Segment[], itemTitle: string): string {
+  const lines: string[] = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Collective Social//Book Club//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+  ];
+
+  for (const seg of segments) {
+    if (!seg.assignedDate) continue;
+
+    const dateVal = formatICSDate(seg.assignedDate);
+    // DTEND for an all-day event is the next day
+    const dtEnd = (() => {
+      const d = new Date(seg.assignedDate);
+      d.setUTCDate(d.getUTCDate() + 1);
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${y}${m}${day}`;
+    })();
+
+    const rangeLabel = segmentRangeLabel(seg);
+    const summary = `${seg.label} – ${itemTitle}`;
+    const description = rangeLabel ? `${rangeLabel}` : '';
+    const uid = `${seg.rkey}@collectivesocial`;
+
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTART;VALUE=DATE:${dateVal}`);
+    lines.push(`DTEND;VALUE=DATE:${dtEnd}`);
+    lines.push(`SUMMARY:${summary.replace(/[\\;,]/g, (c) => '\\' + c)}`);
+    if (description) {
+      lines.push(`DESCRIPTION:${description.replace(/[\\;,]/g, (c) => '\\' + c)}`);
+    }
+    lines.push('END:VEVENT');
+  }
+
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+
 function segmentRangeLabel(seg: Segment): string {
   if (seg.segmentType === 'chapters' && seg.startChapter != null) {
     if (seg.endChapter != null && seg.endChapter !== seg.startChapter) {
@@ -528,6 +580,21 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
     }
   };
 
+  // ── Export to calendar ────────────────────────────────────────
+
+  const handleExportCalendar = () => {
+    const icsContent = buildICS(segments, item?.title || 'Book Club');
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${(item?.title || 'book-club').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-schedule.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // ── Track in library ───────────────────────────────────────────
 
   const handleTrackInLibrary = async () => {
@@ -801,11 +868,18 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
             <Heading size="md" fontFamily="heading">
               📅 Reading Schedule
             </Heading>
-            {segmentPerm?.canCreate && (
-              <Button size="sm" colorPalette="accent" variant="outline" onClick={openAddSegment}>
-                + Add Assignment
-              </Button>
-            )}
+            <HStack gap={2}>
+              {segments.some((s) => s.assignedDate) && (
+                <Button size="sm" variant="outline" onClick={handleExportCalendar}>
+                  📆 Export to Calendar
+                </Button>
+              )}
+              {segmentPerm?.canCreate && (
+                <Button size="sm" colorPalette="accent" variant="outline" onClick={openAddSegment}>
+                  + Add Assignment
+                </Button>
+              )}
+            </HStack>
           </Flex>
 
           {segments.length > 0 ? (
