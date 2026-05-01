@@ -156,15 +156,30 @@ function dateToICSDate(d: Date): string {
 }
 
 function escapeICSText(str: string): string {
-  // RFC 5545: escape backslashes, semicolons, commas, and newlines
+  // RFC 5545: normalize all newline variants first, then escape backslashes,
+  // semicolons, commas, and newlines
   return str
+    .replace(/\r\n|\r/g, '\n')
     .replace(/\\/g, '\\\\')
     .replace(/;/g, '\\;')
     .replace(/,/g, '\\,')
     .replace(/\n/g, '\\n');
 }
 
-function buildICS(segments: Segment[], itemTitle: string): string {
+function buildICS(segments: Segment[], itemTitle: string, groupDid: string, itemUri: string): string {
+  const now = new Date();
+  // DTSTAMP in UTC: YYYYMMDDTHHmmssZ
+  const dtstamp = [
+    now.getUTCFullYear(),
+    String(now.getUTCMonth() + 1).padStart(2, '0'),
+    String(now.getUTCDate()).padStart(2, '0'),
+    'T',
+    String(now.getUTCHours()).padStart(2, '0'),
+    String(now.getUTCMinutes()).padStart(2, '0'),
+    String(now.getUTCSeconds()).padStart(2, '0'),
+    'Z',
+  ].join('');
+
   const lines: string[] = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -182,10 +197,12 @@ function buildICS(segments: Segment[], itemTitle: string): string {
 
     const rangeLabel = segmentRangeLabel(seg);
     const summary = `${seg.label} – ${itemTitle}`;
-    const uid = `${seg.rkey}@collectivesocial`;
+    // Incorporate group/item context so UIDs are globally unique
+    const uid = `${encodeURIComponent(groupDid)}-${encodeURIComponent(itemUri)}-${seg.rkey}@collectivesocial.app`;
 
     lines.push('BEGIN:VEVENT');
     lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${dtstamp}`);
     lines.push(`DTSTART;VALUE=DATE:${dateToICSDate(startDate)}`);
     lines.push(`DTEND;VALUE=DATE:${dateToICSDate(endDate)}`);
     lines.push(`SUMMARY:${escapeICSText(summary)}`);
@@ -583,16 +600,26 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
   // ── Export to calendar ────────────────────────────────────────
 
   const handleExportCalendar = () => {
-    const icsContent = buildICS(segments, item?.title || 'Book Club');
+    const icsContent = buildICS(
+      segments,
+      item?.title || 'Book Club',
+      groupDid || '',
+      item?.uri || ''
+    );
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${(item?.title || 'book-club').replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase()}-schedule.ics`;
+    const sanitizedTitle = (item?.title || '')
+      .replace(/[^a-z0-9]/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase();
+    link.download = `${sanitizedTitle || 'book-club'}-schedule.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   // ── Track in library ───────────────────────────────────────────
