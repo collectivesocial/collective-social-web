@@ -147,13 +147,21 @@ function formatDate(dateStr: string): string {
   return safeFormatDateLong(dateStr) || 'Unknown date';
 }
 
-function formatICSDate(dateStr: string): string {
-  // Returns a DATE value (all-day) in YYYYMMDD format
-  const d = new Date(dateStr);
+function dateToICSDate(d: Date): string {
+  // Returns a DATE value (all-day) in YYYYMMDD format using UTC
   const y = d.getUTCFullYear();
   const m = String(d.getUTCMonth() + 1).padStart(2, '0');
   const day = String(d.getUTCDate()).padStart(2, '0');
   return `${y}${m}${day}`;
+}
+
+function escapeICSText(str: string): string {
+  // RFC 5545: escape backslashes, semicolons, commas, and newlines
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\n/g, '\\n');
 }
 
 function buildICS(segments: Segment[], itemTitle: string): string {
@@ -168,29 +176,21 @@ function buildICS(segments: Segment[], itemTitle: string): string {
   for (const seg of segments) {
     if (!seg.assignedDate) continue;
 
-    const dateVal = formatICSDate(seg.assignedDate);
-    // DTEND for an all-day event is the next day
-    const dtEnd = (() => {
-      const d = new Date(seg.assignedDate);
-      d.setUTCDate(d.getUTCDate() + 1);
-      const y = d.getUTCFullYear();
-      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(d.getUTCDate()).padStart(2, '0');
-      return `${y}${m}${day}`;
-    })();
+    const startDate = new Date(seg.assignedDate);
+    const endDate = new Date(seg.assignedDate);
+    endDate.setUTCDate(endDate.getUTCDate() + 1);
 
     const rangeLabel = segmentRangeLabel(seg);
     const summary = `${seg.label} – ${itemTitle}`;
-    const description = rangeLabel ? `${rangeLabel}` : '';
     const uid = `${seg.rkey}@collectivesocial`;
 
     lines.push('BEGIN:VEVENT');
     lines.push(`UID:${uid}`);
-    lines.push(`DTSTART;VALUE=DATE:${dateVal}`);
-    lines.push(`DTEND;VALUE=DATE:${dtEnd}`);
-    lines.push(`SUMMARY:${summary.replace(/[\\;,]/g, (c) => '\\' + c)}`);
-    if (description) {
-      lines.push(`DESCRIPTION:${description.replace(/[\\;,]/g, (c) => '\\' + c)}`);
+    lines.push(`DTSTART;VALUE=DATE:${dateToICSDate(startDate)}`);
+    lines.push(`DTEND;VALUE=DATE:${dateToICSDate(endDate)}`);
+    lines.push(`SUMMARY:${escapeICSText(summary)}`);
+    if (rangeLabel) {
+      lines.push(`DESCRIPTION:${escapeICSText(rangeLabel)}`);
     }
     lines.push('END:VEVENT');
   }
@@ -588,7 +588,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${(item?.title || 'book-club').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-schedule.ics`;
+    link.download = `${(item?.title || 'book-club').replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase()}-schedule.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
