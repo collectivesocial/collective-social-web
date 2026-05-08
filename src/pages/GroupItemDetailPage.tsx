@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { safeFormatDateLong } from '../utils/time';
+import { canSeeDiscussion as checkCanSeeDiscussion } from '../utils/discussion';
 import {
   Box,
   Container,
@@ -656,12 +657,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
    * Admins (users who can create segments) bypass the spoiler gate.
    */
   const canSeeDiscussion = (seg: Segment): boolean => {
-    if (segmentPerm?.canCreate) return true;
-    if (myProgressSet.has(seg.uri)) return true;
-    for (const s of segments) {
-      if (s.order > seg.order && myProgressSet.has(s.uri)) return true;
-    }
-    return false;
+    return checkCanSeeDiscussion(seg, segments, myProgressSet, !!segmentPerm?.canCreate);
   };
 
   const renderPostTree = (posts: Post[], segRkey: string, segUri: string, depth = 0) => {
