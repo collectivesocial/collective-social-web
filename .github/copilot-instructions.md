@@ -466,6 +466,16 @@ Use Chakra's gap/padding scale:
 Currently no automated tests. Manual testing via:
 - Browser dev tools
 - React DevTools
+
+## Installed Skills (gstack)
+
+This project has gstack skills installed in `.github/copilot-skills/` for structured AI-assisted development workflows:
+- **review.md** — Pre-landing PR review (SQL safety, trust boundaries, structural issues)
+- **qa.md** — QA testing workflows
+- **ship.md** — Shipping/PR creation workflows
+- **investigate.md** — Debugging and investigation workflows
+
+Reference these skills when performing code review, QA, shipping, or debugging tasks.
 - Network tab for API calls
 
 ## Performance Considerations

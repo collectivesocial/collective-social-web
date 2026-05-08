@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { safeFormatDateLong } from '../utils/time';
+import { canSeeDiscussion as checkCanSeeDiscussion } from '../utils/discussion';
 import {
   Box,
   Container,
@@ -653,14 +654,10 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
   /**
    * Determine if the user can see discussion for a segment.
    * They can if they've completed this segment OR any later-ordered segment.
+   * Admins (users who can create segments) bypass the spoiler gate.
    */
   const canSeeDiscussion = (seg: Segment): boolean => {
-    if (myProgressSet.has(seg.uri)) return true;
-    // Check if user has completed any segment with higher order
-    for (const s of segments) {
-      if (s.order > seg.order && myProgressSet.has(s.uri)) return true;
-    }
-    return false;
+    return checkCanSeeDiscussion(seg, segments, myProgressSet, !!segmentPerm?.canCreate);
   };
 
   const renderPostTree = (posts: Post[], segRkey: string, segUri: string, depth = 0) => {
@@ -710,16 +707,18 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
 
         {replyingTo === post.uri && (
           <Box ml={6} mt={2}>
-            <HStack gap={2}>
+            <VStack gap={2} align="stretch">
               <Textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Write a reply..."
                 size="sm"
                 rows={2}
-                flex={1}
               />
-              <VStack gap={1}>
+              <HStack gap={1} justifyContent="flex-end">
+                <Button size="xs" variant="ghost" onClick={() => setReplyingTo(null)}>
+                  Cancel
+                </Button>
                 <Button
                   size="xs"
                   colorPalette="accent"
@@ -728,11 +727,8 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                 >
                   {postingComment ? '...' : 'Send'}
                 </Button>
-                <Button size="xs" variant="ghost" onClick={() => setReplyingTo(null)}>
-                  Cancel
-                </Button>
-              </VStack>
-            </HStack>
+              </HStack>
+            </VStack>
           </Box>
         )}
 
@@ -1052,24 +1048,24 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
 
                               {/* New comment form */}
                               {postPerm?.canCreate && (
-                                <HStack gap={2} mt={2}>
+                                <VStack gap={2} mt={2} align="stretch">
                                   <Textarea
                                     value={postText}
                                     onChange={(e) => setPostText(e.target.value)}
                                     placeholder="Share your thoughts on this section..."
                                     size="sm"
                                     rows={2}
-                                    flex={1}
                                   />
                                   <Button
                                     size="sm"
                                     colorPalette="accent"
+                                    alignSelf="flex-end"
                                     onClick={() => handlePostComment(seg.rkey, seg.uri)}
                                     disabled={!postText.trim() || postingComment}
                                   >
                                     {postingComment ? '...' : 'Post'}
                                   </Button>
-                                </HStack>
+                                </VStack>
                               )}
                             </VStack>
                           ) : (
