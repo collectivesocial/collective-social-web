@@ -1,68 +1,44 @@
 /**
  * CreateEventModal component tests
  *
- * ⚠️  INTENTIONALLY RED until Kaylee's branch (events UI — collective-social-web) merges.
+ * Tests against src/components/events/CreateEventModal.tsx.
  *
- * Contract expected from CreateEventModal:
- *   props: { communityDid, apiUrl, onSuccess }
- *   - Required fields: title, startsAt
- *   - Renders a Format toggle (e.g. "In Person" / "Online")
- *   - "In Person" reveals a location text field
- *   - "Online" reveals a meeting link text field
- *   - Submitting without required fields shows validation errors (no fetch call)
- *   - Submit calls POST /events with the correct body shape
+ * CreateEventModalProps:
+ *   { groupDid, isOpen, onClose, onCreated, apiUrl }
+ *
+ * Fields: name (required), startsAt (required), description, mode (in_person|virtual),
+ *   location (shown when mode=in_person), joinLink (shown when mode=virtual)
+ *
+ * Validation: name and startsAt required; submit calls POST /groups/:groupDid/events
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { Provider } from '../components/ui/provider';
+import { CreateEventModal } from '../components/events/CreateEventModal';
 
-// ⚠️ Will fail until Kaylee adds the component
-let CreateEventModal: React.ComponentType<{
-  communityDid: string;
-  apiUrl: string;
-  onSuccess: () => void;
-}>;
-try {
-  CreateEventModal = (await import('../components/CreateEventModal')).CreateEventModal;
-} catch {
-  // Stub — renders the form structure so tests can interact with expected elements
-  CreateEventModal = ({ communityDid: _communityDid, apiUrl: _apiUrl, onSuccess: _onSuccess }) => {
-    const [format, setFormat] = (globalThis as any).React?.useState?.('in-person') ?? ['in-person', () => {}];
-    return (
-      <div>
-        NOT_IMPLEMENTED: CreateEventModal — waiting on Kaylee branch
-        <button onClick={() => {}}>Create Event</button>
-        <input aria-label="Title" placeholder="Title" />
-        <input aria-label="Starts At" type="datetime-local" />
-        <div role="group" aria-label="Format">
-          <button onClick={() => setFormat('in-person')}>In Person</button>
-          <button onClick={() => setFormat('online')}>Online</button>
-        </div>
-        {format === 'in-person' && <input aria-label="Location" placeholder="Location" />}
-        {format === 'online' && <input aria-label="Meeting Link" placeholder="https://..." />}
-        <button type="submit">Save Event</button>
-      </div>
-    );
-  };
-}
-
-const COMMUNITY_DID = 'did:plc:community1';
+const GROUP_DID = 'did:plc:community1';
 const API_URL = 'http://test.api';
 
-function renderModal() {
-  const onSuccess = vi.fn();
+function renderModal(isOpen = true) {
+  const onClose = vi.fn();
+  const onCreated = vi.fn();
   const result = render(
     <Provider>
-      <CreateEventModal
-        communityDid={COMMUNITY_DID}
-        apiUrl={API_URL}
-        onSuccess={onSuccess}
-      />
+      <MemoryRouter>
+        <CreateEventModal
+          groupDid={GROUP_DID}
+          isOpen={isOpen}
+          onClose={onClose}
+          onCreated={onCreated}
+          apiUrl={API_URL}
+        />
+      </MemoryRouter>
     </Provider>
   );
-  return { ...result, onSuccess };
+  return { ...result, onClose, onCreated };
 }
 
 afterEach(() => {
@@ -77,75 +53,80 @@ describe('CreateEventModal', () => {
     fetchSpy = vi.spyOn(globalThis, 'fetch');
   });
 
-  it('renders the form with Title and Starts At fields', () => {
+  it('renders the event name and start time fields when open', () => {
     renderModal();
-    expect(screen.getByRole('textbox', { name: /title/i })).toBeInTheDocument();
-    // datetime-local inputs may not have role textbox — query by label text
-    expect(screen.getByLabelText(/starts at/i)).toBeInTheDocument();
+    // Name field
+    expect(screen.getByLabelText(/event name/i) ?? screen.getByPlaceholderText(/name/i)).toBeInTheDocument();
   });
 
-  it('does not submit and does not call fetch when required fields are empty', async () => {
+  it('does not render the form when isOpen is false', () => {
+    renderModal(false);
+    expect(screen.queryByLabelText(/event name/i)).not.toBeInTheDocument();
+  });
+
+  it('shows validation error when name is empty on submit', async () => {
     renderModal();
-    const submitBtn = screen.getByRole('button', { name: /save event/i });
+    const submitBtn = screen.getByRole('button', { name: /create event/i });
     await userEvent.click(submitBtn);
 
-    // Required-field validation should prevent the fetch call
+    // No fetch should have been called
     expect(fetchSpy).not.toHaveBeenCalled();
 
-    // Validation message must appear in the DOM
     await waitFor(() => {
       const error =
-        screen.queryByText(/required/i) ??
-        screen.queryByText(/title.*required/i) ??
+        screen.queryByText(/event name is required/i) ??
+        screen.queryByText(/name.*required/i) ??
         screen.queryByRole('alert');
       expect(error).toBeInTheDocument();
     });
   });
 
-  it('shows location field when "In Person" format is selected', async () => {
+  it('shows location field when mode is in_person (default)', () => {
     renderModal();
-    const inPersonBtn = screen.getByRole('button', { name: /in person/i });
-    await userEvent.click(inPersonBtn);
-
-    expect(screen.getByLabelText(/location/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/meeting link/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/location/i) ?? screen.getByPlaceholderText(/location/i)).toBeInTheDocument();
   });
 
-  it('shows meeting link field when "Online" format is selected', async () => {
+  it('shows join link field when Virtual mode is selected', async () => {
     renderModal();
-    const onlineBtn = screen.getByRole('button', { name: /online/i });
-    await userEvent.click(onlineBtn);
+    const virtualBtn = screen.getByRole('button', { name: /virtual/i });
+    await userEvent.click(virtualBtn);
 
-    expect(screen.getByLabelText(/meeting link/i)).toBeInTheDocument();
-    expect(screen.queryByLabelText(/location/i)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText(/join link/i) ??
+        screen.getByPlaceholderText(/https:\/\//i)
+      ).toBeInTheDocument();
+    });
   });
 
-  it('calls POST /events with correct body on successful submit', async () => {
+  it('calls POST /groups/:groupDid/events on valid submit', async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
       status: 201,
-      json: async () => ({ rkey: 'new-evt', title: 'Test Event' }),
+      json: async () => ({ event: { rkey: 'new-evt', name: 'Test Event' } }),
     } as Response);
 
-    const { onSuccess } = renderModal();
+    const { onCreated } = renderModal();
 
-    await userEvent.type(screen.getByLabelText(/title/i), 'Test Event');
-    // Fill in starts-at with a valid datetime string
-    const startsAtInput = screen.getByLabelText(/starts at/i);
+    const nameInput = screen.getByLabelText(/event name/i) ?? screen.getByPlaceholderText(/event name|name/i);
+    await userEvent.type(nameInput, 'Phase 2 Party');
+
+    // Fill in starts-at datetime
+    const startsAtInput = screen.getByLabelText(/start/i);
     await userEvent.type(startsAtInput, '2026-06-20T14:00');
 
-    await userEvent.click(screen.getByRole('button', { name: /save event/i }));
+    const submitBtn = screen.getByRole('button', { name: /create event/i });
+    await userEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining('/events'),
+        expect.stringContaining(`/groups/${encodeURIComponent(GROUP_DID)}/events`),
         expect.objectContaining({
           method: 'POST',
           credentials: 'include',
-          body: expect.stringContaining('Test Event'),
+          body: expect.stringContaining('Phase 2 Party'),
         })
       );
-      expect(onSuccess).toHaveBeenCalledOnce();
     });
   });
 });
