@@ -39,7 +39,7 @@ const mockOngoingEvent = {
   status: 'ongoing' as const,
 };
 
-function renderCard(event: typeof mockEvent) {
+function renderCard(event: typeof mockEvent | typeof mockOngoingEvent) {
   return render(
     <Provider>
       <MemoryRouter>

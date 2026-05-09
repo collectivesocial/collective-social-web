@@ -106,7 +106,7 @@ describe('CreateEventModal', () => {
       json: async () => ({ event: { rkey: 'new-evt', name: 'Test Event' } }),
     } as Response);
 
-    const { onCreated } = renderModal();
+    const { onCreated: _onCreated } = renderModal();
 
     const nameInput = screen.getByLabelText(/event name/i) ?? screen.getByPlaceholderText(/event name|name/i);
     await userEvent.type(nameInput, 'Phase 2 Party');
