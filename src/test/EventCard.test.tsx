@@ -1,14 +1,14 @@
 /**
  * EventCard component tests
  *
- * Tests against the EventCard component in src/components/events/EventCard.tsx.
- * EventCard renders a card for a GroupEvent with title, formatted datetime,
- * RSVP count, and an urgency badge for ongoing/upcoming-soon events.
+ * Tests against src/components/events/EventCard.tsx.
  *
- * GroupEvent interface:
- *   { uri, rkey, name, startsAt, endsAt?, description?, mode, location?,
- *     status: 'upcoming'|'ongoing'|'past'|'cancelled',
- *     rsvpCounts: { going, interested, notgoing }, myRsvp? }
+ * EventCard renders:
+ *   - event.name (the event title)
+ *   - formatted startsAt datetime
+ *   - total RSVP count: going + interested (shown as "N people")
+ *   - "Now" badge when status === 'ongoing'
+ *   - No badge for 'upcoming' events (unless starting very soon)
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
@@ -28,6 +28,7 @@ const mockEvent = {
   description: 'First session',
   mode: 'in_person' as const,
   location: 'The Library',
+  // total = going(12) + interested(3) = 15 people
   rsvpCounts: { going: 12, interested: 3, notgoing: 1 },
   status: 'upcoming' as const,
 };
@@ -39,7 +40,7 @@ const mockOngoingEvent = {
   status: 'ongoing' as const,
 };
 
-function renderCard(event: typeof mockEvent | typeof mockOngoingEvent) {
+function renderCard(event: typeof mockEvent) {
   return render(
     <Provider>
       <MemoryRouter>
@@ -59,15 +60,15 @@ describe('EventCard', () => {
 
   it('renders a formatted datetime from startsAt', () => {
     renderCard(mockEvent);
-    // The component formats to locale string — match year or month
-    const dateEl = screen.getByText(/2026|June|Jun|Mon|Tue|Wed|Thu|Fri|Sat|Sun/i);
+    // The component formats to locale string — match day-of-week or month
+    const dateEl = screen.getByText(/Mon|Tue|Wed|Thu|Fri|Sat|Sun|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec/i);
     expect(dateEl).toBeInTheDocument();
   });
 
-  it('renders the RSVP going count', () => {
+  it('renders the combined going+interested count as "N people"', () => {
     renderCard(mockEvent);
-    // Expect "12 going" (or just "12") to appear somewhere on the card
-    expect(screen.getByText(/12/)).toBeInTheDocument();
+    // 12 going + 3 interested = 15 people
+    expect(screen.getByText(/15\s*people/i)).toBeInTheDocument();
   });
 
   it('does NOT show "Now" badge for an upcoming event', () => {

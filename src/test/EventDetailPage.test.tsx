@@ -3,16 +3,15 @@
  *
  * Tests against src/pages/EventDetailPage.tsx.
  *
- * Route params: /groups/:groupDid/events/:eventRkey
+ * Route: /groups/:groupDid/events/:eventRkey
  * Props: { apiUrl: string }
- * Fetches:
- *   GET /groups/:groupDid/events/:eventRkey → { event: GroupEvent }
- *   GET /groups/:groupDid/events/:eventRkey/rsvps → { going, interested, notgoing }
- *   GET /groups/:groupDid → { community: {...}, is_admin: boolean }
  *
- * Renders: event title, description, RsvpButton, AttendeeList
- * Admin: is_admin=true from group fetch → shows Edit/Delete kebab menu
- * Non-admin: is_admin=false → no Edit/Delete controls
+ * Fetches (concurrently):
+ *   GET /groups/:groupDid/events/:eventRkey      → { event: GroupEvent }
+ *   GET /groups/:groupDid/events/:eventRkey/rsvps → { going, interested, notgoing }
+ *   GET /groups/:groupDid                         → { community: {...}, is_admin: boolean }
+ *
+ * Admin controls: button with aria-label="Event options" (kebab menu)
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -39,8 +38,8 @@ const mockEvent = {
 };
 
 const mockAggregate = {
-  going: [{ did: 'did:plc:user001', handle: 'alice.bsky.social', displayName: 'Alice' }],
-  interested: [{ did: 'did:plc:user002', handle: 'bob.bsky.social', displayName: 'Bob' }],
+  going: [{ did: 'did:plc:user001', handle: 'alice.bsky.social', displayName: 'Alice Reader' }],
+  interested: [{ did: 'did:plc:user002', handle: 'bob.bsky.social', displayName: 'Bob Writer' }],
   notgoing: [],
 };
 
@@ -84,9 +83,12 @@ describe('EventDetailPage', () => {
       if (urlStr.includes(`/events/${EVENT_RKEY}`)) {
         return makeFetchResponse({ event: mockEvent });
       }
-      // Group detail fetch
-      if (urlStr.includes(`/groups/${encodeURIComponent(GROUP_DID)}`) || urlStr.includes(`/groups/${GROUP_DID}`)) {
-        return makeFetchResponse({ community: { display_name: 'Book Club' }, is_admin: isAdmin });
+      // Group detail — any /groups/:did path not containing /events/
+      if (urlStr.includes('/groups/')) {
+        return makeFetchResponse({
+          community: { display_name: 'Book Club', handle: 'bookclub.bsky.social' },
+          is_admin: isAdmin,
+        });
       }
       return makeFetchResponse({});
     });
@@ -111,16 +113,18 @@ describe('EventDetailPage', () => {
     });
   });
 
-  it('renders AttendeeList with going attendees', async () => {
+  it('renders AttendeeList with "Alice Reader" in the going section', async () => {
     setupFetch();
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText(/alice/i)).toBeInTheDocument();
+      // getAllByText returns multiple — just assert at least one is present
+      const aliceEls = screen.queryAllByText(/alice reader/i);
+      expect(aliceEls.length).toBeGreaterThan(0);
     });
   });
 
-  it('admin user sees the kebab/edit menu button', async () => {
+  it('admin user sees the "Event options" kebab button', async () => {
     setupFetch(true /* isAdmin */);
     renderPage();
 
@@ -128,16 +132,11 @@ describe('EventDetailPage', () => {
       expect(screen.getByText('Annual Reading Retreat')).toBeInTheDocument();
     });
 
-    // The edit/delete button is a kebab icon button — check for it or the delete button
-    const editDelete =
-      screen.queryByRole('button', { name: /delete/i }) ??
-      screen.queryByRole('button', { name: /edit/i }) ??
-      screen.queryByTestId('event-kebab-menu') ??
-      screen.queryByLabelText(/more options/i);
-    expect(editDelete).toBeInTheDocument();
+    const kebab = screen.queryByLabelText(/event options/i);
+    expect(kebab).toBeInTheDocument();
   });
 
-  it('non-admin user does NOT see Edit or Delete controls', async () => {
+  it('non-admin user does NOT see the "Event options" kebab button', async () => {
     setupFetch(false /* isAdmin */);
     renderPage();
 
@@ -145,7 +144,7 @@ describe('EventDetailPage', () => {
       expect(screen.getByText('Annual Reading Retreat')).toBeInTheDocument();
     });
 
+    expect(screen.queryByLabelText(/event options/i)).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^edit$/i })).not.toBeInTheDocument();
   });
 });
