@@ -272,7 +272,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       await fetchListDetails();
     } catch (err) {
       console.error('Failed to change status:', err);
-      setStatusError(err instanceof Error ? err.message : "We couldn't update the status. Try again.");
+      setStatusError("We couldn't update the status. Try again.");
     } finally {
       setStatusSaving(false);
     }
