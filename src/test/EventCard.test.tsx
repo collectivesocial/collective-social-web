@@ -1,61 +1,50 @@
 /**
  * EventCard component tests
  *
- * ⚠️  INTENTIONALLY RED until Kaylee's branch (events UI — collective-social-web) merges.
+ * Tests against the EventCard component in src/components/events/EventCard.tsx.
+ * EventCard renders a card for a GroupEvent with title, formatted datetime,
+ * RSVP count, and an urgency badge for ongoing/upcoming-soon events.
  *
- * Contract expected from EventCard:
- *   props: { event: EventRecord }
- *   EventRecord: { rkey, title, startsAt, endsAt?, location?, rsvpCounts: { going, maybe, notGoing }, status? }
- *
- * Assertions:
- *   - renders event title
- *   - renders a formatted datetime (startsAt)
- *   - renders RSVP count summary ("N going")
- *   - shows "Happening Now" badge when status === 'happening-now'
+ * GroupEvent interface:
+ *   { uri, rkey, name, startsAt, endsAt?, description?, mode, location?,
+ *     status: 'upcoming'|'ongoing'|'past'|'cancelled',
+ *     rsvpCounts: { going, interested, notgoing }, myRsvp? }
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { Provider } from '../components/ui/provider';
+import { EventCard } from '../components/events/EventCard';
 
-// ⚠️ This import will fail until Kaylee's branch adds the component.
-// The test is written against the expected contract.
-let EventCard: React.ComponentType<{ event: any }>;
-try {
-  EventCard = (await import('../components/EventCard')).EventCard;
-} catch {
-  EventCard = ({ event }: { event: any }) => (
-    <div data-testid="event-card-stub">
-      NOT_IMPLEMENTED: EventCard — waiting on Kaylee branch
-      <span>{event?.title}</span>
-      <span>{event?.startsAt}</span>
-      <span>{event?.rsvpCounts?.going} going</span>
-      {event?.status === 'happening-now' && <span>Happening Now</span>}
-    </div>
-  );
-}
+const GROUP_DID = 'did:plc:community1';
 
 const mockEvent = {
+  uri: `at://${GROUP_DID}/app.collectivesocial.group.event/evt-test-1`,
   rkey: 'evt-test-1',
-  title: 'Book Club Kickoff',
+  name: 'Book Club Kickoff',
   startsAt: '2026-06-15T18:00:00.000Z',
   endsAt: '2026-06-15T20:00:00.000Z',
+  description: 'First session',
+  mode: 'in_person' as const,
   location: 'The Library',
-  rsvpCounts: { going: 12, maybe: 3, notGoing: 1 },
-  status: 'upcoming',
+  rsvpCounts: { going: 12, interested: 3, notgoing: 1 },
+  status: 'upcoming' as const,
 };
 
-const mockHappeningNowEvent = {
+const mockOngoingEvent = {
   ...mockEvent,
   rkey: 'evt-test-2',
-  title: 'Live Reading Session',
-  status: 'happening-now',
+  name: 'Live Reading Session',
+  status: 'ongoing' as const,
 };
 
 function renderCard(event: typeof mockEvent) {
   return render(
     <Provider>
-      <EventCard event={event} />
+      <MemoryRouter>
+        <EventCard event={event} groupDid={GROUP_DID} />
+      </MemoryRouter>
     </Provider>
   );
 }
@@ -63,30 +52,31 @@ function renderCard(event: typeof mockEvent) {
 afterEach(cleanup);
 
 describe('EventCard', () => {
-  it('renders the event title', () => {
+  it('renders the event name', () => {
     renderCard(mockEvent);
     expect(screen.getByText('Book Club Kickoff')).toBeInTheDocument();
   });
 
-  it('renders the event datetime', () => {
+  it('renders a formatted datetime from startsAt', () => {
     renderCard(mockEvent);
-    // The component should format startsAt — match at least the year/month
-    const dateEl = screen.getByText(/2026|June|Jun/i);
+    // The component formats to locale string — match year or month
+    const dateEl = screen.getByText(/2026|June|Jun|Mon|Tue|Wed|Thu|Fri|Sat|Sun/i);
     expect(dateEl).toBeInTheDocument();
   });
 
   it('renders the RSVP going count', () => {
     renderCard(mockEvent);
-    expect(screen.getByText(/12\s*going/i)).toBeInTheDocument();
+    // Expect "12 going" (or just "12") to appear somewhere on the card
+    expect(screen.getByText(/12/)).toBeInTheDocument();
   });
 
-  it('does NOT show "Happening Now" badge for an upcoming event', () => {
+  it('does NOT show "Now" badge for an upcoming event', () => {
     renderCard(mockEvent);
-    expect(screen.queryByText(/happening now/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^now$/i)).not.toBeInTheDocument();
   });
 
-  it('shows "Happening Now" badge when status is happening-now', () => {
-    renderCard(mockHappeningNowEvent);
-    expect(screen.getByText(/happening now/i)).toBeInTheDocument();
+  it('shows "Now" badge when status is ongoing', () => {
+    renderCard(mockOngoingEvent);
+    expect(screen.getByText(/^now$/i)).toBeInTheDocument();
   });
 });

@@ -1,52 +1,33 @@
 /**
  * RsvpButton component tests
  *
- * ⚠️  INTENTIONALLY RED until Kaylee's branch (events UI — collective-social-web) merges.
+ * Tests against src/components/events/RsvpButton.tsx.
  *
- * Contract expected from RsvpButton:
- *   props: { eventRkey, communityDid, initialStatus?: 'going'|'maybe'|'not-going'|null, apiUrl: string }
- *   - Renders three buttons: "Going", "Maybe", "Not Going"
- *   - Clicking "Going" calls PUT /events/:rkey/rsvp with { status: 'going', communityDid }
- *   - Optimistic update: button immediately shows as selected before API resolves
- *   - Reverts on error: if the mutation fails, the previous selection is restored
+ * RsvpButtonProps:
+ *   { eventRkey, groupDid, currentStatus?, disabled?, isPast?, apiUrl, onStatusChange? }
+ *
+ * RSVP options: "Going" | "Maybe" | "Can't make it"
+ * API: PUT/DELETE /groups/:groupDid/events/:eventRkey/rsvp
+ * Optimistic update: immediately marks button selected, reverts on error.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from '../components/ui/provider';
-
-// ⚠️ Will fail until Kaylee adds the component
-let RsvpButton: React.ComponentType<{
-  eventRkey: string;
-  communityDid: string;
-  initialStatus?: string | null;
-  apiUrl: string;
-}>;
-try {
-  RsvpButton = (await import('../components/RsvpButton')).RsvpButton;
-} catch {
-  RsvpButton = ({ eventRkey: _eventRkey, communityDid: _communityDid, initialStatus: _initialStatus, apiUrl: _apiUrl }) => (
-    <div data-testid="rsvp-stub">
-      NOT_IMPLEMENTED: RsvpButton — waiting on Kaylee branch
-      <button data-rsvp="going">Going</button>
-      <button data-rsvp="maybe">Maybe</button>
-      <button data-rsvp="not-going">Not Going</button>
-    </div>
-  );
-}
+import { RsvpButton } from '../components/events/RsvpButton';
 
 const EVENT_RKEY = 'evt-rsvp-test';
-const COMMUNITY_DID = 'did:plc:community1';
+const GROUP_DID = 'did:plc:community1';
 const API_URL = 'http://test.api';
 
-function renderButton(initialStatus: string | null = null) {
+function renderButton(currentStatus: string | null = null) {
   return render(
     <Provider>
       <RsvpButton
         eventRkey={EVENT_RKEY}
-        communityDid={COMMUNITY_DID}
-        initialStatus={initialStatus}
+        groupDid={GROUP_DID}
+        currentStatus={currentStatus as any}
         apiUrl={API_URL}
       />
     </Provider>
@@ -65,73 +46,72 @@ describe('RsvpButton', () => {
     fetchSpy = vi.spyOn(globalThis, 'fetch');
   });
 
-  it('renders Going, Maybe, and Not Going buttons', () => {
+  it('renders Going, Maybe, and Cannot-make-it buttons', () => {
     renderButton();
-    expect(screen.getByText(/going/i)).toBeInTheDocument();
-    expect(screen.getByText(/maybe/i)).toBeInTheDocument();
-    expect(screen.getByText(/not going/i)).toBeInTheDocument();
+    expect(screen.getByText('Going')).toBeInTheDocument();
+    expect(screen.getByText('Maybe')).toBeInTheDocument();
+    expect(screen.getByText(/can't make it/i)).toBeInTheDocument();
   });
 
-  it('clicking "Going" calls PUT /events/:rkey/rsvp with correct body', async () => {
+  it('clicking "Going" calls PUT /groups/:groupDid/events/:rkey/rsvp', async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
       status: 200,
-      json: async () => ({ status: 'going' }),
+      json: async () => ({}),
     } as Response);
 
     renderButton();
-    await userEvent.click(screen.getByText(/^going$/i));
+    await userEvent.click(screen.getByText('Going'));
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining(`/events/${EVENT_RKEY}/rsvp`),
+        expect.stringContaining(`/groups/${encodeURIComponent(GROUP_DID)}/events/${encodeURIComponent(EVENT_RKEY)}/rsvp`),
         expect.objectContaining({
           method: 'PUT',
-          body: expect.stringContaining('"going"'),
           credentials: 'include',
+          body: expect.stringContaining('going'),
         })
       );
     });
   });
 
-  it('optimistically marks the button as selected before API resolves', async () => {
-    // Never resolve — test the intermediate state
+  it('optimistically marks the "Going" button as selected immediately on click', async () => {
+    // Never resolve — test the intermediate optimistic state
     fetchSpy.mockReturnValueOnce(new Promise(() => {}));
 
     renderButton();
-    const goingBtn = screen.getByText(/^going$/i);
+    const goingBtn = screen.getByText('Going');
     await userEvent.click(goingBtn);
 
-    // Button should immediately reflect selected state (aria-pressed, data-selected, etc.)
+    // aria-checked="true" is set optimistically
     await waitFor(() => {
-      const btn = screen.getByText(/^going$/i).closest('button') ?? screen.getByText(/^going$/i);
-      const isSelected =
-        btn.getAttribute('aria-pressed') === 'true' ||
-        btn.getAttribute('data-selected') === 'true' ||
-        btn.classList.contains('selected') ||
-        btn.getAttribute('data-state') === 'active';
-      expect(isSelected).toBe(true);
+      const btn = goingBtn.closest('button') ?? goingBtn;
+      expect(btn.getAttribute('aria-checked')).toBe('true');
     });
   });
 
-  it('reverts to previous state when the mutation fails', async () => {
+  it('reverts to unselected when the PUT request fails', async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: false,
       status: 500,
       json: async () => ({ error: 'Server error' }),
     } as Response);
 
-    // Start with no RSVP
     renderButton(null);
-    await userEvent.click(screen.getByText(/^going$/i));
+    await userEvent.click(screen.getByText('Going'));
 
     await waitFor(() => {
-      // After failure, "Going" should no longer appear selected
-      const btn = screen.getByText(/^going$/i).closest('button') ?? screen.getByText(/^going$/i);
-      const isSelected =
-        btn.getAttribute('aria-pressed') === 'true' ||
-        btn.getAttribute('data-selected') === 'true';
-      expect(isSelected).toBeFalsy();
+      const btn = screen.getByText('Going').closest('button') ?? screen.getByText('Going');
+      expect(btn.getAttribute('aria-checked')).not.toBe('true');
     });
+  });
+
+  it('shows "This event has passed" when isPast is true', () => {
+    render(
+      <Provider>
+        <RsvpButton eventRkey={EVENT_RKEY} groupDid={GROUP_DID} apiUrl={API_URL} isPast />
+      </Provider>
+    );
+    expect(screen.getByText(/this event has passed/i)).toBeInTheDocument();
   });
 });
