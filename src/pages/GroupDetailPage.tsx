@@ -14,9 +14,13 @@ import {
   Spinner,
   Center,
   SimpleGrid,
+  Tabs,
 } from '@chakra-ui/react';
 import { EmptyState } from '../components/EmptyState';
 import { CreateGroupListModal } from '../components/CreateGroupListModal';
+import { EventList } from '../components/events/EventList';
+import { CreateEventModal } from '../components/events/CreateEventModal';
+import type { GroupEvent } from '../types/events';
 
 interface GroupAdmin {
   did: string;
@@ -115,6 +119,9 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
   const [error, setError] = useState<string | null>(null);
   const [group, setGroup] = useState<GroupDetail | null>(null);
   const [showCreateList, setShowCreateList] = useState(false);
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [events, setEvents] = useState<GroupEvent[]>([]);
+  const [eventsLoaded, setEventsLoaded] = useState(false);
 
   const refreshGroup = async () => {
     try {
@@ -128,6 +135,23 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
       }
     } catch (err) {
       console.error('Failed to refresh group:', err);
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch(
+        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/events`,
+        { credentials: 'include' }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setEvents(data.events ?? []);
+      }
+    } catch {
+      // non-fatal — events tab will show empty state
+    } finally {
+      setEventsLoaded(true);
     }
   };
 
@@ -157,6 +181,7 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
 
     if (groupDid) {
       fetchGroupDetails();
+      fetchEvents();
     }
   }, [apiUrl, groupDid]);
 
@@ -373,82 +398,114 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
           </Box>
         )}
 
-        {/* Group Lists Section */}
-        <Box>
-          <Flex justify="space-between" align="center" mb={4}>
-            <Heading size="md" fontFamily="heading">
-              📋 Group Lists
-            </Heading>
-            {group.permissions?.['app.collectivesocial.group.list']?.canCreate && (
-              <Button
-                size="sm"
-                colorPalette="accent"
-                variant="outline"
-                onClick={() => setShowCreateList(true)}
-              >
-                + New List
-              </Button>
-            )}
-          </Flex>
-          {group.lists.length > 0 ? (
-            <VStack gap={3} align="stretch">
-              {group.lists.map((list) => (
-                <Box
-                  key={list.id}
-                  bg="bg.card"
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  borderColor="border.card"
-                  p={4}
-                  cursor="pointer"
-                  transition="all 0.2s"
-                  _hover={{ shadow: 'sm', transform: 'translateY(-1px)' }}
-                  onClick={() => navigate(`/groups/${encodeURIComponent(community.did)}/lists/${encodeURIComponent(list.rkey)}`)}
-                >
-                  <Flex justify="space-between" align="start">
-                    <Box flex="1">
-                      <HStack gap={2} mb={1}>
-                        <Text fontWeight="semibold">{list.name}</Text>
-                        {list.purpose && (
-                          <Badge variant="subtle" size="sm">
-                            {purposeLabels[list.purpose] || list.purpose}
-                          </Badge>
-                        )}
-                        {list.segmentType && (
-                          <Badge
-                            variant="outline"
-                            size="sm"
-                            colorPalette="blue"
-                          >
-                            Tracks {list.segmentType}
-                          </Badge>
-                        )}
-                      </HStack>
-                      {list.description && (
-                        <Text fontSize="sm" color="fg.muted" lineClamp={2}>
-                          {list.description}
+        {/* Tabs: Lists + Events */}
+        <Tabs.Root defaultValue="lists" variant="enclosed">
+          <Tabs.List mb={4} justifyContent="flex-start">
+            <Tabs.Trigger value="lists" bg="transparent">
+              📋 Lists
+            </Tabs.Trigger>
+            <Tabs.Trigger value="events" bg="transparent">
+              📅 Events
+            </Tabs.Trigger>
+          </Tabs.List>
+
+          {/* Lists Tab */}
+          <Tabs.Content value="lists">
+            <Box>
+              <Flex justify="space-between" align="center" mb={4}>
+                <Heading size="md" fontFamily="heading">
+                  Group Lists
+                </Heading>
+                {group.permissions?.['app.collectivesocial.group.list']?.canCreate && (
+                  <Button
+                    size="sm"
+                    colorPalette="accent"
+                    variant="outline"
+                    onClick={() => setShowCreateList(true)}
+                  >
+                    + New List
+                  </Button>
+                )}
+              </Flex>
+              {group.lists.length > 0 ? (
+                <VStack gap={3} align="stretch">
+                  {group.lists.map((list) => (
+                    <Box
+                      key={list.id}
+                      bg="bg.card"
+                      borderRadius="lg"
+                      borderWidth="1px"
+                      borderColor="border.card"
+                      p={4}
+                      cursor="pointer"
+                      transition="all 0.2s"
+                      _hover={{ shadow: 'sm', transform: 'translateY(-1px)' }}
+                      onClick={() => navigate(`/groups/${encodeURIComponent(community.did)}/lists/${encodeURIComponent(list.rkey)}`)}
+                    >
+                      <Flex justify="space-between" align="start">
+                        <Box flex="1">
+                          <HStack gap={2} mb={1}>
+                            <Text fontWeight="semibold">{list.name}</Text>
+                            {list.purpose && (
+                              <Badge variant="subtle" size="sm">
+                                {purposeLabels[list.purpose] || list.purpose}
+                              </Badge>
+                            )}
+                            {list.segmentType && (
+                              <Badge
+                                variant="outline"
+                                size="sm"
+                                colorPalette="blue"
+                              >
+                                Tracks {list.segmentType}
+                              </Badge>
+                            )}
+                          </HStack>
+                          {list.description && (
+                            <Text fontSize="sm" color="fg.muted" lineClamp={2}>
+                              {list.description}
+                            </Text>
+                          )}
+                        </Box>
+                        <Text fontSize="xs" color="fg.subtle" flexShrink={0}>
+                          {safeFormatDate(list.createdAt)}
                         </Text>
-                      )}
+                      </Flex>
                     </Box>
-                    <Text fontSize="xs" color="fg.subtle" flexShrink={0}>
-                      {safeFormatDate(list.createdAt)}
-                    </Text>
-                  </Flex>
-                </Box>
-              ))}
-            </VStack>
-          ) : (
-            <EmptyState
-              icon="📋"
-              title="No lists yet"
-              description={
-                group.permissions?.['app.collectivesocial.group.list']?.canCreate
-                  ? "This group doesn't have any lists yet. Be the first to create one!"
-                  : "This group doesn't have any lists yet."
-              }
-            />
-          )}
-        </Box>
+                  ))}
+                </VStack>
+              ) : (
+                <EmptyState
+                  icon="📋"
+                  title="No lists yet"
+                  description={
+                    group.permissions?.['app.collectivesocial.group.list']?.canCreate
+                      ? "This group doesn't have any lists yet. Be the first to create one!"
+                      : "This group doesn't have any lists yet."
+                  }
+                />
+              )}
+            </Box>
+          </Tabs.Content>
+
+          {/* Events Tab */}
+          <Tabs.Content value="events">
+            {eventsLoaded ? (
+              <EventList
+                events={events}
+                groupDid={groupDid!}
+                canCreate={
+                  group.permissions?.['community.lexicon.calendar.event']?.canCreate === true
+                }
+                onCreateClick={() => setShowCreateEvent(true)}
+              />
+            ) : (
+              <Center py={8}>
+                <Spinner size="md" color="accent.solid" />
+              </Center>
+            )}
+          </Tabs.Content>
+        </Tabs.Root>
       </VStack>
 
       {group.permissions?.['app.collectivesocial.group.list']?.canCreate && (
@@ -460,6 +517,14 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
           communityDid={community.did}
         />
       )}
+
+      <CreateEventModal
+        groupDid={community.did}
+        isOpen={showCreateEvent}
+        onClose={() => setShowCreateEvent(false)}
+        onCreated={fetchEvents}
+        apiUrl={apiUrl}
+      />
     </Container>
   );
 }
