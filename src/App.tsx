@@ -12,6 +12,7 @@ import { GroupsPage } from './pages/GroupsPage'
 import { GroupDetailPage } from './pages/GroupDetailPage'
 import { GroupListDetailPage } from './pages/GroupListDetailPage'
 import { GroupItemDetailPage } from './pages/GroupItemDetailPage'
+import { EventDetailPage } from './pages/EventDetailPage'
 import { GoalsPage } from './pages/GoalsPage'
 import { ItemDetailsPage } from './pages/ItemDetailsPage'
 import { SearchResultsPage } from './pages/SearchResultsPage'
@@ -132,6 +133,10 @@ function App() {
               <Route 
                 path="/groups/:groupDid/lists/:listRkey/items/:itemRkey" 
                 element={<GroupItemDetailPage apiUrl={apiUrl} />} 
+              />
+              <Route
+                path="/groups/:groupDid/events/:eventRkey"
+                element={<EventDetailPage apiUrl={apiUrl} />}
               />
               <Route 
                 path="/search" 
