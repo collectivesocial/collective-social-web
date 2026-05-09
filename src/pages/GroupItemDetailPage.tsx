@@ -265,6 +265,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [postingComment, setPostingComment] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
 
   // Segment CRUD
   const [showAddSegment, setShowAddSegment] = useState(false);
@@ -568,6 +569,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
     const text = parentUri ? replyText : postText;
     if (!text.trim()) return;
     setPostingComment(true);
+    setCommentError(null);
 
     try {
       const body: Record<string, string> = { text: text.trim(), segmentUri: segUri };
@@ -593,6 +595,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
       await fetchPosts(segRkey);
     } catch (err) {
       console.error('Failed to post:', err);
+      setCommentError("We couldn't post your comment. Check your connection and try again.");
     } finally {
       setPostingComment(false);
     }
@@ -1030,6 +1033,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                         size="sm"
                         onClick={() => handleToggleDiscussion(seg.rkey, seg.uri)}
                         color="fg.muted"
+                        aria-expanded={expandedSegment === seg.uri}
                       >
                         💬 Discussion {expandedSegment === seg.uri ? '▲' : '▼'}
                       </Button>
@@ -1047,15 +1051,21 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                               )}
 
                               {/* New comment form */}
-                              {postPerm?.canCreate && (
+                              {postPerm?.canCreate ? (
                                 <VStack gap={2} mt={2} align="stretch">
                                   <Textarea
                                     value={postText}
                                     onChange={(e) => setPostText(e.target.value)}
                                     placeholder="Share your thoughts on this section..."
+                                    aria-label="Comment on this segment"
                                     size="sm"
                                     rows={2}
                                   />
+                                  {commentError && (
+                                    <Text color="fg.error" fontSize="sm">
+                                      {commentError}
+                                    </Text>
+                                  )}
                                   <Button
                                     size="sm"
                                     colorPalette="accent"
@@ -1066,6 +1076,10 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                                     {postingComment ? '...' : 'Post'}
                                   </Button>
                                 </VStack>
+                              ) : (
+                                <Text fontSize="sm" color="fg.muted" fontStyle="italic">
+                                  You need to be a group member to comment on this discussion.
+                                </Text>
                               )}
                             </VStack>
                           ) : (

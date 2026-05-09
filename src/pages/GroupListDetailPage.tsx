@@ -131,6 +131,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
   const [statusItemRkey, setStatusItemRkey] = useState<string | null>(null);
   const [statusValue, setStatusValue] = useState('');
   const [statusSaving, setStatusSaving] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
   // Remove Item state
   const [removeItemRkey, setRemoveItemRkey] = useState<string | null>(null);
@@ -255,6 +256,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
   const handleChangeStatus = async () => {
     if (!statusItemRkey || !statusValue) return;
     setStatusSaving(true);
+    setStatusError(null);
     try {
       const res = await fetch(
         `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/items/${encodeURIComponent(statusItemRkey)}/status`,
@@ -270,6 +272,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       await fetchListDetails();
     } catch (err) {
       console.error('Failed to change status:', err);
+      setStatusError(err instanceof Error ? err.message : "We couldn't update the status. Try again.");
     } finally {
       setStatusSaving(false);
     }
@@ -707,7 +710,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       </DialogRoot>
 
       {/* ── Change Status Dialog ─────────────────────────────── */}
-      <DialogRoot open={!!statusItemRkey} onOpenChange={(e) => { if (!e.open) setStatusItemRkey(null); }}>
+      <DialogRoot open={!!statusItemRkey} onOpenChange={(e) => { if (!e.open) { setStatusItemRkey(null); setStatusError(null); } }}>
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
@@ -734,10 +737,15 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   <option value="dropped">Dropped</option>
                 </chakra.select>
               </Field>
+              {statusError && (
+                <Text color="fg.error" fontSize="sm" mt={2}>
+                  {statusError}
+                </Text>
+              )}
             </DialogBody>
             <DialogFooter>
               <HStack gap={2}>
-                <Button variant="outline" bg="transparent" onClick={() => setStatusItemRkey(null)}>
+                <Button variant="outline" bg="transparent" onClick={() => { setStatusItemRkey(null); setStatusError(null); }}>
                   Cancel
                 </Button>
                 <Button
@@ -763,7 +771,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
             </DialogHeader>
             <DialogBody>
               <Text>
-                Are you sure you want to remove this item from the list? This action cannot be undone.
+                This removes the item from this list. Your personal review and notes stay in your library.
               </Text>
             </DialogBody>
             <DialogFooter>

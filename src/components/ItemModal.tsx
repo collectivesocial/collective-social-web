@@ -576,6 +576,7 @@ export function ItemModal({
                         variant={reviewData.status === 'want' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'want' ? 'accent' : 'gray'}
                         bg={reviewData.status === 'want' ? 'accent.default' : 'transparent'}
+                        aria-pressed={reviewData.status === 'want'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
                       >
                         {mediaTypeText.wantText}
@@ -586,6 +587,7 @@ export function ItemModal({
                         variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'in-progress' ? 'accent' : 'gray'}
                         bg={reviewData.status === 'in-progress' ? 'accent.default' : 'transparent'}
+                        aria-pressed={reviewData.status === 'in-progress'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
                       >
                         {mediaTypeText.inProgressText}
@@ -596,6 +598,7 @@ export function ItemModal({
                         variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'completed' ? 'accent' : 'gray'}
                         bg={reviewData.status === 'completed' ? 'accent.default' : 'transparent'}
+                        aria-pressed={reviewData.status === 'completed'}
                         onClick={() => {
                           const today = new Date();
                           const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -615,6 +618,7 @@ export function ItemModal({
                         variant={reviewData.status === 'want' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'want' ? 'accent' : 'gray'}
                         bg={reviewData.status === 'want' ? 'accent.default' : 'transparent'}
+                        aria-pressed={reviewData.status === 'want'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'want' })}
                       >
                         {mediaTypeText.wantText}
@@ -625,6 +629,7 @@ export function ItemModal({
                         variant={reviewData.status === 'in-progress' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'in-progress' ? 'accent' : 'gray'}
                         bg={reviewData.status === 'in-progress' ? 'accent.default' : 'transparent'}
+                        aria-pressed={reviewData.status === 'in-progress'}
                         onClick={() => onReviewDataChange({ ...reviewData, status: 'in-progress' })}
                       >
                         {mediaTypeText.inProgressText}
@@ -635,6 +640,7 @@ export function ItemModal({
                         variant={reviewData.status === 'completed' ? 'solid' : 'outline'}
                         colorPalette={reviewData.status === 'completed' ? 'accent' : 'gray'}
                         bg={reviewData.status === 'completed' ? 'accent.default' : 'transparent'}
+                        aria-pressed={reviewData.status === 'completed'}
                         onClick={() => {
                           const today = new Date();
                           const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
