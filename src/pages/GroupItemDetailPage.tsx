@@ -167,7 +167,12 @@ function escapeICSText(str: string): string {
     .replace(/\n/g, '\\n');
 }
 
-function buildICS(segments: Segment[], itemTitle: string, groupDid: string, itemUri: string): string {
+function buildICS(
+  segments: Segment[],
+  itemTitle: string,
+  groupDid: string,
+  itemUri: string
+): string {
   const now = new Date();
   // DTSTAMP in UTC: YYYYMMDDTHHmmssZ
   const dtstamp = [
@@ -302,17 +307,18 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
           `${apiUrl}/groups/${encodeURIComponent(groupDid)}/lists/${encodeURIComponent(listRkey)}`,
           { credentials: 'include' }
         ),
-        fetch(
-          `${apiUrl}/groups/${encodeURIComponent(groupDid)}/permissions`,
-          { credentials: 'include' }
-        ),
+        fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid)}/permissions`, {
+          credentials: 'include',
+        }),
         fetch(`${apiUrl}/users/me`, { credentials: 'include' }),
       ]);
 
       if (!listRes.ok) {
-        throw new Error(listRes.status === 403
-          ? 'You must be a member of this group to view this item'
-          : 'Failed to load item details');
+        throw new Error(
+          listRes.status === 403
+            ? 'You must be a member of this group to view this item'
+            : 'Failed to load item details'
+        );
       }
 
       const listData = await listRes.json();
@@ -333,10 +339,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
       // Fetch media item details if we have a mediaItemId
       if (foundItem.mediaItemId) {
         try {
-          const mediaRes = await fetch(
-            `${apiUrl}/media/${foundItem.mediaItemId}`,
-            { credentials: 'include' }
-          );
+          const mediaRes = await fetch(`${apiUrl}/media/${foundItem.mediaItemId}`, {
+            credentials: 'include',
+          });
           if (mediaRes.ok) {
             const mediaData = await mediaRes.json();
             setMediaItem(mediaData);
@@ -380,7 +385,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
     if (!userDid) return;
     const mySet = new Set<string>();
     for (const [segUri, progs] of Object.entries(progressMap)) {
-      if (progs.some((p) => p.memberDid === userDid && p.completed)) {
+      if (progs.some(p => p.memberDid === userDid && p.completed)) {
         mySet.add(segUri);
       }
     }
@@ -506,7 +511,12 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
     try {
       const res = await fetch(
         `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/segments/${encodeURIComponent(segRkey)}/progress`,
-        { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: '{}' }
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        }
       );
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
@@ -522,7 +532,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
   const handleUnmarkCompleted = async (segRkey: string, segUri: string) => {
     // Find our progress record
     const progs = progressMap[segUri] || [];
-    const mine = progs.find((p) => p.memberDid === userDid);
+    const mine = progs.find(p => p.memberDid === userDid);
     if (!mine) return;
 
     try {
@@ -548,12 +558,14 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
       if (res.ok) {
         const data = await res.json();
         // Find the segment URI from rkey
-        const seg = segments.find((s) => s.rkey === segRkey);
+        const seg = segments.find(s => s.rkey === segRkey);
         if (seg) {
-          setPostsBySegment((prev) => ({ ...prev, [seg.uri]: data.posts || [] }));
+          setPostsBySegment(prev => ({ ...prev, [seg.uri]: data.posts || [] }));
         }
       }
-    } catch { /* non-fatal */ }
+    } catch {
+      /* non-fatal */
+    }
   };
 
   const handleToggleDiscussion = async (segRkey: string, segUri: string) => {
@@ -575,15 +587,12 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
       const body: Record<string, string> = { text: text.trim(), segmentUri: segUri };
       if (parentUri) body.parentPostUri = parentUri;
 
-      const res = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/posts`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        }
-      );
+      const res = await fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid!)}/posts`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
       if (!res.ok) throw new Error('Failed to post comment');
 
       if (parentUri) {
@@ -664,7 +673,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
   };
 
   const renderPostTree = (posts: Post[], segRkey: string, segUri: string, depth = 0) => {
-    return posts.map((post) => (
+    return posts.map(post => (
       <Box
         key={post.uri}
         ml={depth > 0 ? 6 : 0}
@@ -685,13 +694,17 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
               />
             )}
             <Text fontSize="xs" fontWeight="medium">
-              {post.author?.displayName || (post.author?.handle ? `@${post.author.handle}` : null) || (post.authorDid ?? 'Unknown').slice(0, 20) + '…'}
+              {post.author?.displayName ||
+                (post.author?.handle ? `@${post.author.handle}` : null) ||
+                (post.authorDid ?? 'Unknown').slice(0, 20) + '…'}
             </Text>
             <Text fontSize="xs" color="fg.muted">
               · {formatDate(post.createdAt)}
             </Text>
           </HStack>
-          <Text fontSize="sm" whiteSpace="pre-wrap">{post.text}</Text>
+          <Text fontSize="sm" whiteSpace="pre-wrap">
+            {post.text}
+          </Text>
           {postPerm?.canCreate && (
             <Button
               size="xs"
@@ -713,7 +726,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
             <VStack gap={2} align="stretch">
               <Textarea
                 value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
+                onChange={e => setReplyText(e.target.value)}
                 placeholder="Write a reply..."
                 size="sm"
                 rows={2}
@@ -764,7 +777,10 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
           description="This item may not exist or you may need to join the group first."
         />
         <Center mt={6}>
-          <Button variant="outline" onClick={() => navigate(`/groups/${encodeURIComponent(groupDid!)}`)}>
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/groups/${encodeURIComponent(groupDid!)}`)}
+          >
             ← Back to Group
           </Button>
         </Center>
@@ -773,7 +789,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
   }
 
   const totalSegments = segments.length;
-  const completedSegments = segments.filter((s) => myProgressSet.has(s.uri)).length;
+  const completedSegments = segments.filter(s => myProgressSet.has(s.uri)).length;
 
   return (
     <Container maxW="4xl" py={8}>
@@ -783,7 +799,11 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
           variant="ghost"
           size="sm"
           alignSelf="flex-start"
-          onClick={() => navigate(`/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(listRkey!)}`)}
+          onClick={() =>
+            navigate(
+              `/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(listRkey!)}`
+            )
+          }
           color="fg.muted"
           _hover={{ color: 'fg.default' }}
         >
@@ -809,7 +829,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
             <Box flex={1}>
               <HStack gap={2} mb={1}>
                 <Text fontSize="2xl">{mediaTypeEmoji[item.mediaType] || '📄'}</Text>
-                <Heading size="xl" fontFamily="heading">{item.title}</Heading>
+                <Heading size="xl" fontFamily="heading">
+                  {item.title}
+                </Heading>
               </HStack>
 
               {(item.creator || mediaItem?.creator) && (
@@ -825,13 +847,19 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
               )}
 
               <HStack gap={3} flexWrap="wrap" mb={4}>
-                <Badge colorPalette="blue" size="sm">{item.status}</Badge>
+                <Badge colorPalette="blue" size="sm">
+                  {item.status}
+                </Badge>
                 {mediaItem?.publishedYear && (
-                  <Text fontSize="xs" color="fg.subtle">{mediaItem.publishedYear}</Text>
+                  <Text fontSize="xs" color="fg.subtle">
+                    {mediaItem.publishedYear}
+                  </Text>
                 )}
                 {mediaItem?.length && (
                   <Text fontSize="xs" color="fg.subtle">
-                    {item.mediaType === 'book' ? `${mediaItem.length} pages` : `${mediaItem.length} min`}
+                    {item.mediaType === 'book'
+                      ? `${mediaItem.length} pages`
+                      : `${mediaItem.length} min`}
                   </Text>
                 )}
               </HStack>
@@ -850,7 +878,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                   </Button>
                 )}
                 {tracked && (
-                  <Badge colorPalette="green" size="sm">✓ In Your Library</Badge>
+                  <Badge colorPalette="green" size="sm">
+                    ✓ In Your Library
+                  </Badge>
                 )}
                 {item.mediaItemId && (
                   <Button
@@ -871,7 +901,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
         {totalSegments > 0 && (
           <Box bg="bg.card" borderRadius="lg" borderWidth="1px" borderColor="border.card" p={4}>
             <Flex justify="space-between" align="center" mb={2}>
-              <Text fontSize="sm" fontWeight="bold">Your Progress</Text>
+              <Text fontSize="sm" fontWeight="bold">
+                Your Progress
+              </Text>
               <Text fontSize="sm" color="fg.muted">
                 {completedSegments} / {totalSegments} segments completed
               </Text>
@@ -895,7 +927,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
               📅 Reading Schedule
             </Heading>
             <HStack gap={2}>
-              {segments.some((s) => s.assignedDate) && (
+              {segments.some(s => s.assignedDate) && (
                 <Button size="sm" variant="outline" onClick={handleExportCalendar}>
                   📆 Export to Calendar
                 </Button>
@@ -910,9 +942,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
 
           {segments.length > 0 ? (
             <VStack gap={4} align="stretch">
-              {segments.map((seg) => {
+              {segments.map(seg => {
                 const progs = progressMap[seg.uri] || [];
-                const completedCount = progs.filter((p) => p.completed).length;
+                const completedCount = progs.filter(p => p.completed).length;
                 const iCompleted = myProgressSet.has(seg.uri);
                 const isDue = seg.assignedDate && new Date(seg.assignedDate) < new Date();
                 const canSee = canSeeDiscussion(seg);
@@ -924,7 +956,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                     bg="bg.card"
                     borderRadius="lg"
                     borderWidth="1px"
-                    borderColor={iCompleted ? 'green.muted' : isDue ? 'orange.muted' : 'border.card'}
+                    borderColor={
+                      iCompleted ? 'green.muted' : isDue ? 'orange.muted' : 'border.card'
+                    }
                     overflow="hidden"
                   >
                     {/* Segment header */}
@@ -932,23 +966,27 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                       <Flex justify="space-between" align="start">
                         <Box flex={1}>
                           <HStack gap={2} mb={1}>
-                            <Text fontSize="lg" fontWeight="bold">{seg.label}</Text>
+                            <Text fontSize="lg" fontWeight="bold">
+                              {seg.label}
+                            </Text>
                             {iCompleted && (
-                              <Badge colorPalette="green" size="sm">✓ Completed</Badge>
+                              <Badge colorPalette="green" size="sm">
+                                ✓ Completed
+                              </Badge>
                             )}
                             {!iCompleted && isDue && (
-                              <Badge colorPalette="orange" size="sm">Overdue</Badge>
+                              <Badge colorPalette="orange" size="sm">
+                                Overdue
+                              </Badge>
                             )}
                           </HStack>
 
                           <HStack gap={3} fontSize="sm" color="fg.muted" flexWrap="wrap">
-                            {segmentRangeLabel(seg) && (
-                              <Text>{segmentRangeLabel(seg)}</Text>
-                            )}
-                            {seg.assignedDate && (
-                              <Text>Due {formatDate(seg.assignedDate)}</Text>
-                            )}
-                            <Text>{completedCount} member{completedCount !== 1 ? 's' : ''} completed</Text>
+                            {segmentRangeLabel(seg) && <Text>{segmentRangeLabel(seg)}</Text>}
+                            {seg.assignedDate && <Text>Due {formatDate(seg.assignedDate)}</Text>}
+                            <Text>
+                              {completedCount} member{completedCount !== 1 ? 's' : ''} completed
+                            </Text>
                           </HStack>
                         </Box>
 
@@ -1007,16 +1045,18 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                           {showRoster === seg.rkey && (
                             <Box mt={2} p={3} bg="bg.subtle" borderRadius="md">
                               <VStack gap={1} align="stretch">
-                                {progs.filter((p) => p.completed).map((p) => (
-                                  <HStack key={p.rkey} justify="space-between">
-                                    <Text fontSize="xs" color="fg.muted">
-                                      {p.memberDid.slice(0, 24)}…
-                                    </Text>
-                                    <Text fontSize="xs" color="fg.subtle">
-                                      {formatDate(p.completedAt)}
-                                    </Text>
-                                  </HStack>
-                                ))}
+                                {progs
+                                  .filter(p => p.completed)
+                                  .map(p => (
+                                    <HStack key={p.rkey} justify="space-between">
+                                      <Text fontSize="xs" color="fg.muted">
+                                        {p.memberDid.slice(0, 24)}…
+                                      </Text>
+                                      <Text fontSize="xs" color="fg.subtle">
+                                        {formatDate(p.completedAt)}
+                                      </Text>
+                                    </HStack>
+                                  ))}
                               </VStack>
                             </Box>
                           )}
@@ -1051,11 +1091,11 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                               )}
 
                               {/* New comment form */}
-                              {postPerm?.canCreate ? (
+                              {postPerm?.canCreate !== false ? (
                                 <VStack gap={2} mt={2} align="stretch">
                                   <Textarea
                                     value={postText}
-                                    onChange={(e) => setPostText(e.target.value)}
+                                    onChange={e => setPostText(e.target.value)}
                                     placeholder="Share your thoughts on this section..."
                                     aria-label="Comment on this segment"
                                     size="sm"
@@ -1084,7 +1124,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                             </VStack>
                           ) : (
                             <Box textAlign="center" py={6}>
-                              <Text fontSize="2xl" mb={2}>🔒</Text>
+                              <Text fontSize="2xl" mb={2}>
+                                🔒
+                              </Text>
                               <Text fontSize="sm" color="fg.muted">
                                 Complete this segment to see the discussion and avoid spoilers.
                               </Text>
@@ -1113,7 +1155,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
               description={
                 segmentPerm?.canCreate
                   ? `Add reading or watching assignments so the group knows what to ${mediaTypeLabels[item.mediaType] || 'complete'} by when.`
-                  : 'The group admin hasn\'t set any assignments yet.'
+                  : "The group admin hasn't set any assignments yet."
               }
             />
           )}
@@ -1121,25 +1163,24 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
       </VStack>
 
       {/* ── Add/Edit Segment Dialog ──────────────────────────── */}
-      <DialogRoot open={showAddSegment} onOpenChange={(e) => setShowAddSegment(e.open)}>
+      <DialogRoot open={showAddSegment} onOpenChange={e => setShowAddSegment(e.open)}>
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {editingSegment ? 'Edit Assignment' : 'Add Assignment'}
-              </DialogTitle>
+              <DialogTitle>{editingSegment ? 'Edit Assignment' : 'Add Assignment'}</DialogTitle>
             </DialogHeader>
             <DialogBody>
               <VStack gap={4} align="stretch">
                 <Text fontSize="sm" color="fg.muted">
-                  What portion of this {mediaTypeLabels[item.mediaType] || 'item'} should be completed, and by when?
+                  What portion of this {mediaTypeLabels[item.mediaType] || 'item'} should be
+                  completed, and by when?
                 </Text>
 
                 <Field label="Label">
                   <Input
                     value={segLabel}
-                    onChange={(e) => setSegLabel(e.target.value)}
+                    onChange={e => setSegLabel(e.target.value)}
                     placeholder={`e.g. "Chapters 1-5" or "Episode 1"`}
                     autoFocus
                   />
@@ -1162,7 +1203,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                     <Field label="Segment Type">
                       <chakra.select
                         value={segType}
-                        onChange={(e) => {
+                        onChange={e => {
                           setSegType(e.target.value);
                           setSegStart('');
                           setSegEnd('');
@@ -1187,7 +1228,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                         <Input
                           type="number"
                           value={segStart}
-                          onChange={(e) => setSegStart(e.target.value)}
+                          onChange={e => setSegStart(e.target.value)}
                           placeholder={segType === 'percent' ? '0' : '1'}
                           min={segType === 'percent' ? 0 : 1}
                           max={segType === 'percent' ? 100 : undefined}
@@ -1197,7 +1238,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                         <Input
                           type="number"
                           value={segEnd}
-                          onChange={(e) => setSegEnd(e.target.value)}
+                          onChange={e => setSegEnd(e.target.value)}
                           placeholder={segType === 'percent' ? '100' : ''}
                           min={segType === 'percent' ? 0 : 1}
                           max={segType === 'percent' ? 100 : undefined}
@@ -1211,7 +1252,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                   <Input
                     type="date"
                     value={segDueDate}
-                    onChange={(e) => setSegDueDate(e.target.value)}
+                    onChange={e => setSegDueDate(e.target.value)}
                   />
                 </Field>
               </VStack>
@@ -1235,7 +1276,12 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
       </DialogRoot>
 
       {/* ── Delete Segment Confirmation ──────────────────────── */}
-      <DialogRoot open={!!deleteSegmentRkey} onOpenChange={(e) => { if (!e.open) setDeleteSegmentRkey(null); }}>
+      <DialogRoot
+        open={!!deleteSegmentRkey}
+        onOpenChange={e => {
+          if (!e.open) setDeleteSegmentRkey(null);
+        }}
+      >
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
@@ -1244,19 +1290,20 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
             </DialogHeader>
             <DialogBody>
               <Text>
-                Are you sure you want to delete this assignment? All discussion and progress records for it will also be removed. This cannot be undone.
+                Are you sure you want to delete this assignment? All discussion and progress records
+                for it will also be removed. This cannot be undone.
               </Text>
             </DialogBody>
             <DialogFooter>
               <HStack gap={2}>
-                <Button variant="outline" bg="transparent" onClick={() => setDeleteSegmentRkey(null)}>
+                <Button
+                  variant="outline"
+                  bg="transparent"
+                  onClick={() => setDeleteSegmentRkey(null)}
+                >
                   Cancel
                 </Button>
-                <Button
-                  colorPalette="red"
-                  onClick={handleDeleteSegment}
-                  disabled={deletingSegment}
-                >
+                <Button colorPalette="red" onClick={handleDeleteSegment} disabled={deletingSegment}>
                   {deletingSegment ? 'Deleting...' : 'Delete Assignment'}
                 </Button>
               </HStack>

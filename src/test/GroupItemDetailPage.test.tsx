@@ -67,14 +67,34 @@ const mockProgressMap = {
 // Permissions where the user CANNOT create posts (non-member scenario)
 const permissionsNonMember = {
   // segmentPerm.canCreate=true so canSeeDiscussion returns true (admin flag)
-  'app.collectivesocial.group.segment': { canCreate: true, canRead: true, canUpdate: false, canDelete: false },
-  'app.collectivesocial.group.post': { canCreate: false, canRead: true, canUpdate: false, canDelete: false },
+  'app.collectivesocial.group.segment': {
+    canCreate: true,
+    canRead: true,
+    canUpdate: false,
+    canDelete: false,
+  },
+  'app.collectivesocial.group.post': {
+    canCreate: false,
+    canRead: true,
+    canUpdate: false,
+    canDelete: false,
+  },
 };
 
 // Permissions where the user CAN create posts
 const permissionsMember = {
-  'app.collectivesocial.group.segment': { canCreate: false, canRead: true, canUpdate: false, canDelete: false },
-  'app.collectivesocial.group.post': { canCreate: true, canRead: true, canUpdate: false, canDelete: false },
+  'app.collectivesocial.group.segment': {
+    canCreate: false,
+    canRead: true,
+    canUpdate: false,
+    canDelete: false,
+  },
+  'app.collectivesocial.group.post': {
+    canCreate: true,
+    canRead: true,
+    canUpdate: false,
+    canDelete: false,
+  },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -167,9 +187,7 @@ describe('GroupItemDetailPage', () => {
     await userEvent.click(discussionButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/you need to be a group member to comment/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/you need to be a group member to comment/i)).toBeInTheDocument();
     });
   });
 
@@ -188,14 +206,44 @@ describe('GroupItemDetailPage', () => {
 
     await waitFor(() => {
       // The textarea for posting a comment must be present
-      expect(
-        screen.getByPlaceholderText(/share your thoughts/i)
-      ).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/share your thoughts/i)).toBeInTheDocument();
     });
   });
 
+  it('does NOT show the member message when app.collectivesocial.group.post is missing from permissions (regression: undefined treated as false)', async () => {
+    // This is the regression scenario: the backend returned permissions WITHOUT
+    // app.collectivesocial.group.post (e.g. partial DB rows that skipped DEFAULTS).
+    // postPerm is undefined. The old code `{postPerm?.canCreate ? form : message}`
+    // treated undefined as false and showed the denial message to members.
+    // The fix: `{postPerm?.canCreate !== false ? form : message}` only shows the
+    // message when canCreate is explicitly false.
+    const permsWithoutGroupPost = {
+      'app.collectivesocial.group.segment': {
+        canCreate: true, // isAdmin path → canSeeDiscussion=true
+        canRead: true,
+        canUpdate: false,
+        canDelete: false,
+      },
+      // Note: app.collectivesocial.group.post is intentionally absent
+    };
+    fetchSpy.mockImplementation(buildFetchMock(permsWithoutGroupPost));
+
+    renderPage();
+
+    const discussionButton = await screen.findByText(/💬 Discussion/);
+    await userEvent.click(discussionButton);
+
+    await waitFor(() => {
+      // The denial message must NOT appear when permissions haven't loaded yet
+      // or when the key is simply missing. The comment form should be shown.
+      expect(screen.queryByText(/you need to be a group member to comment/i)).not.toBeInTheDocument();
+    });
+
+    // The textarea must be visible when postPerm is undefined
+    expect(screen.getByPlaceholderText(/share your thoughts/i)).toBeInTheDocument();
+  });
+
   it('shows comment error text when handlePostComment fetch fails', async () => {
-    // Build a mock where GET /posts succeeds but POST /posts fails
     let postAttempted = false;
     fetchSpy.mockImplementation(async (url: RequestInfo | URL, init?: RequestInit) => {
       const urlStr = url.toString();
@@ -242,9 +290,7 @@ describe('GroupItemDetailPage', () => {
 
     await waitFor(() => {
       expect(postAttempted).toBe(true);
-      expect(
-        screen.getByText(/couldn't post your comment/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/couldn't post your comment/i)).toBeInTheDocument();
     });
   });
 });
