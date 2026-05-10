@@ -73,6 +73,22 @@ interface Segment {
   createdAt: string;
 }
 
+interface SegmentEvent {
+  uri: string;
+  cid: string;
+  rkey: string;
+  name: string;
+  description?: string;
+  startsAt?: string;
+  endsAt?: string;
+  mode?: string;
+  status?: string;
+  segmentUri?: string;
+  locations?: Array<{ name?: string; locality?: string; region?: string; country?: string }>;
+  uris?: Array<{ uri: string; name?: string }>;
+  rsvpCounts?: { going: number; interested: number; notgoing: number };
+}
+
 interface SegmentProgress {
   uri: string;
   rkey: string;
@@ -288,6 +304,17 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
   const [deleteSegmentRkey, setDeleteSegmentRkey] = useState<string | null>(null);
   const [deletingSegment, setDeletingSegment] = useState(false);
 
+  // Segment event fields
+  const [eventsBySegment, setEventsBySegment] = useState<Record<string, SegmentEvent>>({});
+  const [segEventEnabled, setSegEventEnabled] = useState(false);
+  const [segEventName, setSegEventName] = useState('');
+  const [segEventDate, setSegEventDate] = useState('');
+  const [segEventTime, setSegEventTime] = useState('');
+  const [segEventMode, setSegEventMode] = useState<string>('virtual');
+  const [segEventLocation, setSegEventLocation] = useState('');
+  const [segEventLink, setSegEventLink] = useState('');
+  const [segEventLinkName, setSegEventLinkName] = useState('');
+
   // Roster toggle
   const [showRoster, setShowRoster] = useState<string | null>(null);
   const [rosterData, setRosterData] = useState<Record<string, RosterEntry[]>>({});
@@ -372,6 +399,28 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
         const segData = await segRes.json();
         const segs: Segment[] = segData.segments || [];
         setSegments(segs);
+
+        // Fetch events for each segment in parallel
+        const eventEntries = await Promise.all(
+          segs.map(async (seg) => {
+            try {
+              const evtRes = await fetch(
+                `${apiUrl}/groups/${encodeURIComponent(groupDid)}/segments/${encodeURIComponent(seg.rkey)}/event`,
+                { credentials: 'include' }
+              );
+              if (evtRes.ok) {
+                const evtData = await evtRes.json();
+                return [seg.uri, evtData.event] as [string, SegmentEvent];
+              }
+            } catch { /* no event for this segment */ }
+            return null;
+          })
+        );
+        const evtMap: Record<string, SegmentEvent> = {};
+        for (const entry of eventEntries) {
+          if (entry) evtMap[entry[0]] = entry[1];
+        }
+        setEventsBySegment(evtMap);
       }
 
       if (progressRes.ok) {
@@ -423,6 +472,14 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
     setSegDueDate('');
     setSegIsWhole(false);
     setEditingSegment(null);
+    setSegEventEnabled(false);
+    setSegEventName('');
+    setSegEventDate('');
+    setSegEventTime('');
+    setSegEventMode('virtual');
+    setSegEventLocation('');
+    setSegEventLink('');
+    setSegEventLinkName('');
     setShowAddSegment(true);
   };
 
@@ -448,6 +505,38 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
     }
     setSegDueDate(seg.assignedDate ? seg.assignedDate.split('T')[0] : '');
     setEditingSegment(seg);
+
+    // Load existing event for this segment
+    const existingEvent = eventsBySegment[seg.uri];
+    if (existingEvent) {
+      setSegEventEnabled(true);
+      setSegEventName(existingEvent.name || '');
+      if (existingEvent.startsAt) {
+        const dt = new Date(existingEvent.startsAt);
+        setSegEventDate(dt.toISOString().split('T')[0]);
+        setSegEventTime(dt.toTimeString().slice(0, 5));
+      } else {
+        setSegEventDate('');
+        setSegEventTime('');
+      }
+      const modeFragment = existingEvent.mode?.split('#')[1] || 'virtual';
+      setSegEventMode(modeFragment);
+      const loc = existingEvent.locations?.[0];
+      setSegEventLocation(loc?.name || '');
+      const link = existingEvent.uris?.[0];
+      setSegEventLink(link?.uri || '');
+      setSegEventLinkName(link?.name || '');
+    } else {
+      setSegEventEnabled(false);
+      setSegEventName('');
+      setSegEventDate('');
+      setSegEventTime('');
+      setSegEventMode('virtual');
+      setSegEventLocation('');
+      setSegEventLink('');
+      setSegEventLinkName('');
+    }
+
     setShowAddSegment(true);
   };
 
@@ -494,6 +583,47 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error('Failed to save segment');
+
+      // Save event if enabled
+      const segData = await res.json();
+      const savedRkey = editingSegment?.rkey || segData.segment?.rkey;
+      if (segEventEnabled && savedRkey) {
+        const eventBody: Record<string, unknown> = {
+          name: segEventName.trim() || segLabel.trim(),
+        };
+        if (segEventDate) {
+          const timeStr = segEventTime || '00:00';
+          eventBody.startsAt = new Date(`${segEventDate}T${timeStr}:00`).toISOString();
+        }
+        eventBody.mode = segEventMode;
+        if (segEventLocation.trim()) {
+          eventBody.locations = [{ name: segEventLocation.trim() }];
+        }
+        if (segEventLink.trim()) {
+          eventBody.uris = [{
+            uri: segEventLink.trim(),
+            name: segEventLinkName.trim() || undefined,
+          }];
+        }
+
+        const existingEvent = editingSegment ? eventsBySegment[editingSegment.uri] : null;
+        const eventUrl = `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/segments/${encodeURIComponent(savedRkey)}/event`;
+        const eventMethod = existingEvent ? 'PUT' : 'POST';
+
+        const evtRes = await fetch(eventUrl, {
+          method: eventMethod,
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventBody),
+        });
+        if (!evtRes.ok) {
+          console.error('Failed to save event:', await evtRes.text());
+        }
+      } else if (!segEventEnabled && editingSegment && eventsBySegment[editingSegment.uri]) {
+        // Event was disabled — delete it
+        const deleteUrl = `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/segments/${encodeURIComponent(editingSegment.rkey)}/event`;
+        await fetch(deleteUrl, { method: 'DELETE', credentials: 'include' }).catch(() => {});
+      }
 
       setShowAddSegment(false);
       await fetchData();
@@ -1001,6 +1131,42 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                             )}
                             <Text>{completedCount} member{completedCount !== 1 ? 's' : ''} completed</Text>
                           </HStack>
+
+                          {/* Event / meeting info */}
+                          {eventsBySegment[seg.uri] && (() => {
+                            const evt = eventsBySegment[seg.uri];
+                            const modeLabel = evt.mode?.split('#')[1];
+                            const modeEmoji = modeLabel === 'virtual' ? '💻' : modeLabel === 'inperson' ? '📍' : modeLabel === 'hybrid' ? '🔀' : '📅';
+                            const loc = evt.locations?.[0];
+                            const link = evt.uris?.[0];
+                            return (
+                              <Box mt={2} p={2} bg="bg.subtle" borderRadius="md" fontSize="sm">
+                                <HStack gap={2} mb={1}>
+                                  <Text fontWeight="medium">{modeEmoji} {evt.name}</Text>
+                                  {evt.rsvpCounts && evt.rsvpCounts.going > 0 && (
+                                    <Badge colorPalette="green" size="sm">
+                                      {evt.rsvpCounts.going} going
+                                    </Badge>
+                                  )}
+                                </HStack>
+                                <HStack gap={3} color="fg.muted" flexWrap="wrap">
+                                  {evt.startsAt && (
+                                    <Text>
+                                      {new Date(evt.startsAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                      {' at '}
+                                      {new Date(evt.startsAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                                    </Text>
+                                  )}
+                                  {loc?.name && <Text>📍 {loc.name}</Text>}
+                                  {link && (
+                                    <chakra.a href={link.uri} target="_blank" rel="noopener noreferrer" color="accent.fg" textDecoration="underline">
+                                      🔗 {link.name || 'Join Meeting'}
+                                    </chakra.a>
+                                  )}
+                                </HStack>
+                              </Box>
+                            );
+                          })()}
                         </Box>
 
                         <HStack gap={2}>
@@ -1284,6 +1450,104 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                     onChange={(e) => setSegDueDate(e.target.value)}
                   />
                 </Field>
+
+                {/* ── Meeting / Event ─────────────────────── */}
+                {segmentPerm?.canCreate && (
+                  <>
+                    <HStack gap={2} mt={2}>
+                      <Button
+                        size="sm"
+                        variant={segEventEnabled ? 'solid' : 'outline'}
+                        colorPalette={segEventEnabled ? 'accent' : 'gray'}
+                        onClick={() => setSegEventEnabled(!segEventEnabled)}
+                      >
+                        {segEventEnabled ? '✓ ' : '+ '}Meeting
+                      </Button>
+                      <Text fontSize="xs" color="fg.muted">
+                        Schedule a meeting for this assignment
+                      </Text>
+                    </HStack>
+
+                    {segEventEnabled && (
+                      <VStack gap={3} align="stretch" p={3} bg="bg.subtle" borderRadius="md">
+                        <Field label="Meeting Name">
+                          <Input
+                            value={segEventName}
+                            onChange={(e) => setSegEventName(e.target.value)}
+                            placeholder={segLabel ? `${segLabel} Discussion` : 'e.g. "Book Club Meeting"'}
+                          />
+                        </Field>
+
+                        <HStack gap={4}>
+                          <Field label="Date">
+                            <Input
+                              type="date"
+                              value={segEventDate}
+                              onChange={(e) => setSegEventDate(e.target.value)}
+                            />
+                          </Field>
+                          <Field label="Time">
+                            <Input
+                              type="time"
+                              value={segEventTime}
+                              onChange={(e) => setSegEventTime(e.target.value)}
+                            />
+                          </Field>
+                        </HStack>
+
+                        <Field label="Meeting Type">
+                          <chakra.select
+                            value={segEventMode}
+                            onChange={(e) => setSegEventMode(e.target.value)}
+                            w="100%"
+                            p="0.5rem 0.75rem"
+                            bg="bg"
+                            borderWidth="1px"
+                            borderColor="border.card"
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="fg.default"
+                          >
+                            <option value="virtual">Virtual</option>
+                            <option value="inperson">In Person</option>
+                            <option value="hybrid">Hybrid</option>
+                          </chakra.select>
+                        </Field>
+
+                        {(segEventMode === 'virtual' || segEventMode === 'hybrid') && (
+                          <HStack gap={4}>
+                            <Box flex={1}>
+                            <Field label="Meeting Link">
+                              <Input
+                                value={segEventLink}
+                                onChange={(e) => setSegEventLink(e.target.value)}
+                                placeholder="https://zoom.us/j/..."
+                              />
+                            </Field>
+                            </Box>
+                            <Field label="Link Label">
+                              <Input
+                                value={segEventLinkName}
+                                onChange={(e) => setSegEventLinkName(e.target.value)}
+                                placeholder="Zoom"
+                              />
+                            </Field>
+                          </HStack>
+                        )}
+
+                        {(segEventMode === 'inperson' || segEventMode === 'hybrid') && (
+                          <Field label="Location">
+                            <Input
+                              value={segEventLocation}
+                              onChange={(e) => setSegEventLocation(e.target.value)}
+                              placeholder="e.g. Downtown Library"
+                            />
+                          </Field>
+                        )}
+                      </VStack>
+                    )}
+                  </>
+                )}
               </VStack>
             </DialogBody>
             <DialogFooter>
