@@ -1022,7 +1022,7 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                                 {progs.filter((p) => p.completed).map((p) => (
                                   <HStack key={p.rkey} justify="space-between">
                                     <Text fontSize="xs" color="fg.muted">
-                                      {p.memberDid.slice(0, 24)}…
+                                      {p.memberDid ? `${p.memberDid.slice(0, 24)}…` : 'You'}
                                     </Text>
                                     <Text fontSize="xs" color="fg.subtle">
                                       {formatDate(p.completedAt)}
