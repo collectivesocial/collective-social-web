@@ -366,7 +366,19 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
 
       if (progressRes.ok) {
         const progressData = await progressRes.json();
-        setProgressMap(progressData.progressBySegment || {});
+        const raw = progressData.progressBySegment || {};
+        // API returns single records (object|null); normalize to arrays
+        const normalized: Record<string, SegmentProgress[]> = {};
+        for (const [segUri, prog] of Object.entries(raw)) {
+          if (Array.isArray(prog)) {
+            normalized[segUri] = prog;
+          } else if (prog) {
+            normalized[segUri] = [prog as SegmentProgress];
+          } else {
+            normalized[segUri] = [];
+          }
+        }
+        setProgressMap(normalized);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred');
