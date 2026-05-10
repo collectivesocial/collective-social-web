@@ -82,6 +82,14 @@ interface SegmentProgress {
   completedAt: string;
 }
 
+interface RosterEntry {
+  did: string;
+  handle: string;
+  displayName?: string;
+  avatar?: string;
+  completedAt: string;
+}
+
 interface Post {
   uri: string;
   rkey: string;
@@ -282,6 +290,8 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
 
   // Roster toggle
   const [showRoster, setShowRoster] = useState<string | null>(null);
+  const [rosterData, setRosterData] = useState<Record<string, RosterEntry[]>>({});
+  const [rosterLoading, setRosterLoading] = useState<string | null>(null);
 
   // Track in library
   const [tracking, setTracking] = useState(false);
@@ -546,6 +556,35 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
       await fetchData();
     } catch (err) {
       console.error('Failed to unmark progress:', err);
+    }
+  };
+
+  const fetchRoster = async (segRkey: string) => {
+    setRosterLoading(segRkey);
+    try {
+      const res = await fetch(
+        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/segments/${encodeURIComponent(segRkey)}/roster`,
+        { credentials: 'include' }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setRosterData((prev) => ({ ...prev, [segRkey]: data.roster || [] }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch roster:', err);
+    } finally {
+      setRosterLoading(null);
+    }
+  };
+
+  const handleToggleRoster = (segRkey: string) => {
+    if (showRoster === segRkey) {
+      setShowRoster(null);
+    } else {
+      setShowRoster(segRkey);
+      if (!rosterData[segRkey]) {
+        fetchRoster(segRkey);
+      }
     }
   };
 
@@ -1006,30 +1045,49 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                         </HStack>
                       </Flex>
 
-                      {/* Roster toggle (admin) */}
-                      {segmentPerm?.canRead && completedCount > 0 && (
+                      {/* Roster toggle */}
+                      {segmentPerm?.canRead && (
                         <Box mt={2}>
                           <Button
                             size="xs"
                             variant="ghost"
-                            onClick={() => setShowRoster(showRoster === seg.rkey ? null : seg.rkey)}
+                            onClick={() => handleToggleRoster(seg.rkey)}
                           >
                             {showRoster === seg.rkey ? 'Hide' : 'Show'} member progress
                           </Button>
                           {showRoster === seg.rkey && (
                             <Box mt={2} p={3} bg="bg.subtle" borderRadius="md">
-                              <VStack gap={1} align="stretch">
-                                {progs.filter((p) => p.completed).map((p) => (
-                                  <HStack key={p.rkey} justify="space-between">
-                                    <Text fontSize="xs" color="fg.muted">
-                                      {p.memberDid ? `${p.memberDid.slice(0, 24)}…` : 'You'}
-                                    </Text>
-                                    <Text fontSize="xs" color="fg.subtle">
-                                      {formatDate(p.completedAt)}
-                                    </Text>
-                                  </HStack>
-                                ))}
-                              </VStack>
+                              {rosterLoading === seg.rkey ? (
+                                <Center py={2}><Spinner size="sm" /></Center>
+                              ) : (rosterData[seg.rkey] || []).length > 0 ? (
+                                <VStack gap={2} align="stretch">
+                                  {(rosterData[seg.rkey] || []).map((entry) => (
+                                    <HStack key={entry.did} gap={2}>
+                                      {entry.avatar ? (
+                                        <Image
+                                          src={entry.avatar}
+                                          width="24px"
+                                          height="24px"
+                                          borderRadius="full"
+                                          alt={entry.handle}
+                                        />
+                                      ) : (
+                                        <Box w="24px" h="24px" borderRadius="full" bg="bg.emphasized" />
+                                      )}
+                                      <Text fontSize="xs" fontWeight="medium" flex={1}>
+                                        {entry.displayName || `@${entry.handle}`}
+                                      </Text>
+                                      <Text fontSize="xs" color="fg.subtle">
+                                        {formatDate(entry.completedAt)}
+                                      </Text>
+                                    </HStack>
+                                  ))}
+                                </VStack>
+                              ) : (
+                                <Text fontSize="xs" color="fg.muted" textAlign="center">
+                                  No completions yet
+                                </Text>
+                              )}
                             </Box>
                           )}
                         </Box>
