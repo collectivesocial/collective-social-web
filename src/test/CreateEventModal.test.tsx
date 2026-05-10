@@ -85,8 +85,6 @@ describe('CreateEventModal', () => {
     // The button is disabled if name is empty, so we test via form submit mechanics:
     // Fill name, fill start time, clear name, submit
     const nameInput = screen.getByPlaceholderText(/may book club meetup/i);
-    const startsAtInput = screen.getByDisplayValue('') as HTMLInputElement;
-
     await userEvent.type(nameInput, 'temp');
     // Find datetime-local input
     const datetimeInput = document.querySelector('input[type="datetime-local"]') as HTMLInputElement;
@@ -146,7 +144,7 @@ describe('CreateEventModal', () => {
       json: async () => ({ event: { rkey: 'new-evt', name: 'Phase 2 Party' } }),
     } as Response);
 
-    const { onCreated } = renderModal();
+    renderModal();
 
     const nameInput = screen.getByPlaceholderText(/may book club meetup/i);
     await userEvent.type(nameInput, 'Phase 2 Party');
