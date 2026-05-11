@@ -15,6 +15,8 @@ import {
   Center,
   Input,
   Textarea,
+  IconButton,
+  Menu,
   chakra,
 } from '@chakra-ui/react';
 import {
@@ -144,10 +146,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
           `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(listRkey!)}`,
           { credentials: 'include' }
         ),
-        fetch(
-          `${apiUrl}/groups/${encodeURIComponent(groupDid!)}`,
-          { credentials: 'include' }
-        ),
+        fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid!)}`, { credentials: 'include' }),
       ]);
 
       if (!listRes.ok) {
@@ -320,9 +319,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
         <Center mt={6}>
           <Button
             variant="outline"
-            onClick={() =>
-              navigate(`/groups/${encodeURIComponent(groupDid!)}`)
-            }
+            onClick={() => navigate(`/groups/${encodeURIComponent(groupDid!)}`)}
           >
             ← Back to Group
           </Button>
@@ -335,10 +332,8 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
   const itemPerm = permissions['app.collectivesocial.group.listitem'];
   const statusPerm = permissions['app.collectivesocial.group.listitem.status'];
 
-  const completedCount = items.filter((i) => i.status === 'completed').length;
-  const inProgressCount = items.filter(
-    (i) => i.status === 'in-progress'
-  ).length;
+  const completedCount = items.filter(i => i.status === 'completed').length;
+  const inProgressCount = items.filter(i => i.status === 'in-progress').length;
 
   return (
     <Container maxW="4xl" py={8}>
@@ -348,9 +343,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
           variant="ghost"
           size="sm"
           alignSelf="flex-start"
-          onClick={() =>
-            navigate(`/groups/${encodeURIComponent(groupDid!)}`)
-          }
+          onClick={() => navigate(`/groups/${encodeURIComponent(groupDid!)}`)}
           color="fg.muted"
           _hover={{ color: 'fg.default' }}
         >
@@ -358,14 +351,13 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
         </Button>
 
         {/* List Header */}
-        <Box
-          bg="bg.card"
-          borderRadius="xl"
-          borderWidth="1px"
-          borderColor="border.card"
-          p={6}
-        >
-          <Flex justify="space-between" align="start">
+        <Box bg="bg.card" borderRadius="xl" borderWidth="1px" borderColor="border.card" p={6}>
+          <Flex
+            justify="space-between"
+            align={{ base: 'stretch', md: 'start' }}
+            direction={{ base: 'column', md: 'row' }}
+            gap={{ base: 4, md: 0 }}
+          >
             <Box flex="1">
               <HStack gap={2} mb={2} flexWrap="wrap">
                 <Heading size="xl" fontFamily="heading">
@@ -424,13 +416,22 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
               </HStack>
             </Box>
 
-            {/* List-level actions (edit/delete) based on permissions */}
-            <HStack gap={2}>
+            {/* List-level actions (edit/delete) based on permissions.
+                On mobile these stack below the metadata and span the full
+                card width so they don't squeeze the title or get truncated. */}
+            <HStack
+              gap={2}
+              flexShrink={0}
+              flexDirection={{ base: 'column', md: 'row' }}
+              alignItems={{ base: 'stretch', md: 'center' }}
+              width={{ base: '100%', md: 'auto' }}
+            >
               {listPerm?.canUpdate && (
                 <Button
                   size="sm"
                   variant="outline"
                   colorPalette="accent"
+                  width={{ base: '100%', md: 'auto' }}
                   onClick={() => {
                     setEditName(list.name);
                     setEditDescription(list.description || '');
@@ -447,6 +448,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   size="sm"
                   variant="outline"
                   colorPalette="red"
+                  width={{ base: '100%', md: 'auto' }}
                   onClick={() => setShowDeleteConfirm(true)}
                 >
                   Delete List
@@ -485,14 +487,12 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                   p={4}
                   cursor={item.rkey ? 'pointer' : 'default'}
                   transition="all 0.2s"
-                  _hover={
-                    item.rkey
-                      ? { shadow: 'sm', transform: 'translateY(-1px)' }
-                      : {}
-                  }
+                  _hover={item.rkey ? { shadow: 'sm', transform: 'translateY(-1px)' } : {}}
                   onClick={() => {
                     if (item.rkey) {
-                      navigate(`/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(listRkey!)}/items/${encodeURIComponent(item.rkey)}`);
+                      navigate(
+                        `/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(listRkey!)}/items/${encodeURIComponent(item.rkey)}`
+                      );
                     }
                   }}
                 >
@@ -509,9 +509,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                     </Text>
 
                     {/* Media type icon */}
-                    <Text fontSize="2xl">
-                      {mediaTypeEmoji[item.mediaType] || '📄'}
-                    </Text>
+                    <Text fontSize="2xl">{mediaTypeEmoji[item.mediaType] || '📄'}</Text>
 
                     {/* Item details */}
                     <Box flex="1">
@@ -525,40 +523,54 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                       )}
                     </Box>
 
-                    {/* Status badge */}
-                    <HStack gap={2}>
-                      <Badge
-                        colorPalette={statusColors[item.status] || 'gray'}
-                        size="sm"
-                      >
+                    {/* Status badge + actions menu. Buttons used to live
+                        inline but were overflowing the card on narrower
+                        viewports — collapsed into a single 3-dot menu. */}
+                    <HStack gap={2} flexShrink={0}>
+                      <Badge colorPalette={statusColors[item.status] || 'gray'} size="sm">
                         {statusLabels[item.status] || item.status}
                       </Badge>
-                      {statusPerm?.canUpdate && (
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          colorPalette="blue"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setStatusItemRkey(item.rkey);
-                            setStatusValue(item.status);
-                          }}
-                        >
-                          Change Status
-                        </Button>
-                      )}
-                      {itemPerm?.canDelete && (
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          colorPalette="red"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setRemoveItemRkey(item.rkey);
-                          }}
-                        >
-                          Remove
-                        </Button>
+                      {(statusPerm?.canUpdate || itemPerm?.canDelete) && (
+                        <Menu.Root positioning={{ placement: 'bottom-end' }}>
+                          <Menu.Trigger asChild>
+                            <IconButton
+                              variant="ghost"
+                              size="sm"
+                              aria-label="Item actions"
+                              onClick={e => e.stopPropagation()}
+                            >
+                              ⋮
+                            </IconButton>
+                          </Menu.Trigger>
+                          <Menu.Positioner>
+                            <Menu.Content>
+                              {statusPerm?.canUpdate && (
+                                <Menu.Item
+                                  value="change-status"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    setStatusItemRkey(item.rkey);
+                                    setStatusValue(item.status);
+                                  }}
+                                >
+                                  🔄 Change status
+                                </Menu.Item>
+                              )}
+                              {itemPerm?.canDelete && (
+                                <Menu.Item
+                                  value="remove"
+                                  color="fg.error"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    setRemoveItemRkey(item.rkey);
+                                  }}
+                                >
+                                  🗑️ Remove
+                                </Menu.Item>
+                              )}
+                            </Menu.Content>
+                          </Menu.Positioner>
+                        </Menu.Root>
                       )}
                     </HStack>
                   </Flex>
@@ -576,7 +588,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       </VStack>
 
       {/* ── Edit List Dialog ─────────────────────────────────── */}
-      <DialogRoot open={showEditList} onOpenChange={(e) => setShowEditList(e.open)}>
+      <DialogRoot open={showEditList} onOpenChange={e => setShowEditList(e.open)}>
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
@@ -588,7 +600,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                 <Field label="Name">
                   <Input
                     value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
+                    onChange={e => setEditName(e.target.value)}
                     placeholder="List name"
                     autoFocus
                   />
@@ -596,14 +608,14 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                 <Field label="Description">
                   <Textarea
                     value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
+                    onChange={e => setEditDescription(e.target.value)}
                     placeholder="Optional description"
                   />
                 </Field>
                 <Field label="Purpose">
                   <chakra.select
                     value={editPurpose}
-                    onChange={(e) => setEditPurpose(e.target.value)}
+                    onChange={e => setEditPurpose(e.target.value)}
                     w="100%"
                     p="0.5rem 0.75rem"
                     bg="bg.subtle"
@@ -623,7 +635,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                 <Field label="Segment Type">
                   <Input
                     value={editSegmentType}
-                    onChange={(e) => setEditSegmentType(e.target.value)}
+                    onChange={e => setEditSegmentType(e.target.value)}
                     placeholder="e.g. chapters, episodes"
                   />
                 </Field>
@@ -648,7 +660,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       </DialogRoot>
 
       {/* ── Delete List Confirmation ─────────────────────────── */}
-      <DialogRoot open={showDeleteConfirm} onOpenChange={(e) => setShowDeleteConfirm(e.open)}>
+      <DialogRoot open={showDeleteConfirm} onOpenChange={e => setShowDeleteConfirm(e.open)}>
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
@@ -664,14 +676,14 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
             </DialogBody>
             <DialogFooter>
               <HStack gap={2}>
-                <Button variant="outline" bg="transparent" onClick={() => setShowDeleteConfirm(false)}>
+                <Button
+                  variant="outline"
+                  bg="transparent"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
                   Cancel
                 </Button>
-                <Button
-                  colorPalette="red"
-                  onClick={handleDeleteList}
-                  disabled={deleting}
-                >
+                <Button colorPalette="red" onClick={handleDeleteList} disabled={deleting}>
                   {deleting ? 'Deleting...' : 'Delete List'}
                 </Button>
               </HStack>
@@ -681,7 +693,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       </DialogRoot>
 
       {/* ── Add Item Dialog ──────────────────────────────────── */}
-      <DialogRoot open={showAddItem} onOpenChange={(e) => setShowAddItem(e.open)} size="lg">
+      <DialogRoot open={showAddItem} onOpenChange={e => setShowAddItem(e.open)} size="lg">
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
@@ -710,7 +722,15 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       </DialogRoot>
 
       {/* ── Change Status Dialog ─────────────────────────────── */}
-      <DialogRoot open={!!statusItemRkey} onOpenChange={(e) => { if (!e.open) { setStatusItemRkey(null); setStatusError(null); } }}>
+      <DialogRoot
+        open={!!statusItemRkey}
+        onOpenChange={e => {
+          if (!e.open) {
+            setStatusItemRkey(null);
+            setStatusError(null);
+          }
+        }}
+      >
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
@@ -721,7 +741,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
               <Field label="Status">
                 <chakra.select
                   value={statusValue}
-                  onChange={(e) => setStatusValue(e.target.value)}
+                  onChange={e => setStatusValue(e.target.value)}
                   w="100%"
                   p="0.5rem 0.75rem"
                   bg="bg.subtle"
@@ -745,14 +765,17 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
             </DialogBody>
             <DialogFooter>
               <HStack gap={2}>
-                <Button variant="outline" bg="transparent" onClick={() => { setStatusItemRkey(null); setStatusError(null); }}>
+                <Button
+                  variant="outline"
+                  bg="transparent"
+                  onClick={() => {
+                    setStatusItemRkey(null);
+                    setStatusError(null);
+                  }}
+                >
                   Cancel
                 </Button>
-                <Button
-                  colorPalette="blue"
-                  onClick={handleChangeStatus}
-                  disabled={statusSaving}
-                >
+                <Button colorPalette="blue" onClick={handleChangeStatus} disabled={statusSaving}>
                   {statusSaving ? 'Saving...' : 'Update Status'}
                 </Button>
               </HStack>
@@ -762,7 +785,12 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
       </DialogRoot>
 
       {/* ── Remove Item Confirmation ─────────────────────────── */}
-      <DialogRoot open={!!removeItemRkey} onOpenChange={(e) => { if (!e.open) setRemoveItemRkey(null); }}>
+      <DialogRoot
+        open={!!removeItemRkey}
+        onOpenChange={e => {
+          if (!e.open) setRemoveItemRkey(null);
+        }}
+      >
         <DialogBackdrop />
         <DialogPositioner>
           <DialogContent>
@@ -771,7 +799,8 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
             </DialogHeader>
             <DialogBody>
               <Text>
-                This removes the item from this list. Your personal review and notes stay in your library.
+                This removes the item from this list. Your personal review and notes stay in your
+                library.
               </Text>
             </DialogBody>
             <DialogFooter>
@@ -779,11 +808,7 @@ export function GroupListDetailPage({ apiUrl }: GroupListDetailPageProps) {
                 <Button variant="outline" bg="transparent" onClick={() => setRemoveItemRkey(null)}>
                   Cancel
                 </Button>
-                <Button
-                  colorPalette="red"
-                  onClick={handleRemoveItem}
-                  disabled={removingItem}
-                >
+                <Button colorPalette="red" onClick={handleRemoveItem} disabled={removingItem}>
                   {removingItem ? 'Removing...' : 'Remove Item'}
                 </Button>
               </HStack>

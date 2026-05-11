@@ -23,6 +23,7 @@ import { EventList } from '../components/events/EventList';
 import { CreateEventModal } from '../components/events/CreateEventModal';
 import { ShareGroupButton } from '../components/ShareGroupButton';
 import { toaster } from '../components/ui/toaster';
+import { setPostLoginRedirect, consumePendingGroupJoin } from '../utils/authRedirect';
 import type { GroupEvent } from '../types/events';
 
 interface GroupAdmin {
@@ -99,6 +100,7 @@ interface GroupDetail {
 
 interface GroupDetailPageProps {
   apiUrl: string;
+  isAuthenticated: boolean;
 }
 
 const purposeLabels: Record<string, string> = {
@@ -120,7 +122,7 @@ const mediaTypeEmoji: Record<string, string> = {
   course: '🎓',
 };
 
-export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
+export function GroupDetailPage({ apiUrl, isAuthenticated }: GroupDetailPageProps) {
   const { groupDid } = useParams<{ groupDid: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -131,6 +133,30 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
   const [events, setEvents] = useState<GroupEvent[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
   const [joining, setJoining] = useState(false);
+
+  /**
+   * If the user clicks a list or in-progress item while logged out, send
+   * them through the login flow and remember to drop them back here. Once
+   * they're signed in we'll prompt them to join the group so they can
+   * actually view the lists.
+   *
+   * Returns true when the click was intercepted (caller should bail).
+   */
+  const interceptIfLoggedOut = (reason: string): boolean => {
+    if (isAuthenticated || !groupDid) return false;
+    setPostLoginRedirect(`/groups/${encodeURIComponent(groupDid)}`, {
+      reason,
+      joinGroupDid: groupDid,
+    });
+    toaster.create({
+      title: 'Sign in to continue',
+      description: 'Join this group to view its lists.',
+      type: 'info',
+      duration: 3500,
+    });
+    navigate('/');
+    return true;
+  };
 
   const refreshGroup = async () => {
     try {
@@ -190,6 +216,21 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
       fetchEvents();
     }
   }, [apiUrl, groupDid]);
+
+  // After bouncing through login, the group page is the destination. If the
+  // user was sent here specifically to join this group, surface a one-time
+  // prompt so they understand what to do next.
+  useEffect(() => {
+    if (!isAuthenticated || !groupDid || !group) return;
+    if (!consumePendingGroupJoin(groupDid)) return;
+    if (group.is_member) return;
+    toaster.create({
+      title: 'You\u2019re signed in!',
+      description: 'Join this group to view its lists and discussions.',
+      type: 'info',
+      duration: 6000,
+    });
+  }, [isAuthenticated, groupDid, group]);
 
   const handleJoin = async () => {
     setJoining(true);
@@ -337,8 +378,15 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
             </HStack>
 
             {/* Join / Share actions. List creation lives under the Lists tab
-                so the header stays focused on identity + membership. */}
-            <VStack gap={2} align="stretch">
+                so the header stays focused on identity + membership.
+                On mobile this stack centers under the avatar/title block so
+                the Share button is visually anchored to the middle of the
+                card; on desktop it floats to the right as before. */}
+            <VStack
+              gap={2}
+              align={{ base: 'center', md: 'stretch' }}
+              width={{ base: '100%', md: 'auto' }}
+            >
               {!group.is_member && (community.type === 'open' || !community.type) && (
                 <Button
                   colorPalette="accent"
@@ -393,12 +441,12 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                     item.rkey && item.listUri ? { shadow: 'sm', transform: 'translateY(-1px)' } : {}
                   }
                   onClick={() => {
-                    if (item.rkey && item.listUri) {
-                      const lRkey = item.listUri.split('/').pop() || '';
-                      navigate(
-                        `/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(lRkey)}/items/${encodeURIComponent(item.rkey)}`
-                      );
-                    }
+                    if (!item.rkey || !item.listUri) return;
+                    if (interceptIfLoggedOut('Sign in to view what this group is reading.')) return;
+                    const lRkey = item.listUri.split('/').pop() || '';
+                    navigate(
+                      `/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(lRkey)}/items/${encodeURIComponent(item.rkey)}`
+                    );
                   }}
                 >
                   <HStack gap={3}>
@@ -459,6 +507,7 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                   apiUrl={apiUrl}
                   canReorder={group.is_admin}
                   purposeLabels={purposeLabels}
+                  isAuthenticated={isAuthenticated}
                 />
               ) : (
                 <EmptyState

@@ -12,10 +12,12 @@ import {
   Badge,
   Spinner,
   Center,
+  HStack,
   Link,
   Input,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
 
 interface Community {
@@ -27,6 +29,7 @@ interface Community {
   is_member: boolean;
   display_name: string | null;
   description: string | null;
+  avatar?: string | null;
   type?: string;
 }
 
@@ -82,16 +85,19 @@ function GroupCard({
       _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
       onClick={handleCardClick}
     >
-      <Flex justify="space-between" align="start" mb={2}>
-        <Box>
-          <Heading size="sm" mb={1} fontFamily="heading">
-            {displayName}
-          </Heading>
-          <Text fontSize="xs" color="fg.muted">
-            @{community.handle}
-          </Text>
-        </Box>
-        <Flex gap={1}>
+      <Flex justify="space-between" align="start" mb={2} gap={3}>
+        <HStack gap={3} align="start" minW={0} flex="1">
+          <Avatar src={community.avatar || undefined} name={displayName} size="md" flexShrink={0} />
+          <Box minW={0}>
+            <Heading size="sm" mb={1} fontFamily="heading" lineClamp={1}>
+              {displayName}
+            </Heading>
+            <Text fontSize="xs" color="fg.muted" lineClamp={1}>
+              @{community.handle}
+            </Text>
+          </Box>
+        </HStack>
+        <Flex gap={1} flexShrink={0}>
           {community.is_member && (
             <Badge colorPalette="green" size="sm">
               Member
@@ -115,11 +121,7 @@ function GroupCard({
         Created {formatRelativeTime(community.created_at) || 'recently'}
       </Text>
 
-      {community.is_member ? (
-        <Badge colorPalette="green" size="sm" width="full" textAlign="center" py={1}>
-          ✓ Member
-        </Badge>
-      ) : community.type === 'open' || !community.type ? (
+      {community.is_member ? null : community.type === 'open' || !community.type ? (
         <Button
           size="sm"
           colorPalette="accent"
@@ -157,6 +159,12 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
   // Fetched separately and rendered above the discover list/search results.
   const [myGroups, setMyGroups] = useState<Community[]>([]);
   const [myGroupsLoading, setMyGroupsLoading] = useState(true);
+  // Communities the user has a membership record for, but which OpenSocial
+  // refused to return for Collective Social (typically because Collective
+  // Social isn't enabled in the community's Apps settings).
+  const [inaccessibleGroups, setInaccessibleGroups] = useState<
+    Array<{ did: string; status: number | null; reason: string }>
+  >([]);
 
   const fetchMyGroups = useCallback(async () => {
     setMyGroupsLoading(true);
@@ -167,13 +175,16 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
       if (response.ok) {
         const data = await response.json();
         setMyGroups(data.communities || []);
+        setInaccessibleGroups(data.inaccessibleCommunities || []);
       } else {
         // Likely 401 — user not authenticated. Just hide the section.
         setMyGroups([]);
+        setInaccessibleGroups([]);
       }
     } catch (error) {
       console.error('Failed to fetch my groups:', error);
       setMyGroups([]);
+      setInaccessibleGroups([]);
     } finally {
       setMyGroupsLoading(false);
     }
@@ -242,6 +253,11 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
 
   const trimmedQuery = searchQuery.trim();
   const isSearching = trimmedQuery.length >= 3;
+  // Hide groups the user is already in from the discover list — they're
+  // shown above in the "My Groups" section, so listing them twice is just
+  // noise. When searching we still show everything so the search reflects
+  // real results.
+  const discoverCommunities = isSearching ? communities : communities.filter(c => !c.is_member);
   const handleLoadMore = () => {
     if (!cursor || loadingMore) return;
     fetchCommunities({ cursor, append: true });
@@ -301,6 +317,42 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
           </Box>
         )}
 
+        {/* Inaccessible groups — communities the user is a member of but
+            which haven't enabled Collective Social. */}
+        {!myGroupsLoading && inaccessibleGroups.length > 0 && (
+          <Box bg="bg.subtle" borderRadius="lg" borderWidth="1px" borderColor="border" p={4}>
+            <Heading size="sm" mb={2} fontFamily="heading">
+              {inaccessibleGroups.length === 1
+                ? 'A community you joined is not accessible here'
+                : 'Some communities you joined are not accessible here'}
+            </Heading>
+            <Text fontSize="sm" color="fg.muted" mb={3}>
+              You are a member of{' '}
+              {inaccessibleGroups.length === 1 ? 'this community' : 'these communities'}, but it
+              hasn&apos;t enabled Collective Social as an app yet. Ask a community admin to enable
+              Collective Social in their OpenSocial settings, or visit OpenSocial to manage your
+              membership.
+            </Text>
+            <VStack align="stretch" gap={1}>
+              {inaccessibleGroups.map(g => (
+                <Flex key={g.did} gap={2} fontSize="sm" align="center" wrap="wrap">
+                  <Link
+                    href={`https://app.opensocial.community/communities/${encodeURIComponent(g.did)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="teal.fg"
+                  >
+                    {g.did}
+                  </Link>
+                  <Text color="fg.muted" fontSize="xs">
+                    {g.status ? `(${g.status})` : ''} {g.reason}
+                  </Text>
+                </Flex>
+              ))}
+            </VStack>
+          </Box>
+        )}
+
         {/* Discover — search + paginated list */}
         <Box>
           <Heading size="md" mb={3} fontFamily="heading">
@@ -323,14 +375,16 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
           <Center py={12}>
             <Spinner size="xl" />
           </Center>
-        ) : communities.length === 0 ? (
+        ) : discoverCommunities.length === 0 ? (
           <EmptyState
             icon="🏘️"
             title={isSearching ? 'No groups found' : 'No groups yet'}
             description={
               isSearching
                 ? `No communities found matching "${searchQuery}". Try a different search.`
-                : 'There are no communities available right now. Check back later!'
+                : myGroups.length > 0
+                  ? 'You\u2019re already a member of every group on this page. Load more to discover others, or try a search above.'
+                  : 'There are no communities available right now. Check back later!'
             }
           />
         ) : (
@@ -343,7 +397,7 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
               }}
               gap={4}
             >
-              {communities.map(community => (
+              {discoverCommunities.map(community => (
                 <GroupCard
                   key={community.did}
                   community={community}

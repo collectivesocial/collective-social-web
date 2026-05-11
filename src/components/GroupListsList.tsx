@@ -3,6 +3,7 @@ import { Badge, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { LuGripVertical } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { toaster } from './ui/toaster';
+import { setPostLoginRedirect } from '../utils/authRedirect';
 
 export interface ReorderableGroupList {
   id: number;
@@ -28,6 +29,12 @@ interface GroupListsListProps {
    */
   canReorder: boolean;
   purposeLabels: Record<string, string>;
+  /**
+   * Whether the current viewer is signed in. When false, clicking a list
+   * card bounces the user through the login flow instead of opening the
+   * (members-only) list detail page.
+   */
+  isAuthenticated?: boolean;
 }
 
 /**
@@ -41,6 +48,7 @@ export function GroupListsList({
   apiUrl,
   canReorder,
   purposeLabels,
+  isAuthenticated = true,
 }: GroupListsListProps) {
   const navigate = useNavigate();
   // Local copy so we can do optimistic reorders without waiting for a refetch.
@@ -148,11 +156,29 @@ export function GroupListsList({
               e.preventDefault();
               handleDrop(list.rkey);
             }}
-            onClick={() =>
+            onClick={() => {
+              // Logged-out visitors can see that a list exists on the group
+              // page, but actually viewing its contents requires membership.
+              // Stash the group URL + a join hint and route them through
+              // login.
+              if (!isAuthenticated) {
+                setPostLoginRedirect(`/groups/${encodeURIComponent(communityDid)}`, {
+                  reason: 'Sign in to view this group\u2019s lists.',
+                  joinGroupDid: communityDid,
+                });
+                toaster.create({
+                  title: 'Sign in to continue',
+                  description: 'Join this group to view its lists.',
+                  type: 'info',
+                  duration: 3500,
+                });
+                navigate('/');
+                return;
+              }
               navigate(
                 `/groups/${encodeURIComponent(communityDid)}/lists/${encodeURIComponent(list.rkey)}`
-              )
-            }
+              );
+            }}
           >
             <Flex justify="space-between" align="start" gap={3}>
               <HStack gap={2} flex="1" minW={0} align="start">

@@ -27,6 +27,7 @@ import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { FeedbackPage } from './pages/FeedbackPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ShareRedirectPage } from './pages/ShareRedirectPage';
+import { consumePostLoginRedirect } from './utils/authRedirect';
 import './App.css';
 
 interface UserProfile {
@@ -63,6 +64,14 @@ function App() {
           sessionStorage.removeItem('pendingShareLink');
           // Redirect to the share link page
           window.location.href = `/share/${pendingShareLink}`;
+          return;
+        }
+
+        // Otherwise, if the user was bounced off a protected page (e.g. a
+        // group's lists while logged out) send them back to where they were.
+        const redirect = consumePostLoginRedirect();
+        if (redirect && redirect.path && redirect.path !== window.location.pathname) {
+          window.location.href = redirect.path;
         }
       })
       .catch(() => {
@@ -107,7 +116,10 @@ function App() {
                 />
                 <Route path="/goals" element={<GoalsPage apiUrl={apiUrl} />} />
                 <Route path="/groups" element={<GroupsPage apiUrl={apiUrl} />} />
-                <Route path="/groups/:groupDid" element={<GroupDetailPage apiUrl={apiUrl} />} />
+                <Route
+                  path="/groups/:groupDid"
+                  element={<GroupDetailPage apiUrl={apiUrl} isAuthenticated={!!isAuthenticated} />}
+                />
                 <Route
                   path="/groups/:groupDid/lists/:listRkey"
                   element={<GroupListDetailPage apiUrl={apiUrl} />}
