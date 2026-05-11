@@ -18,6 +18,8 @@ import {
   Textarea,
   Image,
   chakra,
+  Menu,
+  IconButton,
 } from '@chakra-ui/react';
 import {
   DialogRoot,
@@ -1099,6 +1101,8 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                 const canSee = canSeeDiscussion(seg);
                 const posts = postsBySegment[seg.uri] || [];
 
+                const hasMenuActions = (userDid && iCompleted) || segmentPerm?.canUpdate || segmentPerm?.canDelete;
+
                 return (
                   <Box
                     key={seg.rkey}
@@ -1110,9 +1114,9 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                   >
                     {/* Segment header */}
                     <Box p={4}>
-                      <Flex justify="space-between" align="start">
-                        <Box flex={1}>
-                          <HStack gap={2} mb={1}>
+                      <Flex justify="space-between" align="start" gap={2}>
+                        <Box flex={1} minW={0}>
+                          <HStack gap={2} mb={1} flexWrap="wrap">
                             <Text fontSize="lg" fontWeight="bold">{seg.label}</Text>
                             {iCompleted && (
                               <Badge colorPalette="green" size="sm">✓ Completed</Badge>
@@ -1131,46 +1135,10 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                             )}
                             <Text>{completedCount} member{completedCount !== 1 ? 's' : ''} completed</Text>
                           </HStack>
-
-                          {/* Event / meeting info */}
-                          {eventsBySegment[seg.uri] && (() => {
-                            const evt = eventsBySegment[seg.uri];
-                            const modeLabel = evt.mode?.split('#')[1];
-                            const modeEmoji = modeLabel === 'virtual' ? '💻' : modeLabel === 'inperson' ? '📍' : modeLabel === 'hybrid' ? '🔀' : '📅';
-                            const loc = evt.locations?.[0];
-                            const link = evt.uris?.[0];
-                            return (
-                              <Box mt={2} p={2} bg="bg.subtle" borderRadius="md" fontSize="sm">
-                                <HStack gap={2} mb={1}>
-                                  <Text fontWeight="medium">{modeEmoji} {evt.name}</Text>
-                                  {evt.rsvpCounts && evt.rsvpCounts.going > 0 && (
-                                    <Badge colorPalette="green" size="sm">
-                                      {evt.rsvpCounts.going} going
-                                    </Badge>
-                                  )}
-                                </HStack>
-                                <HStack gap={3} color="fg.muted" flexWrap="wrap">
-                                  {evt.startsAt && (
-                                    <Text>
-                                      {new Date(evt.startsAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                                      {' at '}
-                                      {new Date(evt.startsAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-                                    </Text>
-                                  )}
-                                  {loc?.name && <Text>📍 {loc.name}</Text>}
-                                  {link && (
-                                    <chakra.a href={link.uri} target="_blank" rel="noopener noreferrer" color="accent.fg" textDecoration="underline">
-                                      🔗 {link.name || 'Join Meeting'}
-                                    </chakra.a>
-                                  )}
-                                </HStack>
-                              </Box>
-                            );
-                          })()}
                         </Box>
 
-                        <HStack gap={2}>
-                          {/* Mark completed / unmark */}
+                        <HStack gap={1} flexShrink={0}>
+                          {/* Mark Done stays prominent */}
                           {userDid && !iCompleted && (
                             <Button
                               size="sm"
@@ -1181,37 +1149,48 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                               ✓ Mark Done
                             </Button>
                           )}
-                          {userDid && iCompleted && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              colorPalette="gray"
-                              onClick={() => handleUnmarkCompleted(seg.rkey, seg.uri)}
-                            >
-                              Undo
-                            </Button>
-                          )}
 
-                          {/* Admin actions */}
-                          {segmentPerm?.canUpdate && (
-                            <Button size="xs" variant="ghost" onClick={() => openEditSegment(seg)}>
-                              Edit
-                            </Button>
-                          )}
-                          {segmentPerm?.canDelete && (
-                            <Button
-                              size="xs"
-                              variant="ghost"
-                              colorPalette="red"
-                              onClick={() => setDeleteSegmentRkey(seg.rkey)}
-                            >
-                              Delete
-                            </Button>
+                          {/* Three-dots menu for secondary actions */}
+                          {hasMenuActions && (
+                            <Menu.Root positioning={{ placement: 'bottom-end' }}>
+                              <Menu.Trigger asChild>
+                                <IconButton
+                                  variant="ghost"
+                                  size="sm"
+                                  aria-label="Segment actions"
+                                >
+                                  ⋮
+                                </IconButton>
+                              </Menu.Trigger>
+                              <Menu.Positioner>
+                                <Menu.Content>
+                                  {segmentPerm?.canUpdate && (
+                                    <Menu.Item value="edit" onClick={() => openEditSegment(seg)}>
+                                      ✏️ Edit
+                                    </Menu.Item>
+                                  )}
+                                  {userDid && iCompleted && (
+                                    <Menu.Item value="undo" onClick={() => handleUnmarkCompleted(seg.rkey, seg.uri)}>
+                                      ↩️ Undo Completion
+                                    </Menu.Item>
+                                  )}
+                                  {segmentPerm?.canDelete && (
+                                    <Menu.Item
+                                      value="delete"
+                                      color="fg.error"
+                                      onClick={() => setDeleteSegmentRkey(seg.rkey)}
+                                    >
+                                      🗑️ Delete
+                                    </Menu.Item>
+                                  )}
+                                </Menu.Content>
+                              </Menu.Positioner>
+                            </Menu.Root>
                           )}
                         </HStack>
                       </Flex>
 
-                      {/* Roster toggle */}
+                      {/* Member progress roster */}
                       {segmentPerm?.canRead && (
                         <Box mt={2}>
                           <Button
@@ -1260,6 +1239,48 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                       )}
                     </Box>
 
+                    {/* Event / meeting info — full width */}
+                    {eventsBySegment[seg.uri] && (() => {
+                      const evt = eventsBySegment[seg.uri];
+                      const modeLabel = evt.mode?.split('#')[1];
+                      const modeEmoji = modeLabel === 'virtual' ? '💻' : modeLabel === 'inperson' ? '📍' : modeLabel === 'hybrid' ? '🔀' : '📅';
+                      const loc = evt.locations?.[0];
+                      const link = evt.uris?.[0];
+                      return (
+                        <Box
+                          px={4}
+                          py={3}
+                          bg="bg.subtle"
+                          borderTopWidth="1px"
+                          borderColor="border.subtle"
+                        >
+                          <HStack gap={2} mb={1}>
+                            <Text fontSize="sm" fontWeight="medium">{modeEmoji} {evt.name}</Text>
+                            {evt.rsvpCounts && evt.rsvpCounts.going > 0 && (
+                              <Badge colorPalette="green" size="sm">
+                                {evt.rsvpCounts.going} going
+                              </Badge>
+                            )}
+                          </HStack>
+                          <HStack gap={3} fontSize="sm" color="fg.muted" flexWrap="wrap">
+                            {evt.startsAt && (
+                              <Text>
+                                {new Date(evt.startsAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                {' at '}
+                                {new Date(evt.startsAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+                              </Text>
+                            )}
+                            {loc?.name && <Text>📍 {loc.name}</Text>}
+                            {link && (
+                              <chakra.a href={link.uri} target="_blank" rel="noopener noreferrer" color="accent.fg" textDecoration="underline">
+                                🔗 {link.name || 'Join Meeting'}
+                              </chakra.a>
+                            )}
+                          </HStack>
+                        </Box>
+                      );
+                    })()}
+
                     {/* Discussion section */}
                     <Box borderTopWidth="1px" borderColor="border.subtle">
                       <Button
@@ -1288,7 +1309,17 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
 
                               {/* New comment form */}
                               {postPerm?.canCreate ? (
-                                <VStack gap={2} mt={2} align="stretch">
+                                <Box
+                                  mt={2}
+                                  p={3}
+                                  borderWidth="1px"
+                                  borderColor="border.card"
+                                  borderRadius="md"
+                                  bg="bg.subtle"
+                                >
+                                  <Text fontSize="xs" fontWeight="medium" color="fg.muted" mb={2}>
+                                    Add a comment
+                                  </Text>
                                   <Textarea
                                     value={postText}
                                     onChange={(e) => setPostText(e.target.value)}
@@ -1296,22 +1327,25 @@ export function GroupItemDetailPage({ apiUrl }: GroupItemDetailPageProps) {
                                     aria-label="Comment on this segment"
                                     size="sm"
                                     rows={2}
+                                    bg="bg"
+                                    borderColor="border.card"
                                   />
                                   {commentError && (
-                                    <Text color="fg.error" fontSize="sm">
+                                    <Text color="fg.error" fontSize="sm" mt={1}>
                                       {commentError}
                                     </Text>
                                   )}
-                                  <Button
-                                    size="sm"
-                                    colorPalette="accent"
-                                    alignSelf="flex-end"
-                                    onClick={() => handlePostComment(seg.rkey, seg.uri)}
-                                    disabled={!postText.trim() || postingComment}
-                                  >
-                                    {postingComment ? '...' : 'Post'}
-                                  </Button>
-                                </VStack>
+                                  <Flex justify="flex-end" mt={2}>
+                                    <Button
+                                      size="sm"
+                                      colorPalette="accent"
+                                      onClick={() => handlePostComment(seg.rkey, seg.uri)}
+                                      disabled={!postText.trim() || postingComment}
+                                    >
+                                      {postingComment ? '...' : 'Post'}
+                                    </Button>
+                                  </Flex>
+                                </Box>
                               ) : (
                                 <Text fontSize="sm" color="fg.muted" fontStyle="italic">
                                   You need to be a group member to comment on this discussion.
