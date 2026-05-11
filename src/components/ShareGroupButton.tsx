@@ -5,6 +5,8 @@ import { LuShare2, LuCopy } from 'react-icons/lu';
 import { SiBluesky } from 'react-icons/si';
 
 interface ShareGroupButtonProps {
+  /** Base API URL — used to build the OG-aware share link. */
+  apiUrl: string;
   /** DID of the community to share. */
   groupDid: string;
   /** Display name used in the Bluesky compose intent. */
@@ -14,12 +16,15 @@ interface ShareGroupButtonProps {
 }
 
 /**
- * Share button for a group. The group page URL itself acts as the share link
- * (anyone — authenticated or not — can view the page and one-click join from
- * there), so this component just renders a dialog with copy / Bluesky / QR
- * helpers around the public URL.
+ * Share button for a group.
+ *
+ * The share link points at the API's `GET /groups/:did/share` endpoint rather
+ * than the SPA directly. That endpoint serves Open Graph + Twitter Card meta
+ * tags (community name, description, avatar) so platforms like Bluesky show
+ * a rich preview, then redirects real users to the SPA group page.
  */
 export function ShareGroupButton({
+  apiUrl,
   groupDid,
   groupName,
   size = 'md',
@@ -27,7 +32,9 @@ export function ShareGroupButton({
 }: ShareGroupButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const shareUrl = `${window.location.origin}/groups/${encodeURIComponent(groupDid)}`;
+  // Strip a trailing slash on apiUrl so the joined URL stays clean.
+  const normalizedApiUrl = apiUrl.replace(/\/+$/, '');
+  const shareUrl = `${normalizedApiUrl}/groups/${encodeURIComponent(groupDid)}/share`;
 
   const handleCopyLink = async () => {
     try {

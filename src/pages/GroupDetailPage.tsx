@@ -351,6 +351,7 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                 </Button>
               )}
               <ShareGroupButton
+                apiUrl={apiUrl}
                 groupDid={community.did}
                 groupName={displayName}
                 size="md"
