@@ -41,7 +41,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [user, setUser] = useState<UserProfile | null>(null)
   const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3000'
-  const openSocialWebUrl = import.meta.env.VITE_OPEN_SOCIAL_WEB_URL || 'http://127.0.0.1:5174'
 
   useEffect(() => {
     // Check if user is authenticated
@@ -120,11 +119,11 @@ function App() {
               />
               <Route 
                 path="/groups" 
-                element={<GroupsPage apiUrl={apiUrl} openSocialWebUrl={openSocialWebUrl} />} 
+                element={<GroupsPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/groups/:groupDid" 
-                element={<GroupDetailPage apiUrl={apiUrl} openSocialWebUrl={openSocialWebUrl} />} 
+                element={<GroupDetailPage apiUrl={apiUrl} />} 
               />
               <Route 
                 path="/groups/:groupDid/lists/:listRkey" 

@@ -90,7 +90,6 @@ interface GroupDetail {
 
 interface GroupDetailPageProps {
   apiUrl: string;
-  openSocialWebUrl: string;
 }
 
 const purposeLabels: Record<string, string> = {
@@ -112,7 +111,7 @@ const mediaTypeEmoji: Record<string, string> = {
   course: '🎓',
 };
 
-export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPageProps) {
+export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
   const { groupDid } = useParams<{ groupDid: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -122,6 +121,7 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [events, setEvents] = useState<GroupEvent[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
+  const [joining, setJoining] = useState(false);
 
   const refreshGroup = async () => {
     try {
@@ -185,10 +185,24 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
     }
   }, [apiUrl, groupDid]);
 
-  const handleJoin = () => {
-    const returnTo = encodeURIComponent(window.location.href);
-    const joinUrl = `${openSocialWebUrl}/communities/${encodeURIComponent(groupDid!)}?action=join&return_to=${returnTo}`;
-    window.location.href = joinUrl;
+  const handleJoin = async () => {
+    setJoining(true);
+    try {
+      const res = await fetch(
+        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/join`,
+        { method: 'POST', credentials: 'include' }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to join group');
+      }
+      await refreshGroup();
+    } catch (err: any) {
+      console.error('Failed to join group:', err);
+      setError(err.message);
+    } finally {
+      setJoining(false);
+    }
   };
 
   if (loading) {
@@ -321,8 +335,9 @@ export function GroupDetailPage({ apiUrl, openSocialWebUrl }: GroupDetailPagePro
                   variant="solid"
                   size="md"
                   onClick={handleJoin}
+                  disabled={joining}
                 >
-                  Join Group
+                  {joining ? 'Joining...' : 'Join Group'}
                 </Button>
               ) : null}
             </VStack>

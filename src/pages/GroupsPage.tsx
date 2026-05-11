@@ -32,23 +32,35 @@ interface Community {
 
 function GroupCard({
   community,
-  onJoined: _onJoined,
-  apiUrl: _apiUrl,
-  openSocialWebUrl,
+  onJoined,
+  apiUrl,
 }: {
   community: Community;
   onJoined: () => void;
   apiUrl: string;
-  openSocialWebUrl: string;
 }) {
   const navigate = useNavigate();
+  const [joining, setJoining] = useState(false);
 
-  const handleJoin = (e: React.MouseEvent) => {
+  const handleJoin = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    const returnTo = encodeURIComponent(window.location.href);
-    const joinUrl = `${openSocialWebUrl}/communities/${encodeURIComponent(community.did)}?action=join&return_to=${returnTo}`;
-    window.location.href = joinUrl;
+    setJoining(true);
+    try {
+      const res = await fetch(
+        `${apiUrl}/groups/${encodeURIComponent(community.did)}/join`,
+        { method: 'POST', credentials: 'include' }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to join group');
+      }
+      onJoined();
+    } catch (err) {
+      console.error('Failed to join group:', err);
+    } finally {
+      setJoining(false);
+    }
   };
 
   const handleCardClick = () => {
@@ -114,8 +126,9 @@ function GroupCard({
           variant="outline"
           width="full"
           onClick={handleJoin}
+          disabled={joining}
         >
-          Join Group
+          {joining ? 'Joining...' : 'Join Group'}
         </Button>
       ) : (
         <Badge colorPalette="gray" size="sm" width="full" textAlign="center" py={1}>
@@ -128,10 +141,9 @@ function GroupCard({
 
 interface GroupsPageProps {
   apiUrl: string;
-  openSocialWebUrl: string;
 }
 
-export function GroupsPage({ apiUrl, openSocialWebUrl }: GroupsPageProps) {
+export function GroupsPage({ apiUrl }: GroupsPageProps) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -239,7 +251,6 @@ export function GroupsPage({ apiUrl, openSocialWebUrl }: GroupsPageProps) {
                 community={community}
                 onJoined={() => fetchCommunities(searchQuery.trim() || undefined)}
                 apiUrl={apiUrl}
-                openSocialWebUrl={openSocialWebUrl}
               />
             ))}
           </Grid>
