@@ -8,6 +8,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Link as ChakraLink,
   Spinner,
   Text,
   VStack,
@@ -109,9 +110,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
 
         if (groupRes.ok) {
           const groupData = await groupRes.json();
-          setGroupName(
-            groupData.community?.display_name || groupData.community?.handle || ''
-          );
+          setGroupName(groupData.community?.display_name || groupData.community?.handle || '');
           setIsAdmin(groupData.is_admin === true);
         }
       } catch (err: any) {
@@ -164,9 +163,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
         <Center mt={6}>
           <Button
             variant="outline"
-            onClick={() =>
-              navigate(`/groups/${encodeURIComponent(groupDid || '')}`)
-            }
+            onClick={() => navigate(`/groups/${encodeURIComponent(groupDid || '')}`)}
           >
             ← Back to Group
           </Button>
@@ -207,7 +204,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
                 size="sm"
                 variant="ghost"
                 color="fg.muted"
-                onClick={() => setShowMenu((v) => !v)}
+                onClick={() => setShowMenu(v => !v)}
                 aria-label="Event options"
               >
                 <LuEllipsisVertical />
@@ -265,17 +262,17 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
 
           <VStack align="stretch" gap={4}>
             <HStack gap={2} flexWrap="wrap">
-              {event.status === 'ongoing' && (
-                <Badge colorPalette="red">Live Now</Badge>
-              )}
-              {event.status === 'cancelled' && (
-                <Badge colorPalette="gray">Cancelled</Badge>
-              )}
+              {event.status === 'ongoing' && <Badge colorPalette="red">Live Now</Badge>}
+              {event.status === 'cancelled' && <Badge colorPalette="gray">Cancelled</Badge>}
               {event.mode === 'virtual' && (
-                <Badge colorPalette="blue" variant="subtle">Virtual</Badge>
+                <Badge colorPalette="blue" variant="subtle">
+                  Virtual
+                </Badge>
               )}
               {event.mode === 'hybrid' && (
-                <Badge colorPalette="purple" variant="subtle">Hybrid</Badge>
+                <Badge colorPalette="purple" variant="subtle">
+                  Hybrid
+                </Badge>
               )}
             </HStack>
 
@@ -289,12 +286,49 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
                 <Text>{formatEventDateRange(event.startsAt, event.endsAt)}</Text>
               </HStack>
 
-              {event.location && (
-                <HStack gap={2} color="fg.muted" fontSize="sm">
-                  {event.mode === 'virtual' ? <LuVideo /> : <LuMapPin />}
-                  <Text>{event.location}</Text>
-                </HStack>
-              )}
+              {(() => {
+                // Pick the structured fields first; fall back to the legacy
+                // free-form `location` string (which may be a URL or an
+                // address depending on how the event was created).
+                const place = event.locations?.[0];
+                const placeLabel = place
+                  ? [place.name, place.locality, place.region].filter(Boolean).join(', ')
+                  : event.location && !/^https?:\/\//i.test(event.location)
+                    ? event.location
+                    : null;
+                const primaryUri = event.uris?.[0];
+                const linkHref = primaryUri?.uri
+                  ? primaryUri.uri
+                  : event.location && /^https?:\/\//i.test(event.location)
+                    ? event.location
+                    : null;
+                const linkLabel = primaryUri?.name || linkHref || '';
+
+                return (
+                  <>
+                    {placeLabel && (
+                      <HStack gap={2} color="fg.muted" fontSize="sm">
+                        <LuMapPin />
+                        <Text>{placeLabel}</Text>
+                      </HStack>
+                    )}
+                    {linkHref && (
+                      <HStack gap={2} color="fg.muted" fontSize="sm">
+                        <LuVideo />
+                        <ChakraLink
+                          href={linkHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          color="accent.fg"
+                          wordBreak="break-all"
+                        >
+                          {linkLabel}
+                        </ChakraLink>
+                      </HStack>
+                    )}
+                  </>
+                );
+              })()}
 
               {groupName && (
                 <Text fontSize="sm" color="fg.subtle">
@@ -306,16 +340,9 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
               )}
             </VStack>
 
-            <Flex
-              justify="space-between"
-              align="center"
-              gap={3}
-              flexWrap="wrap"
-            >
+            <Flex justify="space-between" align="center" gap={3} flexWrap="wrap">
               <HStack gap={3} fontSize="sm" color="fg.muted">
-                {event.rsvpCounts.going > 0 && (
-                  <Text>{event.rsvpCounts.going} going</Text>
-                )}
+                {event.rsvpCounts.going > 0 && <Text>{event.rsvpCounts.going} going</Text>}
                 {event.rsvpCounts.interested > 0 && (
                   <Text>{event.rsvpCounts.interested} interested</Text>
                 )}
@@ -329,8 +356,8 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
                 currentStatus={event.myRsvp}
                 isPast={isPast}
                 apiUrl={apiUrl}
-                onStatusChange={(newStatus) => {
-                  setEvent((prev) =>
+                onStatusChange={newStatus => {
+                  setEvent(prev =>
                     prev
                       ? {
                           ...prev,
@@ -353,13 +380,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
 
         {/* Description */}
         {event.description && (
-          <Box
-            bg="bg.card"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderColor="border.card"
-            p={6}
-          >
+          <Box bg="bg.card" borderRadius="xl" borderWidth="1px" borderColor="border.card" p={6}>
             <Heading size="sm" mb={3} color="fg.muted">
               About this event
             </Heading>
@@ -369,13 +390,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
 
         {/* Attendees */}
         {aggregate && (
-          <Box
-            bg="bg.card"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderColor="border.card"
-            p={6}
-          >
+          <Box bg="bg.card" borderRadius="xl" borderWidth="1px" borderColor="border.card" p={6}>
             <Heading size="sm" mb={4} color="fg.muted">
               Attendees
             </Heading>
@@ -387,7 +402,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
       {/* Delete confirm dialog */}
       <DialogRoot
         open={showDeleteConfirm}
-        onOpenChange={(details) => setShowDeleteConfirm(details.open)}
+        onOpenChange={details => setShowDeleteConfirm(details.open)}
       >
         <DialogBackdrop />
         <DialogPositioner>
@@ -397,8 +412,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
             </DialogHeader>
             <DialogBody>
               <Text>
-                Members who RSVPed won't be notified automatically. This action
-                cannot be undone.
+                Members who RSVPed won't be notified automatically. This action cannot be undone.
               </Text>
             </DialogBody>
             <DialogFooter>
@@ -407,11 +421,7 @@ export function EventDetailPage({ apiUrl }: EventDetailPageProps) {
                   Cancel
                 </Button>
               </DialogActionTrigger>
-              <Button
-                colorPalette="red"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
+              <Button colorPalette="red" onClick={handleDelete} disabled={deleting}>
                 {deleting ? 'Deleting...' : 'Delete Event'}
               </Button>
             </DialogFooter>

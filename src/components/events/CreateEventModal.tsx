@@ -1,14 +1,5 @@
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Input,
-  Portal,
-  Textarea,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Input, Portal, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { Field } from '../ui/field';
 
@@ -92,18 +83,24 @@ export function CreateEventModal({
       };
       if (description.trim()) body.description = description.trim();
       if (showEndTime && endsAt) body.endsAt = new Date(endsAt).toISOString();
-      if (mode === 'in_person' && location.trim()) body.location = location.trim();
-      if (mode === 'virtual' && joinLink.trim()) body.location = joinLink.trim();
 
-      const res = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(groupDid)}/events`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(body),
-        }
-      );
+      // Persist location/links using the canonical lexicon shape
+      // (`community.lexicon.calendar.event`): physical addresses go in
+      // `locations[]` and external URLs (join links, signup pages, etc.) go in
+      // `uris[]`.
+      if (mode === 'in_person' && location.trim()) {
+        body.locations = [{ name: location.trim() }];
+      }
+      if (mode === 'virtual' && joinLink.trim()) {
+        body.uris = [{ uri: joinLink.trim(), name: 'Join link' }];
+      }
+
+      const res = await fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid)}/events`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -155,7 +152,7 @@ export function CreateEventModal({
           maxW="560px"
           w="full"
           mx={4}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
           <VStack gap={4} align="stretch">
             <Heading size="lg" fontFamily="heading">
@@ -173,7 +170,7 @@ export function CreateEventModal({
                 <Field label="Event name" required>
                   <Input
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={e => setName(e.target.value)}
                     placeholder="e.g., May Book Club Meetup"
                     required
                   />
@@ -182,7 +179,7 @@ export function CreateEventModal({
                 <Field label="Description">
                   <Textarea
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={e => setDescription(e.target.value)}
                     placeholder="What's happening at this event?"
                     rows={3}
                   />
@@ -226,7 +223,7 @@ export function CreateEventModal({
                   <Field label="Location">
                     <Input
                       value={location}
-                      onChange={(e) => setLocation(e.target.value)}
+                      onChange={e => setLocation(e.target.value)}
                       placeholder="e.g., Central Library, Room 2B"
                     />
                   </Field>
@@ -237,7 +234,7 @@ export function CreateEventModal({
                     <Input
                       type="url"
                       value={joinLink}
-                      onChange={(e) => setJoinLink(e.target.value)}
+                      onChange={e => setJoinLink(e.target.value)}
                       placeholder="https://meet.example.com/..."
                     />
                   </Field>
@@ -248,7 +245,7 @@ export function CreateEventModal({
                     as="input"
                     type="datetime-local"
                     value={startsAt}
-                    onChange={(e) => setStartsAt(e.target.value)}
+                    onChange={e => setStartsAt(e.target.value)}
                     required
                   />
                 </Field>
@@ -270,7 +267,7 @@ export function CreateEventModal({
                       as="input"
                       type="datetime-local"
                       value={endsAt}
-                      onChange={(e) => setEndsAt(e.target.value)}
+                      onChange={e => setEndsAt(e.target.value)}
                     />
                     <Button
                       type="button"

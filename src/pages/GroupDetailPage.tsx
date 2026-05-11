@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { safeFormatDate } from '../utils/time';
+import { formatRelativeTime } from '../utils/time';
 import {
   Box,
   Container,
@@ -13,13 +13,16 @@ import {
   Badge,
   Spinner,
   Center,
-  SimpleGrid,
   Tabs,
 } from '@chakra-ui/react';
+import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
 import { CreateGroupListModal } from '../components/CreateGroupListModal';
+import { GroupListsList } from '../components/GroupListsList';
 import { EventList } from '../components/events/EventList';
 import { CreateEventModal } from '../components/events/CreateEventModal';
+import { ShareGroupButton } from '../components/ShareGroupButton';
+import { toaster } from '../components/ui/toaster';
 import type { GroupEvent } from '../types/events';
 
 interface GroupAdmin {
@@ -40,6 +43,10 @@ interface GroupList {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  /** Admin-set sort position; lower numbers appear first. */
+  order?: number;
+  /** Number of items currently in this list. */
+  item_count?: number;
 }
 
 interface GroupListItem {
@@ -77,6 +84,8 @@ interface GroupDetail {
     description?: string;
     guidelines?: string;
     type?: string;
+    avatar?: string | null;
+    banner?: string | null;
     admins: GroupAdmin[];
     created_at: string;
   };
@@ -125,10 +134,9 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
 
   const refreshGroup = async () => {
     try {
-      const res = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}`,
-        { credentials: 'include' }
-      );
+      const res = await fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid!)}`, {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setGroup(data);
@@ -140,10 +148,9 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/events`,
-        { credentials: 'include' }
-      );
+      const res = await fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid!)}/events`, {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setEvents(data.events ?? []);
@@ -158,10 +165,9 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
   useEffect(() => {
     const fetchGroupDetails = async () => {
       try {
-        const res = await fetch(
-          `${apiUrl}/groups/${encodeURIComponent(groupDid!)}`,
-          { credentials: 'include' }
-        );
+        const res = await fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid!)}`, {
+          credentials: 'include',
+        });
 
         if (!res.ok) {
           if (res.status === 404) {
@@ -188,18 +194,41 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
   const handleJoin = async () => {
     setJoining(true);
     try {
-      const res = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(groupDid!)}/join`,
-        { method: 'POST', credentials: 'include' }
-      );
+      const res = await fetch(`${apiUrl}/groups/${encodeURIComponent(groupDid!)}/join`, {
+        method: 'POST',
+        credentials: 'include',
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        // Surface a clearer prompt for unauthenticated visitors (e.g. someone
+        // arriving via a shared link). Other failures are toasted so the page
+        // itself stays intact.
+        if (res.status === 401) {
+          toaster.create({
+            title: 'Sign in to join',
+            description: 'Sign in with Bluesky to join this group.',
+            type: 'info',
+            duration: 4000,
+          });
+          return;
+        }
         throw new Error(data.error || 'Failed to join group');
       }
       await refreshGroup();
+      toaster.create({
+        title: 'Joined!',
+        description: 'You\u2019re now a member of this group.',
+        type: 'success',
+        duration: 2500,
+      });
     } catch (err: any) {
       console.error('Failed to join group:', err);
-      setError(err.message);
+      toaster.create({
+        title: 'Couldn\u2019t join group',
+        description: err.message || 'Please try again.',
+        type: 'error',
+        duration: 4000,
+      });
     } finally {
       setJoining(false);
     }
@@ -241,95 +270,76 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
   return (
     <Container maxW="4xl" py={8}>
       <VStack gap={6} align="stretch">
-        {/* Back nav */}
-        <Button
-          variant="ghost"
-          size="sm"
-          alignSelf="flex-start"
-          onClick={() => navigate('/groups')}
-          color="fg.muted"
-          _hover={{ color: 'fg.default' }}
-        >
-          ← All Groups
-        </Button>
-
         {/* Group Header */}
-        <Box
-          bg="bg.card"
-          borderRadius="xl"
-          borderWidth="1px"
-          borderColor="border.card"
-          p={6}
-        >
+        <Box bg="bg.card" borderRadius="xl" borderWidth="1px" borderColor="border.card" p={6}>
           <Flex
             justify="space-between"
             align="start"
             direction={{ base: 'column', md: 'row' }}
             gap={4}
           >
-            <Box flex="1">
-              <HStack gap={3} mb={2} flexWrap="wrap">
-                <Heading size="xl" fontFamily="heading">
-                  {displayName}
-                </Heading>
-                {group.is_member && (
-                  <Badge colorPalette="green" size="md">
-                    Member
-                  </Badge>
-                )}
-                {group.is_admin && (
-                  <Badge colorPalette="purple" size="md">
-                    Admin
-                  </Badge>
-                )}
-              </HStack>
+            <HStack gap={4} align="start" flex="1" minW={0}>
+              <Avatar
+                src={community.avatar || undefined}
+                name={displayName}
+                size="xl"
+                flexShrink={0}
+              />
+              <Box flex="1" minW={0}>
+                <HStack gap={3} mb={2} flexWrap="wrap">
+                  <Heading size="xl" fontFamily="heading">
+                    {displayName}
+                  </Heading>
+                  {group.is_member && (
+                    <Badge colorPalette="green" size="md">
+                      Member
+                    </Badge>
+                  )}
+                  {group.is_admin && (
+                    <Badge colorPalette="purple" size="md">
+                      Admin
+                    </Badge>
+                  )}
+                </HStack>
 
-              <Text fontSize="sm" color="fg.muted" mb={3}>
-                @{community.handle}
-              </Text>
-
-              {community.description && (
-                <Text fontSize="md" color="fg.default" mb={4}>
-                  {community.description}
+                <Text fontSize="sm" color="fg.muted" mb={3}>
+                  @{community.handle}
                 </Text>
-              )}
 
-              <HStack gap={4} flexWrap="wrap">
-                <HStack gap={1}>
-                  <Text fontSize="sm" fontWeight="bold">
-                    {group.member_count}
+                {community.description && (
+                  <Text fontSize="md" color="fg.default" mb={4}>
+                    {community.description}
                   </Text>
-                  <Text fontSize="sm" color="fg.muted">
-                    {group.member_count === 1 ? 'member' : 'members'}
+                )}
+
+                <HStack gap={4} flexWrap="wrap">
+                  <HStack gap={1}>
+                    <Text fontSize="sm" fontWeight="bold">
+                      {group.member_count}
+                    </Text>
+                    <Text fontSize="sm" color="fg.muted">
+                      {group.member_count === 1 ? 'member' : 'members'}
+                    </Text>
+                  </HStack>
+                  <HStack gap={1}>
+                    <Text fontSize="sm" fontWeight="bold">
+                      {group.lists.length}
+                    </Text>
+                    <Text fontSize="sm" color="fg.muted">
+                      {group.lists.length === 1 ? 'list' : 'lists'}
+                    </Text>
+                  </HStack>
+                  <Text fontSize="xs" color="fg.subtle">
+                    Created {formatRelativeTime(community.created_at) || 'recently'}
                   </Text>
                 </HStack>
-                <HStack gap={1}>
-                  <Text fontSize="sm" fontWeight="bold">
-                    {group.lists.length}
-                  </Text>
-                  <Text fontSize="sm" color="fg.muted">
-                    {group.lists.length === 1 ? 'list' : 'lists'}
-                  </Text>
-                </HStack>
-                <Text fontSize="xs" color="fg.subtle">
-                  Created{' '}
-                  {safeFormatDate(community.created_at) || 'recently'}
-                </Text>
-              </HStack>
-            </Box>
+              </Box>
+            </HStack>
 
-            {/* Join / Membership actions */}
+            {/* Join / Share actions. List creation lives under the Lists tab
+                so the header stays focused on identity + membership. */}
             <VStack gap={2} align="stretch">
-              {group.permissions?.['app.collectivesocial.group.list']?.canCreate ? (
-                <Button
-                  colorPalette="accent"
-                  variant="solid"
-                  size="md"
-                  onClick={() => setShowCreateList(true)}
-                >
-                  + Create a List
-                </Button>
-              ) : !group.is_member && (community.type === 'open' || !community.type) ? (
+              {!group.is_member && (community.type === 'open' || !community.type) && (
                 <Button
                   colorPalette="accent"
                   variant="solid"
@@ -339,17 +349,18 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                 >
                   {joining ? 'Joining...' : 'Join Group'}
                 </Button>
-              ) : null}
+              )}
+              <ShareGroupButton
+                groupDid={community.did}
+                groupName={displayName}
+                size="md"
+                variant="outline"
+              />
             </VStack>
           </Flex>
 
           {community.guidelines && (
-            <Box
-              mt={4}
-              pt={4}
-              borderTopWidth="1px"
-              borderColor="border.card"
-            >
+            <Box mt={4} pt={4} borderTopWidth="1px" borderColor="border.card">
               <Text fontSize="xs" fontWeight="bold" color="fg.muted" mb={1}>
                 Community Guidelines
               </Text>
@@ -366,8 +377,8 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
             <Heading size="md" fontFamily="heading" mb={4}>
               📖 Currently In Progress
             </Heading>
-            <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
-              {group.in_progress_items.map((item) => (
+            <VStack gap={4} align="stretch">
+              {group.in_progress_items.map(item => (
                 <Box
                   key={item.id}
                   bg="bg.card"
@@ -375,24 +386,22 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                   borderWidth="1px"
                   borderColor="border.card"
                   p={4}
-                  cursor={(item.rkey && item.listUri) ? 'pointer' : 'default'}
+                  cursor={item.rkey && item.listUri ? 'pointer' : 'default'}
                   transition="all 0.2s"
                   _hover={
-                    (item.rkey && item.listUri)
-                      ? { shadow: 'sm', transform: 'translateY(-1px)' }
-                      : {}
+                    item.rkey && item.listUri ? { shadow: 'sm', transform: 'translateY(-1px)' } : {}
                   }
                   onClick={() => {
                     if (item.rkey && item.listUri) {
                       const lRkey = item.listUri.split('/').pop() || '';
-                      navigate(`/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(lRkey)}/items/${encodeURIComponent(item.rkey)}`);
+                      navigate(
+                        `/groups/${encodeURIComponent(groupDid!)}/lists/${encodeURIComponent(lRkey)}/items/${encodeURIComponent(item.rkey)}`
+                      );
                     }
                   }}
                 >
                   <HStack gap={3}>
-                    <Text fontSize="2xl">
-                      {mediaTypeEmoji[item.mediaType] || '📄'}
-                    </Text>
+                    <Text fontSize="2xl">{mediaTypeEmoji[item.mediaType] || '📄'}</Text>
                     <Box flex="1">
                       <Text fontWeight="semibold" fontSize="sm">
                         {item.title}
@@ -409,7 +418,7 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                   </HStack>
                 </Box>
               ))}
-            </SimpleGrid>
+            </VStack>
           </Box>
         )}
 
@@ -443,52 +452,13 @@ export function GroupDetailPage({ apiUrl }: GroupDetailPageProps) {
                 )}
               </Flex>
               {group.lists.length > 0 ? (
-                <VStack gap={3} align="stretch">
-                  {group.lists.map((list) => (
-                    <Box
-                      key={list.id}
-                      bg="bg.card"
-                      borderRadius="lg"
-                      borderWidth="1px"
-                      borderColor="border.card"
-                      p={4}
-                      cursor="pointer"
-                      transition="all 0.2s"
-                      _hover={{ shadow: 'sm', transform: 'translateY(-1px)' }}
-                      onClick={() => navigate(`/groups/${encodeURIComponent(community.did)}/lists/${encodeURIComponent(list.rkey)}`)}
-                    >
-                      <Flex justify="space-between" align="start">
-                        <Box flex="1">
-                          <HStack gap={2} mb={1}>
-                            <Text fontWeight="semibold">{list.name}</Text>
-                            {list.purpose && (
-                              <Badge variant="subtle" size="sm">
-                                {purposeLabels[list.purpose] || list.purpose}
-                              </Badge>
-                            )}
-                            {list.segmentType && (
-                              <Badge
-                                variant="outline"
-                                size="sm"
-                                colorPalette="blue"
-                              >
-                                Tracks {list.segmentType}
-                              </Badge>
-                            )}
-                          </HStack>
-                          {list.description && (
-                            <Text fontSize="sm" color="fg.muted" lineClamp={2}>
-                              {list.description}
-                            </Text>
-                          )}
-                        </Box>
-                        <Text fontSize="xs" color="fg.subtle" flexShrink={0}>
-                          {safeFormatDate(list.createdAt)}
-                        </Text>
-                      </Flex>
-                    </Box>
-                  ))}
-                </VStack>
+                <GroupListsList
+                  lists={group.lists}
+                  communityDid={community.did}
+                  apiUrl={apiUrl}
+                  canReorder={group.is_admin}
+                  purposeLabels={purposeLabels}
+                />
               ) : (
                 <EmptyState
                   icon="📋"

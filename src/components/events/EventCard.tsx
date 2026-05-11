@@ -1,4 +1,4 @@
-import { Box, Badge, Text, HStack, VStack, Flex } from '@chakra-ui/react';
+import { Box, Badge, Text, HStack, VStack, Flex, Link } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import type { GroupEvent } from '../../types/events';
 
@@ -40,11 +40,46 @@ function getRsvpBadge(event: GroupEvent): { label: string; colorPalette: string 
   return null;
 }
 
+/**
+ * Pick the best join/external link for an event. Prefers the canonical
+ * `uris[0]` from the lexicon, then falls back to the legacy `location` string
+ * if it parses as a URL.
+ */
+function getEventLink(event: GroupEvent): { href: string; label: string } | null {
+  const primaryUri = event.uris?.[0];
+  if (primaryUri?.uri) {
+    return { href: primaryUri.uri, label: primaryUri.name || primaryUri.uri };
+  }
+  if (event.location && /^https?:\/\//i.test(event.location)) {
+    return { href: event.location, label: event.location };
+  }
+  return null;
+}
+
+/**
+ * Pick the best physical-location label for the card. Prefers structured
+ * `locations[0]`, falls back to the legacy `location` string (only when it
+ * isn't a URL — URLs are surfaced separately as a join link).
+ */
+function getPlaceLabel(event: GroupEvent): string | null {
+  const place = event.locations?.[0];
+  if (place) {
+    const parts = [place.name, place.locality, place.region].filter(Boolean);
+    if (parts.length > 0) return parts.join(', ');
+  }
+  if (event.location && !/^https?:\/\//i.test(event.location)) {
+    return event.location;
+  }
+  return null;
+}
+
 export function EventCard({ event, groupDid }: EventCardProps) {
   const navigate = useNavigate();
   const urgencyBadge = getUrgencyBadge(event);
   const rsvpBadge = getRsvpBadge(event);
   const total = event.rsvpCounts.going + event.rsvpCounts.interested;
+  const link = getEventLink(event);
+  const placeLabel = getPlaceLabel(event);
 
   return (
     <Box
@@ -57,9 +92,7 @@ export function EventCard({ event, groupDid }: EventCardProps) {
       transition="all 0.2s"
       _hover={{ shadow: 'sm', transform: 'translateY(-1px)' }}
       onClick={() =>
-        navigate(
-          `/groups/${encodeURIComponent(groupDid)}/events/${encodeURIComponent(event.rkey)}`
-        )
+        navigate(`/groups/${encodeURIComponent(groupDid)}/events/${encodeURIComponent(event.rkey)}`)
       }
     >
       <Flex justify="space-between" align="start" gap={3}>
@@ -85,13 +118,28 @@ export function EventCard({ event, groupDid }: EventCardProps) {
             {formatEventDatetime(event.startsAt)}
           </Text>
 
-          {event.location && (
+          {placeLabel && (
             <Text fontSize="xs" color="fg.subtle" lineClamp={1}>
-              📍 {event.location}
+              📍 {placeLabel}
             </Text>
           )}
 
-          {event.mode === 'virtual' && !event.location && (
+          {link && (
+            <Link
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              fontSize="xs"
+              color="accent.fg"
+              lineClamp={1}
+              onClick={e => e.stopPropagation()}
+              wordBreak="break-all"
+            >
+              🔗 {link.label}
+            </Link>
+          )}
+
+          {event.mode === 'virtual' && !placeLabel && !link && (
             <Text fontSize="xs" color="fg.subtle">
               🖥️ Virtual
             </Text>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { safeFormatDate } from '../utils/time';
+import { formatRelativeTime } from '../utils/time';
 import {
   Box,
   Container,
@@ -47,10 +47,10 @@ function GroupCard({
     e.preventDefault();
     setJoining(true);
     try {
-      const res = await fetch(
-        `${apiUrl}/groups/${encodeURIComponent(community.did)}/join`,
-        { method: 'POST', credentials: 'include' }
-      );
+      const res = await fetch(`${apiUrl}/groups/${encodeURIComponent(community.did)}/join`, {
+        method: 'POST',
+        credentials: 'include',
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to join group');
@@ -112,14 +112,14 @@ function GroupCard({
       )}
 
       <Text fontSize="xs" color="fg.subtle" mb={3}>
-        Created {safeFormatDate(community.created_at) || 'recently'}
+        Created {formatRelativeTime(community.created_at) || 'recently'}
       </Text>
 
       {community.is_member ? (
         <Badge colorPalette="green" size="sm" width="full" textAlign="center" py={1}>
           ✓ Member
         </Badge>
-      ) : (community.type === 'open' || !community.type) ? (
+      ) : community.type === 'open' || !community.type ? (
         <Button
           size="sm"
           colorPalette="accent"
@@ -143,48 +143,115 @@ interface GroupsPageProps {
   apiUrl: string;
 }
 
+const PAGE_SIZE = 10;
+const SEARCH_LIMIT = 50;
+
 export function GroupsPage({ apiUrl }: GroupsPageProps) {
   const [communities, setCommunities] = useState<Community[]>([]);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchCommunities = useCallback(async (query?: string) => {
-    setLoading(true);
+  // "My Groups" — communities the authenticated user is a member of.
+  // Fetched separately and rendered above the discover list/search results.
+  const [myGroups, setMyGroups] = useState<Community[]>([]);
+  const [myGroupsLoading, setMyGroupsLoading] = useState(true);
+
+  const fetchMyGroups = useCallback(async () => {
+    setMyGroupsLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (query && query.length >= 3) params.set('query', query);
-      const qs = params.toString() ? `?${params.toString()}` : '';
-      const response = await fetch(`${apiUrl}/groups${qs}`, {
+      const response = await fetch(`${apiUrl}/groups/mine`, {
         credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
-        setCommunities(data.communities || []);
+        setMyGroups(data.communities || []);
+      } else {
+        // Likely 401 — user not authenticated. Just hide the section.
+        setMyGroups([]);
       }
     } catch (error) {
-      console.error('Failed to fetch communities:', error);
+      console.error('Failed to fetch my groups:', error);
+      setMyGroups([]);
     } finally {
-      setLoading(false);
+      setMyGroupsLoading(false);
     }
   }, [apiUrl]);
 
-  // Initial load
-  useEffect(() => {
-    fetchCommunities();
-  }, [fetchCommunities]);
+  const fetchCommunities = useCallback(
+    async (opts: { query?: string; cursor?: string; append?: boolean } = {}) => {
+      const { query, cursor: pageCursor, append } = opts;
+      const searching = !!query && query.length >= 3;
 
-  // Debounced search (min 3 characters)
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+
+      try {
+        const params = new URLSearchParams();
+        if (searching) {
+          params.set('query', query!);
+          params.set('limit', String(SEARCH_LIMIT));
+        } else {
+          params.set('limit', String(PAGE_SIZE));
+        }
+        if (pageCursor) params.set('cursor', pageCursor);
+
+        const response = await fetch(`${apiUrl}/groups?${params.toString()}`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const nextItems: Community[] = data.communities || [];
+          setCommunities(prev => (append ? [...prev, ...nextItems] : nextItems));
+          // When searching, ignore the cursor — we show everything in one list.
+          setCursor(searching ? undefined : data.cursor);
+        }
+      } catch (error) {
+        console.error('Failed to fetch communities:', error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [apiUrl]
+  );
+
+  // Initial load — fetch My Groups and first page of discover list in parallel.
+  useEffect(() => {
+    fetchMyGroups();
+  }, [fetchMyGroups]);
+
+  // Debounced search (min 3 characters). Also handles the "cleared search"
+  // case by reloading the first page of the default discover list.
   useEffect(() => {
     const trimmed = searchQuery.trim();
     // If 1-2 chars, do nothing — wait for more input
     if (trimmed.length > 0 && trimmed.length < 3) return;
 
+    const delay = trimmed.length >= 3 ? 400 : 0;
     const timeout = setTimeout(() => {
-      fetchCommunities(trimmed || undefined);
-    }, trimmed.length >= 3 ? 400 : 0);
+      fetchCommunities({ query: trimmed || undefined });
+    }, delay);
 
     return () => clearTimeout(timeout);
   }, [searchQuery, fetchCommunities]);
+
+  const trimmedQuery = searchQuery.trim();
+  const isSearching = trimmedQuery.length >= 3;
+  const handleLoadMore = () => {
+    if (!cursor || loadingMore) return;
+    fetchCommunities({ cursor, append: true });
+  };
+  const handleJoined = () => {
+    // Refresh both lists so the joined community moves into My Groups and the
+    // discover list reflects the updated `is_member` flag.
+    fetchMyGroups();
+    fetchCommunities({ query: isSearching ? trimmedQuery : undefined });
+  };
 
   return (
     <Container maxW="container.xl" py={8}>
@@ -208,12 +275,41 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
           </Box>
         </Flex>
 
-        {/* Search */}
+        {/* My Groups — only shown when the authenticated user has joined at least one group */}
+        {!myGroupsLoading && myGroups.length > 0 && (
+          <Box>
+            <Heading size="md" mb={3} fontFamily="heading">
+              My Groups
+            </Heading>
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              }}
+              gap={4}
+            >
+              {myGroups.map(community => (
+                <GroupCard
+                  key={community.did}
+                  community={community}
+                  onJoined={handleJoined}
+                  apiUrl={apiUrl}
+                />
+              ))}
+            </Grid>
+          </Box>
+        )}
+
+        {/* Discover — search + paginated list */}
         <Box>
+          <Heading size="md" mb={3} fontFamily="heading">
+            {myGroups.length > 0 ? 'Discover more groups' : 'Discover groups'}
+          </Heading>
           <Input
             placeholder="Search communities by name or handle..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             size="lg"
           />
           {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
@@ -230,30 +326,45 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
         ) : communities.length === 0 ? (
           <EmptyState
             icon="🏘️"
-            title={searchQuery.trim().length >= 3 ? 'No groups found' : 'No groups yet'}
-            description={searchQuery.trim().length >= 3
-              ? `No communities found matching "${searchQuery}". Try a different search.`
-              : 'There are no communities available right now. Check back later!'
+            title={isSearching ? 'No groups found' : 'No groups yet'}
+            description={
+              isSearching
+                ? `No communities found matching "${searchQuery}". Try a different search.`
+                : 'There are no communities available right now. Check back later!'
             }
           />
         ) : (
-          <Grid
-            templateColumns={{
-              base: '1fr',
-              md: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            }}
-            gap={4}
-          >
-            {communities.map((community) => (
-              <GroupCard
-                key={community.did}
-                community={community}
-                onJoined={() => fetchCommunities(searchQuery.trim() || undefined)}
-                apiUrl={apiUrl}
-              />
-            ))}
-          </Grid>
+          <>
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              }}
+              gap={4}
+            >
+              {communities.map(community => (
+                <GroupCard
+                  key={community.did}
+                  community={community}
+                  onJoined={handleJoined}
+                  apiUrl={apiUrl}
+                />
+              ))}
+            </Grid>
+            {!isSearching && cursor && (
+              <Center pt={4}>
+                <Button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  variant="outline"
+                  colorPalette="accent"
+                >
+                  {loadingMore ? 'Loading...' : 'Load more'}
+                </Button>
+              </Center>
+            )}
+          </>
         )}
       </VStack>
     </Container>
