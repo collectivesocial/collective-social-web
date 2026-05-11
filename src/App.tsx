@@ -1,33 +1,33 @@
-import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Box, Flex } from '@chakra-ui/react'
-import { Provider } from './components/ui/provider'
-import { Header } from './components/Header'
-import { Footer } from './components/Footer'
-import { HomePage } from './pages/HomePage'
-import { ProfilePage } from './pages/ProfilePage'
-import { CollectionsPage } from './pages/CollectionsPage'
-import { CollectionDetailsPage } from './pages/CollectionDetailsPage'
-import { GroupsPage } from './pages/GroupsPage'
-import { GroupDetailPage } from './pages/GroupDetailPage'
-import { GroupListDetailPage } from './pages/GroupListDetailPage'
-import { GroupItemDetailPage } from './pages/GroupItemDetailPage'
-import { EventDetailPage } from './pages/EventDetailPage'
-import { GoalsPage } from './pages/GoalsPage'
-import { ItemDetailsPage } from './pages/ItemDetailsPage'
-import { SearchResultsPage } from './pages/SearchResultsPage'
-import { TagSearchPage } from './pages/TagSearchPage'
-import { AdminUsersPage } from './pages/admin/AdminUsersPage'
-import { AdminUserFeedbackPage } from './pages/admin/AdminUserFeedbackPage'
-import { AdminMediaItemsPage } from './pages/admin/AdminMediaItemsPage'
-import { AdminShareLinksPage } from './pages/admin/AdminShareLinksPage'
-import { AdminTagsPage } from './pages/admin/AdminTagsPage'
-import { AdminTagReportsPage } from './pages/admin/AdminTagReportsPage'
-import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage'
-import { FeedbackPage } from './pages/FeedbackPage'
-import { SettingsPage } from './pages/SettingsPage'
-import { ShareRedirectPage } from './pages/ShareRedirectPage'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Box, Flex } from '@chakra-ui/react';
+import { Provider } from './components/ui/provider';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { HomePage } from './pages/HomePage';
+import { ProfilePage } from './pages/ProfilePage';
+import { CollectionsPage } from './pages/CollectionsPage';
+import { CollectionDetailsPage } from './pages/CollectionDetailsPage';
+import { GroupsPage } from './pages/GroupsPage';
+import { GroupDetailPage } from './pages/GroupDetailPage';
+import { GroupListDetailPage } from './pages/GroupListDetailPage';
+import { GroupItemDetailPage } from './pages/GroupItemDetailPage';
+import { EventDetailPage } from './pages/EventDetailPage';
+import { GoalsPage } from './pages/GoalsPage';
+import { ItemDetailsPage } from './pages/ItemDetailsPage';
+import { SearchResultsPage } from './pages/SearchResultsPage';
+import { TagSearchPage } from './pages/TagSearchPage';
+import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminUserFeedbackPage } from './pages/admin/AdminUserFeedbackPage';
+import { AdminMediaItemsPage } from './pages/admin/AdminMediaItemsPage';
+import { AdminShareLinksPage } from './pages/admin/AdminShareLinksPage';
+import { AdminTagsPage } from './pages/admin/AdminTagsPage';
+import { AdminTagReportsPage } from './pages/admin/AdminTagReportsPage';
+import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
+import { FeedbackPage } from './pages/FeedbackPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { ShareRedirectPage } from './pages/ShareRedirectPage';
+import './App.css';
 
 interface UserProfile {
   did: string;
@@ -38,38 +38,38 @@ interface UserProfile {
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-  const [user, setUser] = useState<UserProfile | null>(null)
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3000'
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3000';
 
   useEffect(() => {
     // Check if user is authenticated
     fetch(`${apiUrl}/users/me`, {
       credentials: 'include',
     })
-      .then((res) => {
+      .then(res => {
         if (res.ok) {
-          return res.json()
+          return res.json();
         }
-        throw new Error('Not authenticated')
+        throw new Error('Not authenticated');
       })
-      .then((data) => {
-        setUser(data)
-        setIsAuthenticated(true)
-        
+      .then(data => {
+        setUser(data);
+        setIsAuthenticated(true);
+
         // Check for pending share link after login
-        const pendingShareLink = sessionStorage.getItem('pendingShareLink')
+        const pendingShareLink = sessionStorage.getItem('pendingShareLink');
         if (pendingShareLink) {
-          sessionStorage.removeItem('pendingShareLink')
+          sessionStorage.removeItem('pendingShareLink');
           // Redirect to the share link page
-          window.location.href = `/share/${pendingShareLink}`
+          window.location.href = `/share/${pendingShareLink}`;
         }
       })
       .catch(() => {
-        setUser(null)
-        setIsAuthenticated(false)
-      })
-  }, [])
+        setUser(null);
+        setIsAuthenticated(false);
+      });
+  }, []);
 
   return (
     <Provider>
@@ -79,7 +79,12 @@ function App() {
           <Box
             as="main"
             flex="1"
-            pt={isAuthenticated ? '80px' : '24px'}
+            // Header is `position: fixed`, so main content needs top padding
+            // to clear it. The logged-out header is actually slightly taller
+            // (bigger logo + py={4}), so reserve at least as much space as
+            // the authenticated state — otherwise the top of the page slides
+            // under the header for unauthenticated visitors.
+            pt={isAuthenticated ? '80px' : '96px'}
             pb={8}
             transition="padding-top 0.3s ease"
           >
@@ -87,116 +92,61 @@ function App() {
               <div className="card">Loading...</div>
             ) : (
               <Routes>
-              <Route 
-                path="/" 
-                element={
-                  <HomePage 
-                    isAuthenticated={!!isAuthenticated} 
-                    user={user} 
-                    apiUrl={apiUrl} 
-                  />
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={<ProfilePage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/profile/:handle" 
-                element={<ProfilePage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/collections" 
-                element={<CollectionsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/collections/:collectionUri" 
-                element={<CollectionDetailsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/goals" 
-                element={<GoalsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/groups" 
-                element={<GroupsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/groups/:groupDid" 
-                element={<GroupDetailPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/groups/:groupDid/lists/:listRkey" 
-                element={<GroupListDetailPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/groups/:groupDid/lists/:listRkey/items/:itemRkey" 
-                element={<GroupItemDetailPage apiUrl={apiUrl} />} 
-              />
-              <Route
-                path="/groups/:groupDid/events/:eventRkey"
-                element={<EventDetailPage apiUrl={apiUrl} />}
-              />
-              <Route 
-                path="/search" 
-                element={<SearchResultsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/tags/:tagSlug" 
-                element={<TagSearchPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/items/:itemId" 
-                element={<ItemDetailsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin" 
-                element={<AdminUsersPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/analytics" 
-                element={<AdminAnalyticsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/users" 
-                element={<AdminUsersPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/user-feedback" 
-                element={<AdminUserFeedbackPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/media-items" 
-                element={<AdminMediaItemsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/share-links" 
-                element={<AdminShareLinksPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/tags" 
-                element={<AdminTagsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/tags" 
-                element={<AdminTagsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/admin/tag-reports" 
-                element={<AdminTagReportsPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/feedback" 
-                element={<FeedbackPage apiUrl={apiUrl} />} 
-              />
-              <Route 
-                path="/settings" 
-                element={<SettingsPage apiUrl={apiUrl} user={user} />} 
-              />
-              <Route 
-                path="/share/:shortCode" 
-                element={<ShareRedirectPage apiUrl={apiUrl} />} 
-              />
+                <Route
+                  path="/"
+                  element={
+                    <HomePage isAuthenticated={!!isAuthenticated} user={user} apiUrl={apiUrl} />
+                  }
+                />
+                <Route path="/profile" element={<ProfilePage apiUrl={apiUrl} />} />
+                <Route path="/profile/:handle" element={<ProfilePage apiUrl={apiUrl} />} />
+                <Route path="/collections" element={<CollectionsPage apiUrl={apiUrl} />} />
+                <Route
+                  path="/collections/:collectionUri"
+                  element={<CollectionDetailsPage apiUrl={apiUrl} />}
+                />
+                <Route path="/goals" element={<GoalsPage apiUrl={apiUrl} />} />
+                <Route path="/groups" element={<GroupsPage apiUrl={apiUrl} />} />
+                <Route path="/groups/:groupDid" element={<GroupDetailPage apiUrl={apiUrl} />} />
+                <Route
+                  path="/groups/:groupDid/lists/:listRkey"
+                  element={<GroupListDetailPage apiUrl={apiUrl} />}
+                />
+                <Route
+                  path="/groups/:groupDid/lists/:listRkey/items/:itemRkey"
+                  element={<GroupItemDetailPage apiUrl={apiUrl} />}
+                />
+                <Route
+                  path="/groups/:groupDid/events/:eventRkey"
+                  element={<EventDetailPage apiUrl={apiUrl} />}
+                />
+                <Route path="/search" element={<SearchResultsPage apiUrl={apiUrl} />} />
+                <Route path="/tags/:tagSlug" element={<TagSearchPage apiUrl={apiUrl} />} />
+                <Route path="/items/:itemId" element={<ItemDetailsPage apiUrl={apiUrl} />} />
+                <Route path="/admin" element={<AdminUsersPage apiUrl={apiUrl} />} />
+                <Route path="/admin/analytics" element={<AdminAnalyticsPage apiUrl={apiUrl} />} />
+                <Route path="/admin/users" element={<AdminUsersPage apiUrl={apiUrl} />} />
+                <Route
+                  path="/admin/user-feedback"
+                  element={<AdminUserFeedbackPage apiUrl={apiUrl} />}
+                />
+                <Route
+                  path="/admin/media-items"
+                  element={<AdminMediaItemsPage apiUrl={apiUrl} />}
+                />
+                <Route
+                  path="/admin/share-links"
+                  element={<AdminShareLinksPage apiUrl={apiUrl} />}
+                />
+                <Route path="/admin/tags" element={<AdminTagsPage apiUrl={apiUrl} />} />
+                <Route path="/admin/tags" element={<AdminTagsPage apiUrl={apiUrl} />} />
+                <Route
+                  path="/admin/tag-reports"
+                  element={<AdminTagReportsPage apiUrl={apiUrl} />}
+                />
+                <Route path="/feedback" element={<FeedbackPage apiUrl={apiUrl} />} />
+                <Route path="/settings" element={<SettingsPage apiUrl={apiUrl} user={user} />} />
+                <Route path="/share/:shortCode" element={<ShareRedirectPage apiUrl={apiUrl} />} />
               </Routes>
             )}
           </Box>
@@ -204,7 +154,7 @@ function App() {
         </Flex>
       </BrowserRouter>
     </Provider>
-  )
+  );
 }
 
-export default App
+export default App;
