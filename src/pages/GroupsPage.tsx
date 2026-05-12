@@ -12,12 +12,10 @@ import {
   Badge,
   Spinner,
   Center,
-  HStack,
   Link,
   Input,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar } from '../components/ui/avatar';
 import { EmptyState } from '../components/EmptyState';
 
 interface Community {
@@ -29,7 +27,6 @@ interface Community {
   is_member: boolean;
   display_name: string | null;
   description: string | null;
-  avatar?: string | null;
   type?: string;
 }
 
@@ -85,19 +82,16 @@ function GroupCard({
       _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
       onClick={handleCardClick}
     >
-      <Flex justify="space-between" align="start" mb={2} gap={3}>
-        <HStack gap={3} align="start" minW={0} flex="1">
-          <Avatar src={community.avatar || undefined} name={displayName} size="md" flexShrink={0} />
-          <Box minW={0}>
-            <Heading size="sm" mb={1} fontFamily="heading" lineClamp={1}>
-              {displayName}
-            </Heading>
-            <Text fontSize="xs" color="fg.muted" lineClamp={1}>
-              @{community.handle}
-            </Text>
-          </Box>
-        </HStack>
-        <Flex gap={1} flexShrink={0}>
+      <Flex justify="space-between" align="start" mb={2}>
+        <Box>
+          <Heading size="sm" mb={1} fontFamily="heading">
+            {displayName}
+          </Heading>
+          <Text fontSize="xs" color="fg.muted">
+            @{community.handle}
+          </Text>
+        </Box>
+        <Flex gap={1}>
           {community.is_member && (
             <Badge colorPalette="green" size="sm">
               Member
@@ -121,7 +115,11 @@ function GroupCard({
         Created {formatRelativeTime(community.created_at) || 'recently'}
       </Text>
 
-      {community.is_member ? null : community.type === 'open' || !community.type ? (
+      {community.is_member ? (
+        <Badge colorPalette="green" size="sm" width="full" textAlign="center" py={1}>
+          ✓ Member
+        </Badge>
+      ) : community.type === 'open' || !community.type ? (
         <Button
           size="sm"
           colorPalette="accent"
@@ -253,11 +251,6 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
 
   const trimmedQuery = searchQuery.trim();
   const isSearching = trimmedQuery.length >= 3;
-  // Hide groups the user is already in from the discover list — they're
-  // shown above in the "My Groups" section, so listing them twice is just
-  // noise. When searching we still show everything so the search reflects
-  // real results.
-  const discoverCommunities = isSearching ? communities : communities.filter(c => !c.is_member);
   const handleLoadMore = () => {
     if (!cursor || loadingMore) return;
     fetchCommunities({ cursor, append: true });
@@ -375,16 +368,14 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
           <Center py={12}>
             <Spinner size="xl" />
           </Center>
-        ) : discoverCommunities.length === 0 ? (
+        ) : communities.length === 0 ? (
           <EmptyState
             icon="🏘️"
             title={isSearching ? 'No groups found' : 'No groups yet'}
             description={
               isSearching
                 ? `No communities found matching "${searchQuery}". Try a different search.`
-                : myGroups.length > 0
-                  ? 'You\u2019re already a member of every group on this page. Load more to discover others, or try a search above.'
-                  : 'There are no communities available right now. Check back later!'
+                : 'There are no communities available right now. Check back later!'
             }
           />
         ) : (
@@ -397,7 +388,7 @@ export function GroupsPage({ apiUrl }: GroupsPageProps) {
               }}
               gap={4}
             >
-              {discoverCommunities.map(community => (
+              {communities.map(community => (
                 <GroupCard
                   key={community.did}
                   community={community}

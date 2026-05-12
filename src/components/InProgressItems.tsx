@@ -78,15 +78,33 @@ export function InProgressItems({ apiUrl, limit = 3 }: InProgressItemsProps) {
       .then(res => (res.ok ? res.json() : { useritems: [] }))
       .then(data => {
         if (cancelled) return;
-        const inProgress = ((data.useritems as UserItem[]) || [])
-          .filter(u => u.status === 'in-progress')
+        // The PDS can hold more than one useritem record for the same media
+        // (e.g. a quick-add from a group context creating a duplicate of an
+        // older record). Dedupe by mediaItemId — falling back to title for
+        // user-created items without a media-items row — and keep the most
+        // recently updated copy so the nudge surfaces the freshest state.
+        const inProgress = ((data.useritems as UserItem[]) || []).filter(
+          u => u.status === 'in-progress'
+        );
+        const byKey = new Map<string, UserItem>();
+        for (const item of inProgress) {
+          const key = item.mediaItemId
+            ? `media:${item.mediaItemId}`
+            : `title:${(item.title || '').trim().toLowerCase()}`;
+          const existing = byKey.get(key);
+          const ts = (i: UserItem) => new Date(i.updatedAt || i.createdAt).getTime();
+          if (!existing || ts(item) > ts(existing)) {
+            byKey.set(key, item);
+          }
+        }
+        const deduped = Array.from(byKey.values())
           .sort((a, b) => {
             const ta = new Date(a.updatedAt || a.createdAt).getTime();
             const tb = new Date(b.updatedAt || b.createdAt).getTime();
             return tb - ta;
           })
           .slice(0, limit);
-        setItems(inProgress);
+        setItems(deduped);
       })
       .catch(err => {
         console.warn('Failed to fetch in-progress items:', err);
